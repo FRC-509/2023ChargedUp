@@ -1,4 +1,5 @@
 # 2023ChargedUp
+*chawged uwp*
 
 ## Resources
  - [FRC Technical Resources](https://www.firstinspires.org/resource-library/frc/technical-resources)
@@ -8,3 +9,4 @@
  - [FRC git Introduction](https://docs.wpilib.org/en/stable/docs/software/basic-programming/git-getting-started.html)
  - [Software Component Overview](https://docs.wpilib.org/en/stable/docs/controls-overviews/control-system-software.html)
  - [Learn Java Free Course - codecademy](https://www.codecademy.com/learn/learn-java)
+ - [April Tags Repository - Also has rudimentary documentation on the Wiki page](https://github.com/AprilRobotics/apriltag)
