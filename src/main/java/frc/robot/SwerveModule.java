@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,7 +23,6 @@ public class SwerveModule {
   private CANCoder angleEncoder;
 
   // module variables
-  private double targetAngle;
   private Rotation2d lastAngle;
 
   // Construct a new Swerve Module using a preset Configuration
@@ -58,14 +58,7 @@ public class SwerveModule {
     this.driveMotor.config_kD(0, Constants.driveKD);
     this.driveMotor.config_kF(0, Constants.driveKF);
 
-    // this.controller = new PIDController(configs.kP, configs.kI, configs.kD);
-    // this.kNorm = configs.kNorm;
-
-    // this.inverted = false;
-
-    targetAngle = 0;
-    // lastAngle = getState().angle;
-    lastAngle = Rotation2d.fromDegrees(targetAngle);
+    lastAngle = Rotation2d.fromDegrees(0);
   }
 
   public void resetAngleToAbsolute() {
@@ -102,20 +95,47 @@ public class SwerveModule {
         getCanCoder());
   }
 
-  public void setDesiredState(SwerveModuleState desiredState) {
-    /*
-     * This is a custom optimize function, since default WPILib optimize assumes
-     * continuous controller which CTRE and Rev onboard is not
-     */
-    // desiredState = CTREModuleState.optimize(desiredState, getState().angle);
-    desiredState = SwerveModuleState.optimize(desiredState, getState().angle);
-    Rotation2d angle = (Math.abs(desiredState.speedMetersPerSecond) <= (Constants.maxSpeed * 0.01)) ? lastAngle
-        : desiredState.angle; // Prevent rotating module if speed is less then 1%. Prevents Jittering.
+  public double getDegrees() {
+    double ticks = angleMotor.getSelectedSensorPosition();
+    return Utils.falconToDegrees(ticks, Constants.angleGearRatio);
+  }
 
-    double falconUnits = Utils.degreesToFalcon(angle.getDegrees(), Constants.angleGearRatio);
-    angleMotor.set(ControlMode.Position, falconUnits);
-    // driveMotor.set(ControlMode.Position,
-    lastAngle = angle;
+  public void setDesiredState(SwerveModuleState desiredState) {
+    // deadband positional delta
+    Rotation2d angle = (Math.abs(desiredState.speedMetersPerSecond) <= (Constants.maxSpeed * 0.01)) ? lastAngle
+        : desiredState.angle;
+
+    debug();
+
+    double targetAngle = desiredState.angle.getDegrees();
+
+    if (targetAngle < 0) {
+      targetAngle = -targetAngle;
+    } else {
+      targetAngle = 360 - targetAngle;
+    }
+
+    double delta = targetAngle - (getDegrees() % 360);
+
+    if (delta > 180) {
+      delta -= 360;
+    } else if (delta < -180) {
+      delta += 360;
+    }
+
+    if (delta > 90) {
+      delta -= 180;
+    } else if (delta < -90) {
+      delta += 180;
+    }
+
+    double optimalTargetAngle = getDegrees() + delta;
+    double falconTarget = Utils.degreesToFalcon(optimalTargetAngle, Constants.angleGearRatio);
+
+    SmartDashboard.putNumber(moduleNumber + " delta", delta);
+
+    lastAngle = Rotation2d.fromDegrees(getDegrees());
+    angleMotor.set(ControlMode.Position, falconTarget);
 
     double percentOutput = desiredState.speedMetersPerSecond / Constants.maxSpeed;
     driveMotor.set(ControlMode.PercentOutput, percentOutput);

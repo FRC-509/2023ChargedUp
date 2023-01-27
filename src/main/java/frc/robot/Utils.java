@@ -108,4 +108,12 @@ public final class Utils {
     SmartDashboard.setDefaultBoolean(key, val);
     return SmartDashboard.getBoolean(key, false);
   }
+
+  public static double angleToNewScope(double deg, double min, double max, double newMin, double newMax) {
+    if (deg < max + min) {
+      return newMin - deg;
+    } else {
+      return newMax - deg;
+    }
+  }
 }
