@@ -95,7 +95,7 @@ public final class Utils {
    * @param gearRatio     Gear Ratio between Falcon and Wheel
    * @return Falcon Position Counts
    */
-  public static double MetersToFalcon(double meters, double circumference, double gearRatio) {
+  public static double metersToFalcon(double meters, double circumference, double gearRatio) {
     return meters / (circumference / (gearRatio * 2048.0));
   }
 
