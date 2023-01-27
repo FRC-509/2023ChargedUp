@@ -101,43 +101,39 @@ public class SwerveModule {
   }
 
   public void setDesiredState(SwerveModuleState desiredState) {
-    // deadband positional delta
-    Rotation2d angle = (Math.abs(desiredState.speedMetersPerSecond) <= (Constants.maxSpeed * 0.01)) ? lastAngle
-        : desiredState.angle;
-
-    debug();
-
+    // target angle [-180, 180]
     double targetAngle = desiredState.angle.getDegrees();
+    double delta = (targetAngle - getDegrees()) % 360;
+    double invertSpeed = 1;
 
-    if (targetAngle < 0) {
-      targetAngle = -targetAngle;
-    } else {
-      targetAngle = 360 - targetAngle;
-    }
-
-    double delta = targetAngle - (getDegrees() % 360);
-
+    // limit to [-180, 180] rotation
     if (delta > 180) {
       delta -= 360;
     } else if (delta < -180) {
       delta += 360;
     }
 
+    // limit to [-90, 90] rotation
     if (delta > 90) {
       delta -= 180;
+      invertSpeed = -1;
     } else if (delta < -90) {
       delta += 180;
+      invertSpeed = -1;
     }
 
     double optimalTargetAngle = getDegrees() + delta;
     double falconTarget = Utils.degreesToFalcon(optimalTargetAngle, Constants.angleGearRatio);
 
-    SmartDashboard.putNumber(moduleNumber + " delta", delta);
-
-    lastAngle = Rotation2d.fromDegrees(getDegrees());
     angleMotor.set(ControlMode.Position, falconTarget);
 
-    double percentOutput = desiredState.speedMetersPerSecond / Constants.maxSpeed;
-    driveMotor.set(ControlMode.PercentOutput, percentOutput);
+    double out = Math.abs(desiredState.speedMetersPerSecond) / Constants.maxSpeed;
+
+    SmartDashboard.putNumber(moduleNumber + "delta", delta);
+    SmartDashboard.putNumber(moduleNumber + "optimal", optimalTargetAngle);
+    SmartDashboard.putNumber(moduleNumber + "actual", desiredState.angle.getDegrees());
+    SmartDashboard.putNumber(moduleNumber + "deg", getDegrees());
+
+    driveMotor.set(ControlMode.PercentOutput, invertSpeed * out);
   }
 }

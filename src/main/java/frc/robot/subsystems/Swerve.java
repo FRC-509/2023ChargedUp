@@ -43,7 +43,7 @@ public class Swerve extends SubsystemBase {
 
   public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
     SwerveModuleState[] swerveModuleStates = Constants.swerveKinematics.toSwerveModuleStates(
-        fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
+        false ? ChassisSpeeds.fromFieldRelativeSpeeds(
             translation.getX(),
             translation.getY(),
             rotation,
