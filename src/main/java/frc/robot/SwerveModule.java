@@ -23,7 +23,7 @@ public class SwerveModule {
   private CANCoder angleEncoder;
 
   // module variables
-  private Rotation2d lastAngle;
+  private double lastAngle;
 
   // Construct a new Swerve Module using a preset Configuration
   public SwerveModule(Constants.SwerveModuleConfigurations configs) {
@@ -58,7 +58,7 @@ public class SwerveModule {
     this.driveMotor.config_kD(0, Constants.driveKD);
     this.driveMotor.config_kF(0, Constants.driveKF);
 
-    lastAngle = Rotation2d.fromDegrees(0);
+    lastAngle = 0.0d;
   }
 
   public void resetAngleToAbsolute() {
@@ -123,17 +123,16 @@ public class SwerveModule {
     }
 
     double optimalTargetAngle = getDegrees() + delta;
+    if (Math.abs(optimalTargetAngle - lastAngle) < Constants.maxAngularVelocity * 0.01) {
+      optimalTargetAngle = lastAngle;
+    }
+
+    lastAngle = optimalTargetAngle;
     double falconTarget = Utils.degreesToFalcon(optimalTargetAngle, Constants.angleGearRatio);
 
     angleMotor.set(ControlMode.Position, falconTarget);
 
     double out = Math.abs(desiredState.speedMetersPerSecond) / Constants.maxSpeed;
-
-    SmartDashboard.putNumber(moduleNumber + "delta", delta);
-    SmartDashboard.putNumber(moduleNumber + "optimal", optimalTargetAngle);
-    SmartDashboard.putNumber(moduleNumber + "actual", desiredState.angle.getDegrees());
-    SmartDashboard.putNumber(moduleNumber + "deg", getDegrees());
-
     driveMotor.set(ControlMode.PercentOutput, invertSpeed * out);
   }
 }

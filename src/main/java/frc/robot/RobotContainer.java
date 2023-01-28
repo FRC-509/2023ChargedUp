@@ -5,6 +5,7 @@ import frc.robot.subsystems.Swerve;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
@@ -24,7 +25,7 @@ public class RobotContainer {
 
   private final GenericHID genericHid = new GenericHID(2);
   private JoystickButton rightTrigger = new JoystickButton(rightStick, 1);
-  // private JoystickButton leftStickButtonTwo = new JoystickButton(leftStick, 2);
+  JoystickButton leftStickButtonTwo = new JoystickButton(leftStick, 2);
 
   public RobotContainer() {
     // Configure the trigger bindings
@@ -34,6 +35,11 @@ public class RobotContainer {
         () -> leftStick.getX(),
         () -> rightStick.getX(),
         () -> leftStick.getRawButton(2)));
+
+    leftStickButtonTwo
+        .whileTrue(
+            new InstantCommand(() -> swerveSubsystem.zeroGyro(),
+                swerveSubsystem));
   }
 
   public void initializeDriveTrain() {

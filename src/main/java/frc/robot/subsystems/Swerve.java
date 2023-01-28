@@ -43,7 +43,7 @@ public class Swerve extends SubsystemBase {
 
   public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
     SwerveModuleState[] swerveModuleStates = Constants.swerveKinematics.toSwerveModuleStates(
-        false ? ChassisSpeeds.fromFieldRelativeSpeeds(
+        true ? ChassisSpeeds.fromFieldRelativeSpeeds(
             translation.getX(),
             translation.getY(),
             rotation,
@@ -96,7 +96,7 @@ public class Swerve extends SubsystemBase {
     return positions;
   }
 
-  private void zeroGyro() {
+  public void zeroGyro() {
     gyro.setYaw(0);
   }
 
