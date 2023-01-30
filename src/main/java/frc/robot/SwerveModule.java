@@ -1,12 +1,13 @@
 package frc.robot;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
@@ -24,6 +25,10 @@ public class SwerveModule {
 
   // module variables
   private double lastAngle;
+
+  // feed forward
+  private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(Constants.driveKS, Constants.driveKV,
+      Constants.driveKA);
 
   // Construct a new Swerve Module using a preset Configuration
   public SwerveModule(Constants.SwerveModuleConfigurations configs) {
@@ -78,6 +83,10 @@ public class SwerveModule {
   }
 
   public SwerveModulePosition getPosition() {
+    SmartDashboard.putNumber("Driven" + moduleNumber, Utils.falconToMeters(
+        driveMotor.getSelectedSensorPosition(),
+        Constants.wheelCircumference,
+        Constants.driveGearRatio));
     return new SwerveModulePosition(
         Utils.falconToMeters(
             driveMotor.getSelectedSensorPosition(),
@@ -121,18 +130,24 @@ public class SwerveModule {
       delta += 180;
       invertSpeed = -1;
     }
-
+    // calculate final target angle and set motor position to it
     double optimalTargetAngle = getDegrees() + delta;
     if (Math.abs(optimalTargetAngle - lastAngle) < Constants.maxAngularVelocity * 0.01) {
       optimalTargetAngle = lastAngle;
     }
-
     lastAngle = optimalTargetAngle;
-    double falconTarget = Utils.degreesToFalcon(optimalTargetAngle, Constants.angleGearRatio);
 
+    double falconTarget = Utils.degreesToFalcon(optimalTargetAngle, Constants.angleGearRatio);
     angleMotor.set(ControlMode.Position, falconTarget);
 
-    double out = Math.abs(desiredState.speedMetersPerSecond) / Constants.maxSpeed;
-    driveMotor.set(ControlMode.PercentOutput, invertSpeed * out);
+    if (Constants.closedLoopDriveVelocity) {
+      double velocity = Utils.MPSToFalcon(desiredState.speedMetersPerSecond, Constants.wheelCircumference,
+          Constants.driveGearRatio);
+      driveMotor.set(ControlMode.Velocity, velocity, DemandType.ArbitraryFeedForward,
+          feedforward.calculate(desiredState.speedMetersPerSecond));
+    } else {
+      double out = Math.abs(desiredState.speedMetersPerSecond) / Constants.maxSpeed;
+      driveMotor.set(ControlMode.PercentOutput, invertSpeed * out);
+    }
   }
 }

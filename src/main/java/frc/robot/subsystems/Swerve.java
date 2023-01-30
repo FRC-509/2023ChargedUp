@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.Pigeon2;
@@ -43,7 +39,7 @@ public class Swerve extends SubsystemBase {
 
   public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
     SwerveModuleState[] swerveModuleStates = Constants.swerveKinematics.toSwerveModuleStates(
-        true ? ChassisSpeeds.fromFieldRelativeSpeeds(
+        fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
             translation.getX(),
             translation.getY(),
             rotation,
@@ -52,8 +48,6 @@ public class Swerve extends SubsystemBase {
                 translation.getX(),
                 translation.getY(),
                 rotation));
-
-    SmartDashboard.putNumber("angle ", swerveModuleStates[0].angle.getDegrees());
 
     // normalize wheel speeds
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.maxSpeed);
@@ -77,6 +71,7 @@ public class Swerve extends SubsystemBase {
   }
 
   public void resetOdometry(Pose2d pose) {
+    System.out.println("[Swerve::resetOdometry] Passed pose: " + pose.getX() + ", " + pose.getY());
     swerveOdometry.resetPosition(getYaw(), getModulePositions(), pose);
   }
 

@@ -21,14 +21,16 @@ public final class Constants {
   public static final double stickDeadband = 0.1;
 
   public static final double wheelCircumference = Units.inchesToMeters(4.0) * Math.PI;
-
   public static final double driveGearRatio = 6.75;
-
   public static final double angleGearRatio = 12.8;
-
-  public static final double maxSpeed = 4;
-
+  public static final double maxSpeed = 4.0;
   public static final double maxAngularVelocity = 10.0;
+
+  public static final boolean closedLoopDriveVelocity = false;
+
+  public static final double driveKS = 0;
+  public static final double driveKV = 0;
+  public static final double driveKA = 0;
 
   public static final double driveKP = 0.05;
   public static final double driveKI = 0.0;
@@ -118,4 +120,5 @@ public final class Constants {
       0.001d,
       0.0,
       12);
+
 }

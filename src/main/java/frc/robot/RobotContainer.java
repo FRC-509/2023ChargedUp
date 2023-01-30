@@ -2,8 +2,12 @@ package frc.robot;
 
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.Swerve;
+
+import com.pathplanner.lib.server.PathPlannerServer;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -36,17 +40,19 @@ public class RobotContainer {
         () -> rightStick.getX(),
         () -> leftStick.getRawButton(2)));
 
-    leftStickButtonTwo
-        .whileTrue(
-            new InstantCommand(() -> swerveSubsystem.zeroGyro(),
-                swerveSubsystem));
+    leftStickButtonTwo.whileTrue(
+        new InstantCommand(() -> swerveSubsystem.zeroGyro(),
+            swerveSubsystem));
+
+    SmartDashboard.putString("swerve pos", swerveSubsystem.getPose().getTranslation().toString());
   }
 
   public void initializeDriveTrain() {
     swerveSubsystem.resetIntegratedToAbsolute();
+    PathPlannerServer.startServer(5811);
   }
 
   public Command getAutonomousCommand() {
-    return null;
+    return new TrajectoryBuilderWrapper("New New Path").getPathFollowingCommand(swerveSubsystem);
   }
 }
