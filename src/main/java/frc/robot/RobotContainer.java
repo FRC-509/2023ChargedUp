@@ -43,8 +43,6 @@ public class RobotContainer {
     leftStickButtonTwo.whileTrue(
         new InstantCommand(() -> swerveSubsystem.zeroGyro(),
             swerveSubsystem));
-
-    SmartDashboard.putString("swerve pos", swerveSubsystem.getPose().getTranslation().toString());
   }
 
   public void initializeDriveTrain() {

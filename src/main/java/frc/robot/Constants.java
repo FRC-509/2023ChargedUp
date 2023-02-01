@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.ctre.phoenixpro.sim.ChassisReference;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
@@ -37,14 +39,17 @@ public final class Constants {
   public static final double driveKD = 0.0;
   public static final double driveKF = 0.0;
 
-  public static final double trackWidth = 0.53; // TODO: This must be tuned to specific robot
+  public static final double chasisLength = Units.inchesToMeters(28);
+  public static final double chasisWidth = Units.inchesToMeters(28);
+  public static final double offsetToSwerveModule = chasisLength / 2 - Units.inchesToMeters(3.25);
+
   public static final double wheelBase = 0.53; // TODO: This must be tuned to specific robot
 
   public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
-      new Translation2d(wheelBase / 2.0, trackWidth / 2.0),
-      new Translation2d(wheelBase / 2.0, -trackWidth / 2.0),
-      new Translation2d(-wheelBase / 2.0, trackWidth / 2.0),
-      new Translation2d(-wheelBase / 2.0, -trackWidth / 2.0));
+      new Translation2d(+offsetToSwerveModule, +offsetToSwerveModule),
+      new Translation2d(+offsetToSwerveModule, -offsetToSwerveModule),
+      new Translation2d(-offsetToSwerveModule, +offsetToSwerveModule),
+      new Translation2d(-offsetToSwerveModule, -offsetToSwerveModule));
 
   public static final class SwerveModuleConfigurations {
     public int moduleNumber;

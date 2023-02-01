@@ -3,7 +3,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Utils {
-
   /*
    * public static double CANcoderToDegrees(double positionCounts, double
    * gearRatio) {
@@ -107,13 +106,5 @@ public final class Utils {
   public static boolean serializeBoolean(String key, boolean val) {
     SmartDashboard.setDefaultBoolean(key, val);
     return SmartDashboard.getBoolean(key, false);
-  }
-
-  public static double angleToNewScope(double deg, double min, double max, double newMin, double newMax) {
-    if (deg < max + min) {
-      return newMin - deg;
-    } else {
-      return newMax - deg;
-    }
   }
 }

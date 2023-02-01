@@ -83,10 +83,6 @@ public class SwerveModule {
   }
 
   public SwerveModulePosition getPosition() {
-    SmartDashboard.putNumber("Driven" + moduleNumber, Utils.falconToMeters(
-        driveMotor.getSelectedSensorPosition(),
-        Constants.wheelCircumference,
-        Constants.driveGearRatio));
     return new SwerveModulePosition(
         Utils.falconToMeters(
             driveMotor.getSelectedSensorPosition(),
