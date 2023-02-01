@@ -1,6 +1,7 @@
 package frc.robot;
 
 import com.ctre.phoenixpro.sim.ChassisReference;
+import com.pathplanner.lib.auto.PIDConstants;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -25,19 +26,14 @@ public final class Constants {
   public static final double wheelCircumference = Units.inchesToMeters(4.0) * Math.PI;
   public static final double driveGearRatio = 6.75;
   public static final double angleGearRatio = 12.8;
-  public static final double maxSpeed = 4.0;
+  public static final double maxSpeed = 4.96824;
   public static final double maxAngularVelocity = 10.0;
 
-  public static final boolean closedLoopDriveVelocity = false;
+  public static final boolean closedLoopDriveVelocity = true;
 
-  public static final double driveKS = 0;
-  public static final double driveKV = 0;
-  public static final double driveKA = 0;
-
-  public static final double driveKP = 0.05;
-  public static final double driveKI = 0.0;
-  public static final double driveKD = 0.0;
-  public static final double driveKF = 0.0;
+  public static final double driveKS = 0.017371;
+  public static final double driveKV = 2.3131;
+  public static final double driveKA = 0.10452;
 
   public static final double chasisLength = Units.inchesToMeters(28);
   public static final double chasisWidth = Units.inchesToMeters(28);
@@ -57,24 +53,18 @@ public final class Constants {
     public int angleMotorId;
     public int driveMotorId;
     public double angleEncoderOffset;
-    public double kP;
-    public double kI;
-    public double kD;
-    public double kF;
-    public double kNorm;
+    public Utils.PIDConstants steerPID;
+    public Utils.PIDConstants drivePID;
 
     public SwerveModuleConfigurations(int moduleNumber, int angleEncoderId, int angleMotorId, int driveMotorId,
-        double angleEncoderOffset, double kP, double kI, double kD, double kF, double kNorm) {
+        double angleEncoderOffset, Utils.PIDConstants steerPID, Utils.PIDConstants drivePID) {
       this.moduleNumber = moduleNumber;
       this.angleEncoderId = angleEncoderId;
       this.angleMotorId = angleMotorId;
       this.driveMotorId = driveMotorId;
       this.angleEncoderOffset = angleEncoderOffset;
-      this.kP = kP;
-      this.kI = kI;
-      this.kD = kD;
-      this.kF = kF;
-      this.kNorm = kNorm;
+      this.steerPID = steerPID;
+      this.drivePID = drivePID;
     }
   }
 
@@ -84,11 +74,8 @@ public final class Constants {
       5,
       4,
       140.28d,
-      0.150d,
-      0.092d,
-      0.001d,
-      0.0,
-      12);
+      new Utils.PIDConstants(0.2, 0, 0, 0),
+      new Utils.PIDConstants(0.054534, 0, 0, 0));
 
   public static final SwerveModuleConfigurations s_frontRight = new SwerveModuleConfigurations(
       1,
@@ -96,11 +83,8 @@ public final class Constants {
       1,
       0,
       157.40d,
-      0.150d,
-      0.092d,
-      0.001d,
-      0.0,
-      12);
+      new Utils.PIDConstants(0.2, 0, 0, 0),
+      new Utils.PIDConstants(0.054534, 0, 0, 0));
 
   public static final SwerveModuleConfigurations s_backLeft = new SwerveModuleConfigurations(
       2,
@@ -108,11 +92,8 @@ public final class Constants {
       3,
       6,
       154.42d,
-      0.150d,
-      0.092d,
-      0.001d,
-      0.0,
-      12);
+      new Utils.PIDConstants(0.2, 0, 0, 0),
+      new Utils.PIDConstants(0.054534, 0, 0, 0));
 
   public static final SwerveModuleConfigurations s_backRight = new SwerveModuleConfigurations(
       3,
@@ -120,10 +101,7 @@ public final class Constants {
       7,
       2,
       104.42d,
-      0.15d,
-      0.092d,
-      0.001d,
-      0.0,
-      12);
+      new Utils.PIDConstants(0.2, 0, 0, 0),
+      new Utils.PIDConstants(0.054534, 0, 0, 0));
 
 }

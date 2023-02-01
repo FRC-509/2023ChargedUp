@@ -107,4 +107,18 @@ public final class Utils {
     SmartDashboard.setDefaultBoolean(key, val);
     return SmartDashboard.getBoolean(key, false);
   }
+
+  public static final class PIDConstants {
+    public final double kP;
+    public final double kI;
+    public final double kD;
+    public final double kF;
+
+    public PIDConstants(double kP, double kI, double kD, double kF) {
+      this.kP = kP;
+      this.kI = kI;
+      this.kD = kD;
+      this.kF = kF;
+    }
+  }
 }

@@ -48,20 +48,20 @@ public class SwerveModule {
     // Angle Motor Config
     this.angleMotor = new TalonFX(configs.angleMotorId);
     this.angleMotor.setNeutralMode(NeutralMode.Coast);
-    this.angleMotor.config_kP(0, 0.2);
-    this.angleMotor.config_kI(0, 0);
-    this.angleMotor.config_kD(0, 0);
-    this.angleMotor.config_kF(0, 0);
+    this.angleMotor.config_kP(0, configs.steerPID.kP);
+    this.angleMotor.config_kI(0, configs.steerPID.kI);
+    this.angleMotor.config_kD(0, configs.steerPID.kD);
+    this.angleMotor.config_kF(0, configs.steerPID.kF);
 
     // Drive Motor Config
     this.driveMotor = new TalonFX(configs.driveMotorId);
     this.driveMotor.setNeutralMode(NeutralMode.Brake);
     this.driveMotor.setSelectedSensorPosition(0);
 
-    this.driveMotor.config_kP(0, Constants.driveKP);
-    this.driveMotor.config_kI(0, Constants.driveKI);
-    this.driveMotor.config_kD(0, Constants.driveKD);
-    this.driveMotor.config_kF(0, Constants.driveKF);
+    this.driveMotor.config_kP(0, configs.drivePID.kP);
+    this.driveMotor.config_kI(0, configs.drivePID.kI);
+    this.driveMotor.config_kD(0, configs.drivePID.kD);
+    this.driveMotor.config_kF(0, configs.drivePID.kF);
 
     lastAngle = 0.0d;
   }
@@ -76,6 +76,14 @@ public class SwerveModule {
     SmartDashboard.putNumber(moduleNumber + " CANCoder", angleEncoder.getAbsolutePosition());
     SmartDashboard.putNumber(moduleNumber + " Integrated",
         Utils.falconToDegrees(angleMotor.getSelectedSensorPosition(), Constants.angleGearRatio));
+
+    // if (true /* if tune PID */) {
+    // driveMotor.config_kP(0, Utils.serializeNumber(moduleNumber + " driveP", 0));
+    // driveMotor.config_kI(0, Utils.serializeNumber(moduleNumber + " driveI", 0));
+    // driveMotor.config_kD(0, Utils.serializeNumber(moduleNumber + " driveD", 0));
+    // driveMotor.config_kF(0, Utils.serializeNumber(moduleNumber + " driveF", 0));
+    // }
+
   }
 
   public Rotation2d getCanCoder() {
@@ -137,10 +145,11 @@ public class SwerveModule {
     angleMotor.set(ControlMode.Position, falconTarget);
 
     if (Constants.closedLoopDriveVelocity) {
-      double velocity = Utils.MPSToFalcon(desiredState.speedMetersPerSecond, Constants.wheelCircumference,
+      double velocity = Utils.MPSToFalcon(Math.abs(desiredState.speedMetersPerSecond) * invertSpeed,
+          Constants.wheelCircumference,
           Constants.driveGearRatio);
       driveMotor.set(ControlMode.Velocity, velocity, DemandType.ArbitraryFeedForward,
-          feedforward.calculate(desiredState.speedMetersPerSecond));
+          feedforward.calculate(Math.abs(desiredState.speedMetersPerSecond) * invertSpeed));
     } else {
       double out = Math.abs(desiredState.speedMetersPerSecond) / Constants.maxSpeed;
       driveMotor.set(ControlMode.PercentOutput, invertSpeed * out);
