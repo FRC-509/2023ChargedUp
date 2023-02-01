@@ -1,46 +1,43 @@
-// package frc.robot.subsystems;
+/*
+package frc.robot.subsystems;
 
-// import com.revrobotics.CANSparkMax;
-// import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-// import edu.wpi.first.wpilibj.DoubleSolenoid;
-// import edu.wpi.first.wpilibj.PneumaticsModuleType;
-// import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-// public class Intake extends SubsystemBase {
-// private DoubleSolenoid solenoid;
-// private CANSparkMax masterMotor;
-// private CANSparkMax slaveMotor;
+public class Intake extends SubsystemBase {
+  private DoubleSolenoid solenoid;
+  private CANSparkMax masterMotor;
+  private CANSparkMax slaveMotor;
 
-// public Intake() {
-// masterMotor = new CANSparkMax(0, MotorType.kBrushed);
-// slaveMotor = new CANSparkMax(1, MotorType.kBrushed);
-// slaveMotor.follow(masterMotor);
-// solenoid = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 0, 0);
-// }
+  public Intake() {
+    masterMotor = new CANSparkMax(0, MotorType.kBrushed);
+    slaveMotor = new CANSparkMax(1, MotorType.kBrushed);
+    slaveMotor.follow(masterMotor);
+    solenoid = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 0, 0);
+  }
 
-// public void intakeSpin(double v) {
-// if (solenoid.get() != DoubleSolenoid.Value.kForward) {
-// solenoid.set(DoubleSolenoid.Value.kForward);
-// }
-// masterMotor.set(v);
-// }
+  public void drop() {
+    if (solenoid.get() != DoubleSolenoid.Value.kForward) {
+      solenoid.set(DoubleSolenoid.Value.kForward);
+    }
+  }
 
-// public void intakeSpit(double v) {
-// if (solenoid.get() != DoubleSolenoid.Value.kForward) {
-// solenoid.set(DoubleSolenoid.Value.kForward);
-// }
-// masterMotor.set(-v);
-// }
+  public void retract() {
+    if (solenoid.get() != DoubleSolenoid.Value.kReverse) {
+      solenoid.set(DoubleSolenoid.Value.kReverse);
+    }
+  }
 
-// public void intakeUp() {
-// if (solenoid.get() != DoubleSolenoid.Value.kReverse) {
-// solenoid.set(DoubleSolenoid.Value.kReverse);
-// }
-// masterMotor.set(0);
-// }
+  public void spin(double v) {
+    masterMotor.set(v);
+  }
 
-// @Override
-// public void periodic() {
-// }
-// }
+  @Override
+  public void periodic() {
+  }
+}
+*/
