@@ -51,6 +51,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new TrajectoryBuilderWrapper("New New Path").getPathFollowingCommand(swerveSubsystem);
+    return new TrajectoryBuilderWrapper("New Path").getPathFollowingCommand(swerveSubsystem);
   }
 }

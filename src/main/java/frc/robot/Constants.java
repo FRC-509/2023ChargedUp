@@ -29,7 +29,7 @@ public final class Constants {
   public static final double maxSpeed = 4.96824;
   public static final double maxAngularVelocity = 10.0;
 
-  public static final boolean closedLoopDriveVelocity = true;
+  public static final boolean closedLoopDriveVelocity = false;
 
   public static final double driveKS = 0.017371;
   public static final double driveKV = 2.3131;
@@ -38,8 +38,6 @@ public final class Constants {
   public static final double chasisLength = Units.inchesToMeters(28);
   public static final double chasisWidth = Units.inchesToMeters(28);
   public static final double offsetToSwerveModule = chasisLength / 2 - Units.inchesToMeters(3.25);
-
-  public static final double wheelBase = 0.53; // TODO: This must be tuned to specific robot
 
   public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
       new Translation2d(+offsetToSwerveModule, +offsetToSwerveModule),
