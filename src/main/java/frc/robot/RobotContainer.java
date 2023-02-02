@@ -24,12 +24,13 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 public class RobotContainer {
 
   public final Swerve swerveSubsystem = new Swerve();
-  public static final Joystick leftStick = new Joystick(1);
-  public static final Joystick rightStick = new Joystick(0);
+  public final Joystick leftStick = new Joystick(1);
+  public final Joystick rightStick = new Joystick(0);
 
-  private final GenericHID genericHid = new GenericHID(2);
-  private JoystickButton rightTrigger = new JoystickButton(rightStick, 1);
-  private JoystickButton leftStickButtonTwo = new JoystickButton(leftStick, 2);
+  public final GenericHID operatorController = new GenericHID(2);
+  private final JoystickButton leftTrigger = new JoystickButton(leftStick, 1);
+  private final JoystickButton rightTrigger = new JoystickButton(rightStick, 1);
+  private final JoystickButton leftStickButtonTwo = new JoystickButton(leftStick, 2);
 
   public RobotContainer() {
     // Configure the trigger bindings
@@ -43,6 +44,12 @@ public class RobotContainer {
     leftStickButtonTwo.whileTrue(
         new InstantCommand(() -> swerveSubsystem.zeroGyro(),
             swerveSubsystem));
+    /*
+     * // The slider on the right stick controls the intake motor speed. Intake with
+     * the right stick's trigger, outtake with the left stick's trigger.
+     * rightTrigger.whileTrue(new IntakeCommand(() -> rightStick.getThrottle()));
+     * leftTrigger.whileTrue(new IntakeCommand(() -> -rightStick.getThrottle()));
+     */
   }
 
   public void initializeDriveTrain() {
