@@ -32,9 +32,9 @@ public final class Constants {
   public static final double driveKV = 2.3131;
   public static final double driveKA = 0.10452;
 
-  public static final double chasisLength = Units.inchesToMeters(28);
-  public static final double chasisWidth = Units.inchesToMeters(28);
-  public static final double offsetToSwerveModule = chasisLength / 2 - Units.inchesToMeters(3.25);
+  public static final double chassisLength = Units.inchesToMeters(28);
+  public static final double chassisWidth = Units.inchesToMeters(28);
+  public static final double offsetToSwerveModule = chassisLength / 2 - Units.inchesToMeters(3.25);
 
   public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
       new Translation2d(+offsetToSwerveModule, +offsetToSwerveModule),
