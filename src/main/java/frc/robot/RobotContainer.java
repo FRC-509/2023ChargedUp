@@ -29,7 +29,7 @@ public class RobotContainer {
 
   private final GenericHID genericHid = new GenericHID(2);
   private JoystickButton rightTrigger = new JoystickButton(rightStick, 1);
-  JoystickButton leftStickButtonTwo = new JoystickButton(leftStick, 2);
+  private JoystickButton leftStickButtonTwo = new JoystickButton(leftStick, 2);
 
   public RobotContainer() {
     // Configure the trigger bindings

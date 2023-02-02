@@ -1,8 +1,5 @@
 package frc.robot;
 
-import com.ctre.phoenixpro.sim.ChassisReference;
-import com.pathplanner.lib.auto.PIDConstants;
-
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
