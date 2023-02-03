@@ -2,6 +2,8 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FollowerType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
@@ -33,7 +35,10 @@ public class Arm extends SubsystemBase {
     pivotMotor2.config_kF(0, pivotConstants.kF);
     pivotMotor1.setSelectedSensorPosition(0);
     pivotMotor2.setSelectedSensorPosition(0);
+    pivotMotor1.setNeutralMode(NeutralMode.Brake);
+    pivotMotor2.setNeutralMode(NeutralMode.Brake);
     extensionEncoder = extensionMotor.getAbsoluteEncoder(Type.kDutyCycle);
+    pivotMotor2.follow(pivotMotor1, FollowerType.AuxOutput1);
   }
 
   public void setPivotAngle(double angle) {
@@ -41,18 +46,20 @@ public class Arm extends SubsystemBase {
     double delta = angle - (lastAngle % 360.0d);
     double outputAngle = Utils.degreesToFalcon(lastAngle + delta, pivotGearRatio);
 
-    double lastAngle2 = Utils.falconToDegrees(pivotMotor2.getSelectedSensorPosition(), pivotGearRatio);
-    double delta2 = angle - (lastAngle2 % 360.0d);
-    double outputAngle2 = Utils.degreesToFalcon(lastAngle2 + delta2, pivotGearRatio);
+    // double lastAngle2 =
+    // Utils.falconToDegrees(pivotMotor2.getSelectedSensorPosition(),
+    // pivotGearRatio);
+    // double delta2 = angle - (lastAngle2 % 360.0d);
+    // double outputAngle2 = Utils.degreesToFalcon(lastAngle2 + delta2,
+    // pivotGearRatio);
 
     pivotMotor1.set(ControlMode.Position, outputAngle);
 
-    pivotMotor2.set(ControlMode.Position, outputAngle2);
+    // pivotMotor2.set(ControlMode.Position, outputAngle2);
   }
 
   public double getPivotAngle() {
-    return ((Utils.falconToDegrees(pivotMotor1.getSelectedSensorPosition(), pivotGearRatio) % 360.0d)
-        + (Utils.falconToDegrees(pivotMotor2.getSelectedSensorPosition(), pivotGearRatio) % 360.0d)) / 2.0d;
+    return Utils.falconToDegrees(pivotMotor1.getSelectedSensorPosition(), pivotGearRatio) % 360.0d;
   }
 }
 */
