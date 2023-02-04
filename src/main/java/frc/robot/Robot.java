@@ -16,7 +16,9 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
-  private RobotContainer m_robotContainer;
+  private RobotContainer robotContainer;
+
+  private Tuning[] tuners;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -28,7 +30,13 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+    robotContainer = new RobotContainer();
+
+    tuners = new Tuning[4];
+
+    for (int i = 0; i < 4; i++) {
+      tuners[i] = new Tuning(robotContainer.swerveSubsystem, i);
+    }
   }
 
   /**
@@ -51,6 +59,10 @@ public class Robot extends TimedRobot {
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    // for (Tuning tuner : tuners) {
+    // tuner.dump();
+    // }
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -65,8 +77,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousInit() {
-    m_robotContainer.initializeDriveTrain();
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    robotContainer.initializeDriveTrain();
+    m_autonomousCommand = robotContainer.getAutonomousCommand();
     m_autonomousCommand.schedule();
   }
 
@@ -85,7 +97,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
-    m_robotContainer.initializeDriveTrain();
+    robotContainer.initializeDriveTrain();
   }
 
   /** This function is called periodically during operator control. */

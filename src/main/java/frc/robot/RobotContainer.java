@@ -39,10 +39,12 @@ public class RobotContainer {
         () -> leftStick.getX(),
         () -> rightStick.getX(),
         () -> leftStick.getRawButton(2)));
+    // swerveSubsystem.setDefaultCommand(new Tuning(swerveSubsystem, 3));
 
     leftStickButtonTwo.whileTrue(
         new InstantCommand(() -> swerveSubsystem.zeroGyro(),
             swerveSubsystem));
+
     /*
      * // The slider on the right stick controls the intake motor speed. Intake with
      * the right stick's trigger, outtake with the left stick's trigger.

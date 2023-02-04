@@ -27,14 +27,13 @@ public class SwerveModule {
   // module variables
   private double lastAngle;
 
-  public SwerveModuleConfigurations joe;
   // feed forward
-  private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(Constants.driveKS, Constants.driveKV,
-      Constants.driveKA);
+  // private SimpleMotorFeedforward feedforward = new
+  // SimpleMotorFeedforward(Constants.driveKS, Constants.driveKV,
+  // Constants.driveKA);
 
   // Construct a new Swerve Module using a preset Configuration
   public SwerveModule(Constants.SwerveModuleConfigurations configs) {
-    this.joe = configs;
     this.moduleNumber = configs.moduleNumber;
 
     // Angle Encoder Config
@@ -99,6 +98,12 @@ public class SwerveModule {
       // Utils.serializeNumber(moduleNumber + "KS", feedforward.ks),
       // Utils.serializeNumber(moduleNumber + "KV", feedforward.kv),
       // Utils.serializeNumber(moduleNumber + "KA", feedforward.ka));
+
+      // var v = Utils.falconToMeters(driveMotor.getSelectedSensorPosition(),
+      // Constants.wheelCircumference,
+      // Constants.driveGearRatio);
+      // SmartDashboard.putNumber(moduleNumber + "vel", v);
+      // SmartDashboard.putNumber(moduleNumber + " BusV", driveMotor.getBusVoltage());
     }
 
   }
@@ -119,10 +124,14 @@ public class SwerveModule {
   public SwerveModuleState getState() {
     return new SwerveModuleState(
         Utils.falconToMPS(
-            driveMotor.getSelectedSensorPosition(),
+            driveMotor.getSelectedSensorVelocity(),
             Constants.wheelCircumference,
             Constants.driveGearRatio),
         getCanCoder());
+  }
+
+  public void supplyVoltage(double PercentOutput) {
+    driveMotor.set(ControlMode.PercentOutput, PercentOutput);
   }
 
   public double getDegrees() {
@@ -131,6 +140,7 @@ public class SwerveModule {
   }
 
   public void setDesiredState(SwerveModuleState desiredState) {
+    debug();
     // target angle [-180, 180]
     double targetAngle = desiredState.angle.getDegrees();
     double delta = (targetAngle - getDegrees()) % 360;
@@ -165,23 +175,13 @@ public class SwerveModule {
 
     if (Constants.closedLoopDriveVelocity) {
       double velocity = Utils.MPSToFalcon(
-          Math.abs(desiredState.speedMetersPerSecond) * invertSpeed,
+          Math.abs(desiredState.speedMetersPerSecond),
           Constants.wheelCircumference,
           Constants.driveGearRatio);
 
-      driveMotor.set(
-          ControlMode.Velocity,
-          velocity,
-          DemandType.ArbitraryFeedForward,
-          // feedforward.calculate(Math.abs(desiredState.speedMetersPerSecond) *
-          // invertSpeed));
-          feedforward.calculate(velocity));
+      driveMotor.set(ControlMode.Velocity, velocity * invertSpeed);
     } else {
       double out = Math.abs(desiredState.speedMetersPerSecond) / Constants.maxSpeed;
-      // SmartDashboard.putNumber("VEff " + moduleNumber, out * 12.0);
-      // SmartDashboard.putNumber("Vel " + moduleNumber,
-      // Utils.falconToMPS(driveMotor.getSelectedSensorVelocity(),
-      // Constants.wheelCircumference, Constants.driveGearRatio));
       driveMotor.set(ControlMode.PercentOutput, invertSpeed * out);
     }
   }

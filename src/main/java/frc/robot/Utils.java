@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Utils {
@@ -120,5 +122,14 @@ public final class Utils {
       this.kD = kD;
       this.kF = kF;
     }
+  }
+
+  public static double[] arrayListToArray(ArrayList<Double> velPoints) {
+    double[] vels = new double[velPoints.size()];
+
+    for (int i = 0; i < velPoints.size(); i++) {
+      vels[i] = velPoints.get(i);
+    }
+    return vels;
   }
 }
