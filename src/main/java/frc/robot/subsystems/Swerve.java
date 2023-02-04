@@ -26,7 +26,7 @@ public class Swerve extends SubsystemBase {
   public double[] position = new double[3];
   // public double
 
-  public Swerve() {
+  public Swerve(Pigeon2 pigeon) {
     pigeon = new Pigeon2(0);
     pigeon.configFactoryDefault();
     zeroGyro();
@@ -59,18 +59,6 @@ public class Swerve extends SubsystemBase {
     for (SwerveModule mod : swerveModules) {
       mod.setDesiredState(swerveModuleStates[mod.moduleNumber]);
     }
-
-    short[] xyz = new short[3];
-    pigeon.getBiasedAccelerometer(xyz);
-
-    for (int i = 0; i < 3; i++) {
-      velocity[i] += xyz[i] / 16384d * 9.81d * 0.02d;
-      position[i] += velocity[i] * 0.02;
-    }
-
-    SmartDashboard.putNumber("x acc", position[0]);
-    SmartDashboard.putNumber("y acc", position[1]);
-    SmartDashboard.putNumber("z acc", position[2]);
   }
 
   /* Used by SwerveControllerCommand in Auto */

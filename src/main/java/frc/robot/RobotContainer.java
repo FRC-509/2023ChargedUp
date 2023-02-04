@@ -2,7 +2,9 @@ package frc.robot;
 
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.Swerve;
+import frc.robot.vision.Odometery;
 
+import com.ctre.phoenix.sensors.Pigeon2;
 import com.pathplanner.lib.server.PathPlannerServer;
 
 import edu.wpi.first.wpilibj.GenericHID;
@@ -22,16 +24,21 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-
-  public final Swerve swerveSubsystem = new Swerve();
+  public Swerve swerveSubsystem;
+  public final Odometery odometerySubsystem;
   public static final Joystick leftStick = new Joystick(1);
   public static final Joystick rightStick = new Joystick(0);
+  public static Pigeon2 pigeon;
 
   private final GenericHID genericHid = new GenericHID(2);
   private JoystickButton rightTrigger = new JoystickButton(rightStick, 1);
   private JoystickButton leftStickButtonTwo = new JoystickButton(leftStick, 2);
 
   public RobotContainer() {
+    pigeon = new Pigeon2(Constants.pigeonId);
+    swerveSubsystem = new Swerve(pigeon);
+    odometerySubsystem = new Odometery(pigeon);
+  
     // Configure the trigger bindings
     swerveSubsystem.setDefaultCommand(new DriveCommand(
         swerveSubsystem,

@@ -18,6 +18,8 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
+  public static final int pigeonId = 0;
+
   public static final double stickDeadband = 0.1;
 
   public static final double wheelCircumference = Units.inchesToMeters(4.0) * Math.PI;
