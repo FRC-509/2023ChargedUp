@@ -1,7 +1,6 @@
 
 package frc.robot.vision;
 
-import java.util.List;
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -78,7 +77,37 @@ public class LimelightWrapper {
     return rawTagID.intValue();
   }
 
-  // Gets robot position of field using april tags
+  // Gets pose of best reflective tape target
+  public Optional<Pose3d> getBestReflectiveTargetPose(Pose3d currentRobotPose) {
+
+    // Turn LEDs on
+    setLEDState(true);
+
+    // Make sure has targets
+    if (hasTarget()) {
+
+      // Turn off LED and return nothing
+      setLEDState(false);
+      return Optional.empty();
+    }
+
+    // Get target pose
+    double[] rawTargetPose = NetworkTableInstance
+        .getDefault()
+        .getTable(limelightName)
+        .getEntry("camtran").getDoubleArray((double[]) null);
+
+    Rotation3d targetRotation = new Rotation3d(rawTargetPose[4], rawTargetPose[5], rawTargetPose[6]);
+    Pose3d targetPose = new Pose3d(rawTargetPose[1], rawTargetPose[2], rawTargetPose[3], targetRotation);
+
+    // Turn LEDs off
+    setLEDState(false);
+
+    // Return target pose
+    return Optional.of(targetPose);
+  }
+
+  // Gets robot position on field using april tags
   public Optional<Pose3d> getRobotPose() {
 
     // Make sure has targets

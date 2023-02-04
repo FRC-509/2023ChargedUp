@@ -4,9 +4,8 @@ package frc.robot.vision;
 import java.util.Optional;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -21,8 +20,8 @@ public class Odometery {
   // Properties
   private Pigeon2 gyro;
   private Field2d field;
-  private Pose2d pose;
-  private Transform2d offset;
+  private Pose3d pose;
+  private Transform3d offset;
   private AprilTagFieldLayout aprilTagfieldLayout;
 
   // Cameras
@@ -47,10 +46,10 @@ public class Odometery {
   // Constructor
   public Odometery(Pigeon2 pigeon) {
 
-    this.gyro = pigeon;
+    gyro = pigeon;
     field = new Field2d();
-    pose = new Pose2d();
-    offset = new Transform2d();
+    pose = new Pose3d();
+    offset = new Transform3d();
 
     frontCamera = new LimelightWrapper("limelight_front");
     backCamera = new LimelightWrapper("limelight_back");
@@ -60,7 +59,7 @@ public class Odometery {
   }
 
   // Gets best robot pose
-  public Pose2d getBestRobotPose() {
+  public Pose3d getBestRobotPose() {
     return pose;
   }
 
@@ -73,76 +72,144 @@ public class Odometery {
 
       // Cube target
       // Get nearest april tag ID with correct alliance
-      Pose3d tagPose = new Pose3d();
+      Pose3d targetTagPose = new Pose3d();
       int frontCamBestTagID = frontCamera.getBestAprilTagID();
       int backCamBestTagID = backCamera.getBestAprilTagID();
 
-      // Get pose to best cube target
+      // Get pose to best target tag
       if (DriverStation.getAlliance() == Alliance.Blue) {
-        if (frontCamBestTagID == 6 || frontCamBestTagID == 7 || frontCamBestTagID == 8) {
+        if (frontCamBestTagID == Constants.blueAllianceTargetTagIDs[0]
+            || frontCamBestTagID == Constants.blueAllianceTargetTagIDs[1]
+            || frontCamBestTagID == Constants.blueAllianceTargetTagIDs[2]) {
 
           // Valid front cam tag
           // Get correct tag pose from front camera
-          tagPose = aprilTagfieldLayout.getTagPose(frontCamBestTagID).get();
+          targetTagPose = aprilTagfieldLayout.getTagPose(frontCamBestTagID).get();
 
-        } else if (backCamBestTagID == 6 || backCamBestTagID == 7 || backCamBestTagID == 8) {
+        } else if (backCamBestTagID == Constants.blueAllianceTargetTagIDs[0]
+            || backCamBestTagID == Constants.blueAllianceTargetTagIDs[1]
+            || backCamBestTagID == Constants.blueAllianceTargetTagIDs[2]) {
 
           // Valid back cam tag
           // Get correct tag pose from front camera
-          tagPose = aprilTagfieldLayout.getTagPose(backCamBestTagID).get();
+          targetTagPose = aprilTagfieldLayout.getTagPose(backCamBestTagID).get();
         }
 
-        // Get and return tag pose with safety buffer
-        double tagPoseXBuffer = tagPose.getX() + Constants.safetyBuffer;
-        Pose3d finalPose = new Pose3d(tagPoseXBuffer, tagPose.getY(), tagPose.getZ(),
-            tagPose.getRotation());
+        // Get and return target tag pose of cube with safety buffer
+        double tagPoseXBuffer = targetTagPose.getX() + Constants.safetyBuffer;
+        Pose3d finalPose = new Pose3d(tagPoseXBuffer, targetTagPose.getY(), targetTagPose.getZ(),
+            targetTagPose.getRotation());
         return Optional.of(finalPose);
 
       } else if (DriverStation.getAlliance() == Alliance.Red) {
-        if (frontCamBestTagID == 3 || frontCamBestTagID == 2 || frontCamBestTagID == 1) {
+        if (frontCamBestTagID == Constants.redAllianceTargetTagIDs[0]
+            || frontCamBestTagID == Constants.redAllianceTargetTagIDs[1]
+            || frontCamBestTagID == Constants.redAllianceTargetTagIDs[2]) {
 
           // Valid front cam tag
           // Get correct tag pose from front camera
-          tagPose = aprilTagfieldLayout.getTagPose(frontCamBestTagID).get();
+          targetTagPose = aprilTagfieldLayout.getTagPose(frontCamBestTagID).get();
 
-        } else if (backCamBestTagID == 3 || backCamBestTagID == 2 || backCamBestTagID == 1) {
+        } else if (backCamBestTagID == Constants.redAllianceTargetTagIDs[0]
+            || backCamBestTagID == Constants.redAllianceTargetTagIDs[1]
+            || backCamBestTagID == Constants.redAllianceTargetTagIDs[2]) {
 
           // Valid back cam tag
           // Get correct tag pose from front camera
-          tagPose = aprilTagfieldLayout.getTagPose(backCamBestTagID).get();
+          targetTagPose = aprilTagfieldLayout.getTagPose(backCamBestTagID).get();
         }
 
-        // Get and return tag pose with safety buffer
-        double tagPoseXBuffer = tagPose.getX() - Constants.safetyBuffer;
-        Pose3d finalPose = new Pose3d(tagPoseXBuffer, tagPose.getY(), tagPose.getZ(),
-            tagPose.getRotation());
+        // Get and return target tag pose of cube with safety buffer
+        double tagPoseXBuffer = targetTagPose.getX() - Constants.safetyBuffer;
+        Pose3d finalPose = new Pose3d(tagPoseXBuffer, targetTagPose.getY(), targetTagPose.getZ(),
+            targetTagPose.getRotation());
         return Optional.of(finalPose);
       }
 
     } else if (targetType == TargetType.CONE) {
 
       // Cone target
+      // Get nearest april tag ID with correct alliance
+      Pose3d targetPose = new Pose3d();
+      int frontCamBestTagID = frontCamera.getBestAprilTagID();
+      int backCamBestTagID = backCamera.getBestAprilTagID();
 
+      // Get pose to best target tag
+      if (DriverStation.getAlliance() == Alliance.Blue) {
+        if (frontCamBestTagID == Constants.blueAllianceTargetTagIDs[0]
+            || frontCamBestTagID == Constants.blueAllianceTargetTagIDs[1]
+            || frontCamBestTagID == Constants.blueAllianceTargetTagIDs[2]) {
+
+          // Valid front cam tag
+          // Set final target pose
+          targetPose = frontCamera.getBestReflectiveTargetPose(getBestRobotPose()).get();
+
+        } else if (backCamBestTagID == Constants.blueAllianceTargetTagIDs[0]
+            || backCamBestTagID == Constants.blueAllianceTargetTagIDs[1]
+            || backCamBestTagID == Constants.blueAllianceTargetTagIDs[2]) {
+
+          // Valid back cam tag
+          // Set final target pose
+          targetPose = backCamera.getBestReflectiveTargetPose(getBestRobotPose()).get();
+        }
+
+        // Get and return target pose of cone with safety buffer
+        double tagPoseXBuffer = targetPose.getX() + Constants.safetyBuffer * 2;
+        Pose3d finalPose = new Pose3d(tagPoseXBuffer, targetPose.getY(), targetPose.getZ(), targetPose.getRotation());
+        return Optional.of(finalPose);
+
+      } else if (DriverStation.getAlliance() == Alliance.Red) {
+        if (frontCamBestTagID == Constants.redAllianceTargetTagIDs[0]
+            || frontCamBestTagID == Constants.redAllianceTargetTagIDs[1]
+            || frontCamBestTagID == Constants.redAllianceTargetTagIDs[2]) {
+
+          // Valid front cam tag
+          // Set final target pose
+          targetPose = frontCamera.getBestReflectiveTargetPose(getBestRobotPose()).get();
+
+        } else if (backCamBestTagID == Constants.redAllianceTargetTagIDs[0]
+            || backCamBestTagID == Constants.redAllianceTargetTagIDs[1]
+            || backCamBestTagID == Constants.redAllianceTargetTagIDs[2]) {
+
+          // Valid back cam tag
+          // Set final target pose
+          targetPose = backCamera.getBestReflectiveTargetPose(getBestRobotPose()).get();
+        }
+
+        // Get and return target pose of cone with safety buffer
+        double tagPoseXBuffer = targetPose.getX() - Constants.safetyBuffer * 2;
+        Pose3d finalPose = new Pose3d(tagPoseXBuffer, targetPose.getY(), targetPose.getZ(), targetPose.getRotation());
+        return Optional.of(finalPose);
+      }
     }
+
+    // No target
+    return Optional.empty();
   }
 
   // Gets final positioning for scoring target
-  public void getBestTargetPlacement(TargetType targetType) {
+  public Optional<Pose3d> getBestTargetPlacement(TargetType targetType) {
 
     // Find best target pose
     if (targetType == TargetType.CUBE) {
 
       // Cube target
+      // Get best absolute pose of target and return
+      return aprilTagfieldLayout.getTagPose(frontCamera.getBestAprilTagID());
 
     } else if (targetType == TargetType.CONE) {
 
       // Cone target
-
+      // Get best absolute pose of target and return
+      return frontCamera.getBestReflectiveTargetPose(getBestRobotPose());
     }
+
+    // No target
+    return Optional.empty();
   }
 
   // Updates robot position and offset
-  public void updatePosition(Pose2d odometryPose) {
+  public void updatePosition(Pose3d odometryPose) {
 
     // Get pose from cameras
     Optional<Pose3d> possibleFrontCamPose = frontCamera.getRobotPose();
@@ -152,25 +219,25 @@ public class Odometery {
 
       // Both cameras have pose
       // Unwrap poses
-      Pose2d frontPose = possibleFrontCamPose.get().toPose2d();
-      Pose2d backPose = possibleBackCamPose.get().toPose2d();
+      Pose3d frontPose = possibleFrontCamPose.get();
+      Pose3d backPose = possibleBackCamPose.get();
 
       // Set pose to average of camera poses
-      Transform2d transform = new Transform2d(frontPose, backPose);
-      Transform2d averageTransform = transform.div(2);
+      Transform3d transform = new Transform3d(frontPose, backPose);
+      Transform3d averageTransform = transform.div(2);
       pose = frontPose.plus(averageTransform);
 
     } else if (possibleFrontCamPose.isPresent() && possibleBackCamPose.isEmpty()) {
 
       // Front camera has pose
       // Set pose to front camera pose
-      pose = possibleFrontCamPose.get().toPose2d();
+      pose = possibleFrontCamPose.get();
 
     } else if (possibleFrontCamPose.isEmpty() && possibleBackCamPose.isPresent()) {
 
       // Back camera has pose
       // Set pose to back camera pose
-      pose = possibleBackCamPose.get().toPose2d();
+      pose = possibleBackCamPose.get();
 
     } else {
 

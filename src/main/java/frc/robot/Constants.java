@@ -18,6 +18,11 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
+  public static final int redAllianceSubstationTagID = 5;
+  public static final int blueAllianceSubstationTagID = 4;
+  public static final int[] redAllianceTargetTagIDs = { 6, 7, 8 };
+  public static final int[] blueAllianceTargetTagIDs = { 3, 2, 1 };
+
   public static final int pigeonId = 0;
 
   public static final double stickDeadband = 0.1;
