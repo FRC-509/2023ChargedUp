@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.SwerveModuleConfigurations;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -26,12 +27,14 @@ public class SwerveModule {
   // module variables
   private double lastAngle;
 
+  public SwerveModuleConfigurations joe;
   // feed forward
   private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(Constants.driveKS, Constants.driveKV,
       Constants.driveKA);
 
   // Construct a new Swerve Module using a preset Configuration
   public SwerveModule(Constants.SwerveModuleConfigurations configs) {
+    this.joe = configs;
     this.moduleNumber = configs.moduleNumber;
 
     // Angle Encoder Config
@@ -62,6 +65,10 @@ public class SwerveModule {
     this.driveMotor.config_kI(0, configs.drivePID.kI);
     this.driveMotor.config_kD(0, configs.drivePID.kD);
     this.driveMotor.config_kF(0, configs.drivePID.kF);
+    // this.driveMotor.configVoltageCompSaturation(12); // "full output" will now
+    // scale to 11 Volts for all control modes
+    // // when enabled.
+    // this.driveMotor.enableVoltageCompensation(true); // turn on/off feature
 
     lastAngle = 0.0d;
   }
@@ -73,16 +80,26 @@ public class SwerveModule {
 
   // Debug swerve module information to SmartDashboard
   public void debug() {
-    SmartDashboard.putNumber(moduleNumber + " CANCoder", angleEncoder.getAbsolutePosition());
-    SmartDashboard.putNumber(moduleNumber + " Integrated",
-        Utils.falconToDegrees(angleMotor.getSelectedSensorPosition(), Constants.angleGearRatio));
+    // SmartDashboard.putNumber(moduleNumber + " CANCoder",
+    // angleEncoder.getAbsolutePosition());
+    // SmartDashboard.putNumber(moduleNumber + " Integrated",
+    // Utils.falconToDegrees(angleMotor.getSelectedSensorPosition(),
+    // Constants.angleGearRatio));
 
-    // if (true /* if tune PID */) {
-    // driveMotor.config_kP(0, Utils.serializeNumber(moduleNumber + " driveP", 0));
-    // driveMotor.config_kI(0, Utils.serializeNumber(moduleNumber + " driveI", 0));
-    // driveMotor.config_kD(0, Utils.serializeNumber(moduleNumber + " driveD", 0));
-    // driveMotor.config_kF(0, Utils.serializeNumber(moduleNumber + " driveF", 0));
-    // }
+    if (true /* if tune PID */) {
+      // driveMotor.config_kP(0, Utils.serializeNumber(moduleNumber + " driveP",
+      // joe.drivePID.kP));
+      // driveMotor.config_kI(0, Utils.serializeNumber(moduleNumber + " driveI",
+      // joe.drivePID.kI));
+      // driveMotor.config_kD(0, Utils.serializeNumber(moduleNumber + " driveD",
+      // joe.drivePID.kD));
+      // driveMotor.config_kF(0, Utils.serializeNumber(moduleNumber + " driveF",
+      // joe.drivePID.kF));
+      // feedforward = new SimpleMotorFeedforward(
+      // Utils.serializeNumber(moduleNumber + "KS", feedforward.ks),
+      // Utils.serializeNumber(moduleNumber + "KV", feedforward.kv),
+      // Utils.serializeNumber(moduleNumber + "KA", feedforward.ka));
+    }
 
   }
 
@@ -134,24 +151,37 @@ public class SwerveModule {
       delta += 180;
       invertSpeed = -1;
     }
+
     // calculate final target angle and set motor position to it
     double optimalTargetAngle = getDegrees() + delta;
     if (Math.abs(optimalTargetAngle - lastAngle) < Constants.maxAngularVelocity * 0.01) {
       optimalTargetAngle = lastAngle;
     }
+
     lastAngle = optimalTargetAngle;
 
     double falconTarget = Utils.degreesToFalcon(optimalTargetAngle, Constants.angleGearRatio);
     angleMotor.set(ControlMode.Position, falconTarget);
 
     if (Constants.closedLoopDriveVelocity) {
-      double velocity = Utils.MPSToFalcon(Math.abs(desiredState.speedMetersPerSecond) * invertSpeed,
+      double velocity = Utils.MPSToFalcon(
+          Math.abs(desiredState.speedMetersPerSecond) * invertSpeed,
           Constants.wheelCircumference,
           Constants.driveGearRatio);
-      driveMotor.set(ControlMode.Velocity, velocity, DemandType.ArbitraryFeedForward,
-          feedforward.calculate(Math.abs(desiredState.speedMetersPerSecond) * invertSpeed));
+
+      driveMotor.set(
+          ControlMode.Velocity,
+          velocity,
+          DemandType.ArbitraryFeedForward,
+          // feedforward.calculate(Math.abs(desiredState.speedMetersPerSecond) *
+          // invertSpeed));
+          feedforward.calculate(velocity));
     } else {
       double out = Math.abs(desiredState.speedMetersPerSecond) / Constants.maxSpeed;
+      // SmartDashboard.putNumber("VEff " + moduleNumber, out * 12.0);
+      // SmartDashboard.putNumber("Vel " + moduleNumber,
+      // Utils.falconToMPS(driveMotor.getSelectedSensorVelocity(),
+      // Constants.wheelCircumference, Constants.driveGearRatio));
       driveMotor.set(ControlMode.PercentOutput, invertSpeed * out);
     }
   }

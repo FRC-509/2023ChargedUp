@@ -22,10 +22,6 @@ public class Swerve extends SubsystemBase {
   public SwerveDriveOdometry swerveOdometry;
   public Pigeon2 pigeon;
 
-  public double[] velocity = new double[3];
-  public double[] position = new double[3];
-  // public double
-
   public Swerve() {
     pigeon = new Pigeon2(0);
     pigeon.configFactoryDefault();
@@ -59,18 +55,6 @@ public class Swerve extends SubsystemBase {
     for (SwerveModule mod : swerveModules) {
       mod.setDesiredState(swerveModuleStates[mod.moduleNumber]);
     }
-
-    short[] xyz = new short[3];
-    pigeon.getBiasedAccelerometer(xyz);
-
-    for (int i = 0; i < 3; i++) {
-      velocity[i] += xyz[i] / 16384d * 9.81d * 0.02d;
-      position[i] += velocity[i] * 0.02;
-    }
-
-    SmartDashboard.putNumber("x acc", position[0]);
-    SmartDashboard.putNumber("y acc", position[1]);
-    SmartDashboard.putNumber("z acc", position[2]);
   }
 
   /* Used by SwerveControllerCommand in Auto */
@@ -125,7 +109,7 @@ public class Swerve extends SubsystemBase {
   @Override
   public void periodic() {
     swerveOdometry.update(getYaw(), getModulePositions());
-
+    SmartDashboard.putNumber("theta", getYaw().getDegrees());
     SmartDashboard.putNumber("odometry-x", swerveOdometry.getPoseMeters().getX());
     SmartDashboard.putNumber("odometry-y", swerveOdometry.getPoseMeters().getY());
 
