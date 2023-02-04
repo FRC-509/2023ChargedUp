@@ -29,6 +29,7 @@ public class RobotContainer {
   public static final Joystick leftStick = new Joystick(1);
   public static final Joystick rightStick = new Joystick(0);
   public static Pigeon2 pigeon;
+  
 
   private final GenericHID genericHid = new GenericHID(2);
   private JoystickButton rightTrigger = new JoystickButton(rightStick, 1);

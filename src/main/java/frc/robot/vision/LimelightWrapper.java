@@ -1,6 +1,7 @@
 
 package frc.robot.vision;
 
+import java.util.List;
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -64,15 +65,6 @@ public class LimelightWrapper {
         .getTable(limelightName)
         .getEntry("tv")
         .getDouble(0) != 0;
-  }
-
-  /// NOTE - WE HAVE NO CLUE WHAT THIS DOES
-  public double[] getCameraTransform() {
-    return NetworkTableInstance
-        .getDefault()
-        .getTable(limelightName)
-        .getEntry("camtran")
-        .getDoubleArray((double[]) null);
   }
 
   // Gets best april tag ID

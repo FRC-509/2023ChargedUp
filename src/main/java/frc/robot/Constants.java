@@ -34,6 +34,7 @@ public final class Constants {
   public static final double driveKV = 2.3131;
   public static final double driveKA = 0.10452;
 
+  public static final double safetyBuffer = Units.inchesToMeters(40);
   public static final double chassisLength = Units.inchesToMeters(28);
   public static final double chassisWidth = Units.inchesToMeters(28);
   public static final double offsetToSwerveModule = chassisLength / 2 - Units.inchesToMeters(3.25);

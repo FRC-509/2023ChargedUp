@@ -3,11 +3,16 @@ package frc.robot.vision;
 
 import java.util.Optional;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import frc.robot.Constants;
+
 import com.ctre.phoenix.sensors.Pigeon2;
 
 // Odometry
@@ -18,6 +23,7 @@ public class Odometery {
   private Field2d field;
   private Pose2d pose;
   private Transform2d offset;
+  private AprilTagFieldLayout aprilTagfieldLayout;
 
   // Cameras
   private LimelightWrapper frontCamera;
@@ -33,10 +39,8 @@ public class Odometery {
   // Target type
   public enum TargetType {
     SUBSTATION,
-    CUBE_HIGH,
-    CUBE_LOW,
-    CONE_POLE_HIGH,
-    CONE_POLE_LOW,
+    CUBE,
+    CONE,
     NONE
   }
 
@@ -60,68 +64,80 @@ public class Odometery {
     return pose;
   }
 
-  // Finds closest target type, position and camera
-  public void closestTarget(TargetType returnTargetType, CameraType returnCameraType, Pose3d returnPosition) {
+  // Finds closest and highest scoring target of desired type and offset for robot
+  // to fit near target
+  public Optional<Pose3d> getBestTargetLocation(TargetType targetType) {
 
-    // Try get camera results
-    if (frontCamera.hasTarget()) {
+    // Find best target pose
+    if (targetType == TargetType.CUBE) {
 
-      // Front camera
-      returnCameraType = CameraType.FRONT;
+      // Cube target
+      // Get nearest april tag ID with correct alliance
+      Pose3d tagPose = new Pose3d();
+      int frontCamBestTagID = frontCamera.getBestAprilTagID();
+      int backCamBestTagID = backCamera.getBestAprilTagID();
 
-      // Get april tag ID
-      int tagID = frontCamera.getBestAprilTagID();
+      // Get pose to best cube target
+      if (DriverStation.getAlliance() == Alliance.Blue) {
+        if (frontCamBestTagID == 6 || frontCamBestTagID == 7 || frontCamBestTagID == 8) {
 
-      // Find target type by tag ID
-      if (tagID == 7 || tagID == 2 || tagID == 6 || tagID == 3 || tagID == 8 || tagID == 1) {
+          // Valid front cam tag
+          // Get correct tag pose from front camera
+          tagPose = aprilTagfieldLayout.getTagPose(frontCamBestTagID).get();
 
-        // Cube
-        // targetHeight = 0.36;
-        returnTargetType = TargetType.CUBE_HIGH;
+        } else if (backCamBestTagID == 6 || backCamBestTagID == 7 || backCamBestTagID == 8) {
 
-      } else if (tagID == 5 || tagID == 4) {
+          // Valid back cam tag
+          // Get correct tag pose from front camera
+          tagPose = aprilTagfieldLayout.getTagPose(backCamBestTagID).get();
+        }
 
-        // Substation
-        // targetHeight = 0.59;
-        returnTargetType = TargetType.SUBSTATION;
+        // Get and return tag pose with safety buffer
+        double tagPoseXBuffer = tagPose.getX() + Constants.safetyBuffer;
+        Pose3d finalPose = new Pose3d(tagPoseXBuffer, tagPose.getY(), tagPose.getZ(),
+            tagPose.getRotation());
+        return Optional.of(finalPose);
 
-      } else {
+      } else if (DriverStation.getAlliance() == Alliance.Red) {
+        if (frontCamBestTagID == 3 || frontCamBestTagID == 2 || frontCamBestTagID == 1) {
 
-        // None
-        returnTargetType = TargetType.NONE;
+          // Valid front cam tag
+          // Get correct tag pose from front camera
+          tagPose = aprilTagfieldLayout.getTagPose(frontCamBestTagID).get();
+
+        } else if (backCamBestTagID == 3 || backCamBestTagID == 2 || backCamBestTagID == 1) {
+
+          // Valid back cam tag
+          // Get correct tag pose from front camera
+          tagPose = aprilTagfieldLayout.getTagPose(backCamBestTagID).get();
+        }
+
+        // Get and return tag pose with safety buffer
+        double tagPoseXBuffer = tagPose.getX() - Constants.safetyBuffer;
+        Pose3d finalPose = new Pose3d(tagPoseXBuffer, tagPose.getY(), tagPose.getZ(),
+            tagPose.getRotation());
+        return Optional.of(finalPose);
       }
 
-    } else if (backCamera.hasTarget()) {
+    } else if (targetType == TargetType.CONE) {
 
-      // Back camera
-      returnCameraType = CameraType.BACK;
+      // Cone target
 
-      // Get april tag ID
-      int tagID = backCamera.getBestAprilTagID();
+    }
+  }
 
-      // Find target type by tag ID
-      if (tagID == 7 || tagID == 2 || tagID == 6 || tagID == 3 || tagID == 8 || tagID == 1) {
+  // Gets final positioning for scoring target
+  public void getBestTargetPlacement(TargetType targetType) {
 
-        // Cube
-        // targetHeight = 0.36;
-        returnTargetType = TargetType.CUBE_HIGH;
+    // Find best target pose
+    if (targetType == TargetType.CUBE) {
 
-      } else if (tagID == 5 || tagID == 4) {
+      // Cube target
 
-        // Substation
-        // targetHeight = 0.59;
-        returnTargetType = TargetType.SUBSTATION;
+    } else if (targetType == TargetType.CONE) {
 
-      } else {
+      // Cone target
 
-        // None
-        returnTargetType = TargetType.NONE;
-      }
-    } else {
-
-      // Could not get cam
-      returnCameraType = CameraType.NONE;
-      returnTargetType = TargetType.NONE;
     }
   }
 
