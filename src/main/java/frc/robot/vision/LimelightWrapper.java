@@ -19,7 +19,7 @@ public class LimelightWrapper {
 
   // Constructor
   public LimelightWrapper(String name) {
-    limelightName = name;
+    this.limelightName = name;
     setLEDState(true);
   }
 
@@ -27,7 +27,7 @@ public class LimelightWrapper {
   public void setLEDState(boolean state) {
     NetworkTableInstance
         .getDefault()
-        .getTable(limelightName)
+        .getTable(this.limelightName)
         .getEntry("ledMode")
         .setNumber(state ? 1 : 0);
   }
@@ -36,7 +36,7 @@ public class LimelightWrapper {
   public double getXOffset() {
     return NetworkTableInstance
         .getDefault()
-        .getTable(limelightName)
+        .getTable(this.limelightName)
         .getEntry("tx")
         .getDouble(0);
   }
@@ -44,7 +44,7 @@ public class LimelightWrapper {
   public double getYOffset() {
     return NetworkTableInstance
         .getDefault()
-        .getTable(limelightName)
+        .getTable(this.limelightName)
         .getEntry("ty")
         .getDouble(0);
   }
@@ -52,7 +52,7 @@ public class LimelightWrapper {
   public double getZOffset() {
     return NetworkTableInstance
         .getDefault()
-        .getTable(limelightName)
+        .getTable(this.limelightName)
         .getEntry("tz")
         .getDouble(0);
   }
@@ -61,7 +61,7 @@ public class LimelightWrapper {
   public boolean hasTarget() {
     return NetworkTableInstance
         .getDefault()
-        .getTable(limelightName)
+        .getTable(this.limelightName)
         .getEntry("tv")
         .getDouble(0) != 0;
   }
@@ -70,7 +70,7 @@ public class LimelightWrapper {
   public int getBestAprilTagID() {
     Double rawTagID = NetworkTableInstance
         .getDefault()
-        .getTable(limelightName)
+        .getTable(this.limelightName)
         .getEntry("tid")
         .getDouble(0);
 
@@ -94,7 +94,7 @@ public class LimelightWrapper {
     // Get target pose
     double[] rawTargetPose = NetworkTableInstance
         .getDefault()
-        .getTable(limelightName)
+        .getTable(this.limelightName)
         .getEntry("camtran").getDoubleArray((double[]) null);
 
     Rotation3d targetRotation = new Rotation3d(rawTargetPose[4], rawTargetPose[5], rawTargetPose[6]);
@@ -120,13 +120,13 @@ public class LimelightWrapper {
     if (DriverStation.getAlliance() == Alliance.Blue) {
       poseData = NetworkTableInstance
           .getDefault()
-          .getTable(limelightName)
+          .getTable(this.limelightName)
           .getEntry("botpose_wpiblue")
           .getDoubleArray(new double[6]);
     } else {
       poseData = NetworkTableInstance
           .getDefault()
-          .getTable(limelightName)
+          .getTable(this.limelightName)
           .getEntry("botpose_wpired")
           .getDoubleArray(new double[6]);
     }

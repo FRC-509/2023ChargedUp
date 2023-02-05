@@ -15,14 +15,14 @@ import frc.robot.Constants;
 import com.ctre.phoenix.sensors.Pigeon2;
 
 // Odometry
-public class Odometery {
+public class Odometry {
 
   // Properties
   private Pigeon2 gyro;
   private Field2d field;
   private Pose3d pose;
   private Transform3d offset;
-  private AprilTagFieldLayout aprilTagfieldLayout;
+  private AprilTagFieldLayout aprilTagFieldLayout;
 
   // Cameras
   private LimelightWrapper frontCamera;
@@ -44,23 +44,23 @@ public class Odometery {
   }
 
   // Constructor
-  public Odometery(Pigeon2 pigeon) {
+  public Odometry(Pigeon2 pigeon) {
 
-    gyro = pigeon;
-    field = new Field2d();
-    pose = new Pose3d();
-    offset = new Transform3d();
+    this.gyro = pigeon;
+    this.field = new Field2d();
+    this.pose = new Pose3d();
+    this.offset = new Transform3d();
 
-    frontCamera = new LimelightWrapper("limelight_front");
-    backCamera = new LimelightWrapper("limelight_back");
+    this.frontCamera = new LimelightWrapper("limelight_front");
+    this.backCamera = new LimelightWrapper("limelight_back");
 
     // Display robot field position
-    Shuffleboard.getTab("Robot Field Position").add(field);
+    Shuffleboard.getTab("Robot Field Position").add(this.field);
   }
 
   // Gets best robot pose
   public Pose3d getBestRobotPose() {
-    return pose;
+    return this.pose;
   }
 
   // Finds closest and highest scoring target of desired type and offset for robot
@@ -73,8 +73,8 @@ public class Odometery {
       // Cube target
       // Get nearest april tag ID with correct alliance
       Pose3d targetTagPose = new Pose3d();
-      int frontCamBestTagID = frontCamera.getBestAprilTagID();
-      int backCamBestTagID = backCamera.getBestAprilTagID();
+      int frontCamBestTagID = this.frontCamera.getBestAprilTagID();
+      int backCamBestTagID = this.backCamera.getBestAprilTagID();
 
       // Get pose to best target tag
       if (DriverStation.getAlliance() == Alliance.Blue) {
@@ -84,7 +84,7 @@ public class Odometery {
 
           // Valid front cam tag
           // Get correct tag pose from front camera
-          targetTagPose = aprilTagfieldLayout.getTagPose(frontCamBestTagID).get();
+          targetTagPose = this.aprilTagFieldLayout.getTagPose(frontCamBestTagID).get();
 
         } else if (backCamBestTagID == Constants.blueAllianceTargetTagIDs[0]
             || backCamBestTagID == Constants.blueAllianceTargetTagIDs[1]
@@ -92,7 +92,7 @@ public class Odometery {
 
           // Valid back cam tag
           // Get correct tag pose from front camera
-          targetTagPose = aprilTagfieldLayout.getTagPose(backCamBestTagID).get();
+          targetTagPose = this.aprilTagFieldLayout.getTagPose(backCamBestTagID).get();
         }
 
         // Get and return target tag pose of cube with safety buffer
@@ -108,7 +108,7 @@ public class Odometery {
 
           // Valid front cam tag
           // Get correct tag pose from front camera
-          targetTagPose = aprilTagfieldLayout.getTagPose(frontCamBestTagID).get();
+          targetTagPose = this.aprilTagFieldLayout.getTagPose(frontCamBestTagID).get();
 
         } else if (backCamBestTagID == Constants.redAllianceTargetTagIDs[0]
             || backCamBestTagID == Constants.redAllianceTargetTagIDs[1]
@@ -116,7 +116,7 @@ public class Odometery {
 
           // Valid back cam tag
           // Get correct tag pose from front camera
-          targetTagPose = aprilTagfieldLayout.getTagPose(backCamBestTagID).get();
+          targetTagPose = this.aprilTagFieldLayout.getTagPose(backCamBestTagID).get();
         }
 
         // Get and return target tag pose of cube with safety buffer
@@ -131,8 +131,8 @@ public class Odometery {
       // Cone target
       // Get nearest april tag ID with correct alliance
       Pose3d targetPose = new Pose3d();
-      int frontCamBestTagID = frontCamera.getBestAprilTagID();
-      int backCamBestTagID = backCamera.getBestAprilTagID();
+      int frontCamBestTagID = this.frontCamera.getBestAprilTagID();
+      int backCamBestTagID = this.backCamera.getBestAprilTagID();
 
       // Get pose to best target tag
       if (DriverStation.getAlliance() == Alliance.Blue) {
@@ -142,7 +142,7 @@ public class Odometery {
 
           // Valid front cam tag
           // Set final target pose
-          targetPose = frontCamera.getBestReflectiveTargetPose(getBestRobotPose()).get();
+          targetPose = this.frontCamera.getBestReflectiveTargetPose(getBestRobotPose()).get();
 
         } else if (backCamBestTagID == Constants.blueAllianceTargetTagIDs[0]
             || backCamBestTagID == Constants.blueAllianceTargetTagIDs[1]
@@ -150,7 +150,7 @@ public class Odometery {
 
           // Valid back cam tag
           // Set final target pose
-          targetPose = backCamera.getBestReflectiveTargetPose(getBestRobotPose()).get();
+          targetPose = this.backCamera.getBestReflectiveTargetPose(getBestRobotPose()).get();
         }
 
         // Get and return target pose of cone with safety buffer
@@ -165,7 +165,7 @@ public class Odometery {
 
           // Valid front cam tag
           // Set final target pose
-          targetPose = frontCamera.getBestReflectiveTargetPose(getBestRobotPose()).get();
+          targetPose = this.frontCamera.getBestReflectiveTargetPose(getBestRobotPose()).get();
 
         } else if (backCamBestTagID == Constants.redAllianceTargetTagIDs[0]
             || backCamBestTagID == Constants.redAllianceTargetTagIDs[1]
@@ -173,7 +173,7 @@ public class Odometery {
 
           // Valid back cam tag
           // Set final target pose
-          targetPose = backCamera.getBestReflectiveTargetPose(getBestRobotPose()).get();
+          targetPose = this.backCamera.getBestReflectiveTargetPose(getBestRobotPose()).get();
         }
 
         // Get and return target pose of cone with safety buffer
@@ -195,13 +195,13 @@ public class Odometery {
 
       // Cube target
       // Get best absolute pose of target and return
-      return aprilTagfieldLayout.getTagPose(frontCamera.getBestAprilTagID());
+      return this.aprilTagFieldLayout.getTagPose(frontCamera.getBestAprilTagID());
 
     } else if (targetType == TargetType.CONE) {
 
       // Cone target
       // Get best absolute pose of target and return
-      return frontCamera.getBestReflectiveTargetPose(getBestRobotPose());
+      return this.frontCamera.getBestReflectiveTargetPose(getBestRobotPose());
     }
 
     // No target
@@ -212,8 +212,8 @@ public class Odometery {
   public void updatePosition(Pose3d odometryPose) {
 
     // Get pose from cameras
-    Optional<Pose3d> possibleFrontCamPose = frontCamera.getRobotPose();
-    Optional<Pose3d> possibleBackCamPose = backCamera.getRobotPose();
+    Optional<Pose3d> possibleFrontCamPose = this.frontCamera.getRobotPose();
+    Optional<Pose3d> possibleBackCamPose = this.backCamera.getRobotPose();
 
     if (possibleFrontCamPose.isPresent() && possibleBackCamPose.isPresent()) {
 
@@ -225,28 +225,31 @@ public class Odometery {
       // Set pose to average of camera poses
       Transform3d transform = new Transform3d(frontPose, backPose);
       Transform3d averageTransform = transform.div(2);
-      pose = frontPose.plus(averageTransform);
+      this.pose = frontPose.plus(averageTransform);
 
     } else if (possibleFrontCamPose.isPresent() && possibleBackCamPose.isEmpty()) {
 
       // Front camera has pose
       // Set pose to front camera pose
-      pose = possibleFrontCamPose.get();
+      this.pose = possibleFrontCamPose.get();
 
     } else if (possibleFrontCamPose.isEmpty() && possibleBackCamPose.isPresent()) {
 
       // Back camera has pose
       // Set pose to back camera pose
-      pose = possibleBackCamPose.get();
+      this.pose = possibleBackCamPose.get();
 
     } else {
 
       // No cameras have pose
       // Set pose to odometry pose
-      pose = odometryPose;
+      this.pose = odometryPose;
     }
 
+    // Update the field on the dashboard.
+    this.field.setRobotPose(this.pose.toPose2d());
+
     // Set pose offset
-    offset = pose.minus(odometryPose);
+    this.offset = pose.minus(odometryPose);
   }
 }

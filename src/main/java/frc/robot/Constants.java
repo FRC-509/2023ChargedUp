@@ -18,26 +18,27 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
+  // Vision-related constants.
   public static final int redAllianceSubstationTagID = 5;
   public static final int blueAllianceSubstationTagID = 4;
   public static final int[] redAllianceTargetTagIDs = { 6, 7, 8 };
   public static final int[] blueAllianceTargetTagIDs = { 3, 2, 1 };
 
-  public static final int pigeonId = 0;
-
+  // Control-related constants.
   public static final double stickDeadband = 0.1;
 
+  // Drivetrain-related constants.
   public static final double wheelCircumference = Units.inchesToMeters(4.0) * Math.PI;
   public static final double driveGearRatio = 6.75;
   public static final double angleGearRatio = 12.8;
-  public static final double maxSpeed = 4.96824;
+  public static final double maxSpeed = 4.96824; // 5.146844360768413;
   public static final double maxAngularVelocity = 10.0;
 
-  public static final boolean closedLoopDriveVelocity = false;
+  public static final boolean closedLoopDriveVelocity = true;
 
-  public static final double driveKS = 0.017371;
-  public static final double driveKV = 2.3131;
-  public static final double driveKA = 0.10452;
+  // public static final double driveKS = 0.017371;
+  // public static final double driveKV = 2.3131;
+  // public static final double driveKA = 0.10452;
 
   public static final double safetyBuffer = Units.inchesToMeters(40);
   public static final double chassisLength = Units.inchesToMeters(28);
@@ -78,7 +79,7 @@ public final class Constants {
       4,
       140.28d,
       new Utils.PIDConstants(0.2, 0, 0, 0),
-      new Utils.PIDConstants(0.054534, 0, 0, 0));
+      new Utils.PIDConstants(0.02, 0.00055, 0.002, 0.0012));
 
   public static final SwerveModuleConfigurations s_frontRight = new SwerveModuleConfigurations(
       1,
@@ -87,7 +88,7 @@ public final class Constants {
       0,
       157.40d,
       new Utils.PIDConstants(0.2, 0, 0, 0),
-      new Utils.PIDConstants(0.054534, 0, 0, 0));
+      new Utils.PIDConstants(0.02, 0.00055, 0.002, 0.0012));
 
   public static final SwerveModuleConfigurations s_backLeft = new SwerveModuleConfigurations(
       2,
@@ -96,7 +97,7 @@ public final class Constants {
       6,
       154.42d,
       new Utils.PIDConstants(0.2, 0, 0, 0),
-      new Utils.PIDConstants(0.054534, 0, 0, 0));
+      new Utils.PIDConstants(0.02, 0.00055, 0.002, 0.0012));
 
   public static final SwerveModuleConfigurations s_backRight = new SwerveModuleConfigurations(
       3,
@@ -105,6 +106,6 @@ public final class Constants {
       2,
       104.42d,
       new Utils.PIDConstants(0.2, 0, 0, 0),
-      new Utils.PIDConstants(0.054534, 0, 0, 0));
+      new Utils.PIDConstants(0.02, 0.00055, 0.002, 0.0012));
 
 }

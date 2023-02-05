@@ -27,7 +27,7 @@ public class IntakeCommand extends CommandBase {
   }
 
   @Override
-  public void end() {
+  public void end(boolean interrupted) {
     this.intakeSubsystem.spin(0);
     this.intakeSubsystem.retract();
   }
