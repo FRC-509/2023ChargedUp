@@ -1,14 +1,8 @@
 package frc.robot;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Swerve;

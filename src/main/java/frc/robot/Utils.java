@@ -5,13 +5,8 @@ import java.util.ArrayList;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Utils {
-  /*
-   * public static double CANcoderToDegrees(double positionCounts, double
-   * gearRatio) {
-   * return positionCounts * (360.0 / (gearRatio * 4096.0));
-   * }
-   */
-
+  // The following conversion utilites were written by team 364:
+  // https://github.com/Team364/BaseFalconSwerve/blob/main/src/main/java/frc/lib/math/Conversions.java
   /**
    * @param counts    Falcon Position Counts
    * @param gearRatio Gear Ratio between Falcon and Mechanism
@@ -100,11 +95,21 @@ public final class Utils {
     return meters / (circumference / (gearRatio * 2048.0));
   }
 
+  /**
+   * @param key Label on SmartDashboard
+   * @param val Default value
+   * @return Value on SmartDashboard
+   */
   public static double serializeNumber(String key, double val) {
     SmartDashboard.setDefaultNumber(key, val);
     return SmartDashboard.getNumber(key, 0.0);
   }
 
+  /**
+   * @param key Label on SmartDashboard
+   * @param val Default value
+   * @return Value on SmartDashboard
+   */
   public static boolean serializeBoolean(String key, boolean val) {
     SmartDashboard.setDefaultBoolean(key, val);
     return SmartDashboard.getBoolean(key, false);
@@ -122,14 +127,5 @@ public final class Utils {
       this.kD = kD;
       this.kF = kF;
     }
-  }
-
-  public static double[] arrayListToArray(ArrayList<Double> velPoints) {
-    double[] vels = new double[velPoints.size()];
-
-    for (int i = 0; i < velPoints.size(); i++) {
-      vels[i] = velPoints.get(i);
-    }
-    return vels;
   }
 }

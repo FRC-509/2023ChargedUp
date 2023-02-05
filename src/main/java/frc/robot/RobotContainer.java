@@ -39,7 +39,6 @@ public class RobotContainer {
         () -> leftStick.getX(),
         () -> rightStick.getX(),
         () -> leftStick.getRawButton(2)));
-    // swerveSubsystem.setDefaultCommand(new Tuning(swerveSubsystem, 3));
 
     leftStickButtonTwo.whileTrue(
         new InstantCommand(() -> swerveSubsystem.zeroGyro(),

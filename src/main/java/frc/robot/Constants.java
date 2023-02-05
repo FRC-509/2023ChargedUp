@@ -23,14 +23,14 @@ public final class Constants {
   public static final double wheelCircumference = Units.inchesToMeters(4.0) * Math.PI;
   public static final double driveGearRatio = 6.75;
   public static final double angleGearRatio = 12.8;
-  public static final double maxSpeed = 4.96824; // 5.146844360768413; // 4.96824;
+  public static final double maxSpeed = 4.96824; // 5.146844360768413;
   public static final double maxAngularVelocity = 10.0;
 
   public static final boolean closedLoopDriveVelocity = true;
 
-  public static final double driveKS = 0.017371;
-  public static final double driveKV = 2.3131;
-  public static final double driveKA = 0.10452;
+  // public static final double driveKS = 0.017371;
+  // public static final double driveKV = 2.3131;
+  // public static final double driveKA = 0.10452;
 
   public static final double chassisLength = Units.inchesToMeters(28);
   public static final double chassisWidth = Units.inchesToMeters(28);

@@ -14,11 +14,9 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  * project.
  */
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
+  private Command autonomousCommand;
 
   private RobotContainer robotContainer;
-
-  private Tuning[] tuners;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -31,12 +29,6 @@ public class Robot extends TimedRobot {
     // and put our
     // autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
-
-    tuners = new Tuning[4];
-
-    for (int i = 0; i < 4; i++) {
-      tuners[i] = new Tuning(robotContainer.swerveSubsystem, i);
-    }
   }
 
   /**
@@ -59,10 +51,6 @@ public class Robot extends TimedRobot {
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-
-    // for (Tuning tuner : tuners) {
-    // tuner.dump();
-    // }
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -78,8 +66,8 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     robotContainer.initializeDriveTrain();
-    m_autonomousCommand = robotContainer.getAutonomousCommand();
-    m_autonomousCommand.schedule();
+    autonomousCommand = robotContainer.getAutonomousCommand();
+    autonomousCommand.schedule();
   }
 
   /** This function is called periodically during autonomous. */
@@ -93,8 +81,8 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    if (autonomousCommand != null) {
+      autonomousCommand.cancel();
     }
 
     robotContainer.initializeDriveTrain();
