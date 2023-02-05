@@ -22,19 +22,17 @@ public class Swerve extends SubsystemBase {
   public SwerveDriveOdometry swerveOdometry;
   public Pigeon2 pigeon;
 
-  public Swerve() {
-    pigeon = new Pigeon2(0);
-    pigeon.configFactoryDefault();
-    zeroGyro();
+  public Swerve(Pigeon2 pigeon) {
+    this.pigeon = pigeon;
 
-    swerveModules = new SwerveModule[] {
+    this.swerveModules = new SwerveModule[] {
         new SwerveModule(Constants.s_frontLeft),
         new SwerveModule(Constants.s_frontRight),
         new SwerveModule(Constants.s_backLeft),
         new SwerveModule(Constants.s_backRight),
     };
 
-    swerveOdometry = new SwerveDriveOdometry(Constants.swerveKinematics, getYaw(), getModulePositions());
+    this.swerveOdometry = new SwerveDriveOdometry(Constants.swerveKinematics, getYaw(), getModulePositions());
   }
 
   public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
@@ -52,7 +50,7 @@ public class Swerve extends SubsystemBase {
     // normalize wheel speeds
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.maxSpeed);
 
-    for (SwerveModule mod : swerveModules) {
+    for (SwerveModule mod : this.swerveModules) {
       mod.setDesiredState(swerveModuleStates[mod.moduleNumber]);
     }
   }
@@ -61,27 +59,27 @@ public class Swerve extends SubsystemBase {
   public void setModuleStates(SwerveModuleState[] desiredStates) {
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Constants.maxSpeed);
 
-    for (SwerveModule mod : swerveModules) {
+    for (SwerveModule mod : this.swerveModules) {
       mod.setDesiredState(desiredStates[mod.moduleNumber]);
     }
   }
 
   public Pose2d getPose() {
-    return swerveOdometry.getPoseMeters();
+    return this.swerveOdometry.getPoseMeters();
   }
 
   public void resetOdometry(Pose2d pose) {
     System.out.println("[Swerve::resetOdometry] Passed pose: " + pose.getX() + ", " + pose.getY());
-    swerveOdometry.resetPosition(getYaw(), getModulePositions(), pose);
+    this.swerveOdometry.resetPosition(getYaw(), getModulePositions(), pose);
   }
 
   public SwerveModule[] getModules() {
-    return swerveModules;
+    return this.swerveModules;
   }
 
   public SwerveModuleState[] getModuleStates() {
     SwerveModuleState[] states = new SwerveModuleState[4];
-    for (SwerveModule mod : swerveModules) {
+    for (SwerveModule mod : this.swerveModules) {
       states[mod.moduleNumber] = mod.getState();
     }
     return states;
@@ -89,35 +87,30 @@ public class Swerve extends SubsystemBase {
 
   public SwerveModulePosition[] getModulePositions() {
     SwerveModulePosition[] positions = new SwerveModulePosition[4];
-    for (SwerveModule mod : swerveModules) {
+    for (SwerveModule mod : this.swerveModules) {
       positions[mod.moduleNumber] = mod.getPosition();
     }
     return positions;
   }
 
-  public void zeroGyro() {
-    pigeon.setYaw(0);
-    pigeon.zeroGyroBiasNow();
-  }
-
   private Rotation2d getYaw() {
-    return Rotation2d.fromDegrees(pigeon.getYaw());
+    return Rotation2d.fromDegrees(this.pigeon.getYaw());
   }
 
   public void resetIntegratedToAbsolute() {
-    for (SwerveModule mod : swerveModules) {
+    for (SwerveModule mod : this.swerveModules) {
       mod.resetAngleToAbsolute();
     }
   }
 
   @Override
   public void periodic() {
-    swerveOdometry.update(getYaw(), getModulePositions());
+    this.swerveOdometry.update(getYaw(), getModulePositions());
     SmartDashboard.putNumber("theta", getYaw().getDegrees());
-    SmartDashboard.putNumber("odometry-x", swerveOdometry.getPoseMeters().getX());
-    SmartDashboard.putNumber("odometry-y", swerveOdometry.getPoseMeters().getY());
+    SmartDashboard.putNumber("odometry-x", this.swerveOdometry.getPoseMeters().getX());
+    SmartDashboard.putNumber("odometry-y", this.swerveOdometry.getPoseMeters().getY());
 
-    for (SwerveModule module : swerveModules) {
+    for (SwerveModule module : this.swerveModules) {
       module.debug();
     }
   }

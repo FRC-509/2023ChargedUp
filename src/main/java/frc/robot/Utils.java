@@ -1,7 +1,8 @@
 package frc.robot;
 
-import java.util.ArrayList;
+import com.ctre.phoenix.sensors.Pigeon2;
 
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Utils {
@@ -113,6 +114,16 @@ public final class Utils {
   public static boolean serializeBoolean(String key, boolean val) {
     SmartDashboard.setDefaultBoolean(key, val);
     return SmartDashboard.getBoolean(key, false);
+  }
+
+  /**
+   * @param gyro Pigeon2 instance
+   * @return Acceleration vector in m/s^2
+   */
+  public static Translation3d getAccelerometerData(Pigeon2 gyro) {
+    short[] xyz = new short[3];
+    gyro.getBiasedAccelerometer(xyz);
+    return new Translation3d(xyz[0] / 16384d * 9.81d, xyz[1] / 16384d * 9.81d, xyz[2] / 16384d * 9.81d);
   }
 
   public static final class PIDConstants {

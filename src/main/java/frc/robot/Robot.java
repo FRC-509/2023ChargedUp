@@ -28,7 +28,7 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
-    robotContainer = new RobotContainer();
+    this.robotContainer = new RobotContainer();
   }
 
   /**
@@ -65,9 +65,9 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousInit() {
-    robotContainer.initializeDriveTrain();
-    autonomousCommand = robotContainer.getAutonomousCommand();
-    autonomousCommand.schedule();
+    this.robotContainer.initializeDriveTrain();
+    this.autonomousCommand = this.robotContainer.getAutonomousCommand();
+    this.autonomousCommand.schedule();
   }
 
   /** This function is called periodically during autonomous. */
@@ -81,11 +81,11 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    if (autonomousCommand != null) {
-      autonomousCommand.cancel();
+    if (this.autonomousCommand != null) {
+      this.autonomousCommand.cancel();
     }
 
-    robotContainer.initializeDriveTrain();
+    this.robotContainer.initializeDriveTrain();
   }
 
   /** This function is called periodically during operator control. */

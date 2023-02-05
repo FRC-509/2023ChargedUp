@@ -20,7 +20,7 @@ public class TrajectoryBuilderWrapper {
   private PathPlannerTrajectory trajectory;
 
   public TrajectoryBuilderWrapper(String pathName) {
-    trajectory = PathPlanner.loadPath(pathName, pathConstraints);
+    this.trajectory = PathPlanner.loadPath(pathName, pathConstraints);
   }
 
   public CommandBase getSwerveControllerCommand(Swerve swerve) {
@@ -40,11 +40,11 @@ public class TrajectoryBuilderWrapper {
                // commands
     );
 
-    return builder.followPath(trajectory);
+    return builder.followPath(this.trajectory);
   }
 
   public Trajectory getTrajectory() {
-    return trajectory;
+    return this.trajectory;
   }
 
   public Command getPathFollowingCommand(Swerve swerve) {

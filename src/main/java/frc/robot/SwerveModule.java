@@ -56,12 +56,12 @@ public class SwerveModule {
     // // when enabled.
     // this.driveMotor.enableVoltageCompensation(true); // turn on/off feature
 
-    lastAngle = 0.0d;
+    this.lastAngle = 0.0d;
   }
 
   public void resetAngleToAbsolute() {
-    double falconAngle = Utils.degreesToFalcon(angleEncoder.getAbsolutePosition(), Constants.angleGearRatio);
-    angleMotor.setSelectedSensorPosition(falconAngle);
+    double falconAngle = Utils.degreesToFalcon(this.angleEncoder.getAbsolutePosition(), Constants.angleGearRatio);
+    this.angleMotor.setSelectedSensorPosition(falconAngle);
   }
 
   // Debug swerve module information to SmartDashboard
@@ -74,41 +74,41 @@ public class SwerveModule {
   }
 
   public Rotation2d getCanCoder() {
-    return Rotation2d.fromDegrees(angleEncoder.getAbsolutePosition());
+    return Rotation2d.fromDegrees(this.angleEncoder.getAbsolutePosition());
   }
 
   public SwerveModulePosition getPosition() {
     return new SwerveModulePosition(
         Utils.falconToMeters(
-            driveMotor.getSelectedSensorPosition(),
+            this.driveMotor.getSelectedSensorPosition(),
             Constants.wheelCircumference,
             Constants.driveGearRatio),
-        getCanCoder());
+        this.getCanCoder());
   }
 
   public SwerveModuleState getState() {
     return new SwerveModuleState(
         Utils.falconToMPS(
-            driveMotor.getSelectedSensorVelocity(),
+            this.driveMotor.getSelectedSensorVelocity(),
             Constants.wheelCircumference,
             Constants.driveGearRatio),
-        getCanCoder());
+        this.getCanCoder());
   }
 
-  public void supplyVoltage(double PercentOutput) {
-    driveMotor.set(ControlMode.PercentOutput, PercentOutput);
+  public void supplyVoltage(double percentOutput) {
+    this.driveMotor.set(ControlMode.PercentOutput, percentOutput);
   }
 
   public double getDegrees() {
-    double ticks = angleMotor.getSelectedSensorPosition();
+    double ticks = this.angleMotor.getSelectedSensorPosition();
     return Utils.falconToDegrees(ticks, Constants.angleGearRatio);
   }
 
   public void setDesiredState(SwerveModuleState desiredState) {
-    debug();
+    this.debug();
     // target angle [-180, 180]
     double targetAngle = desiredState.angle.getDegrees();
-    double delta = (targetAngle - getDegrees()) % 360;
+    double delta = (targetAngle - this.getDegrees()) % 360;
     double invertSpeed = 1;
 
     // limit to [-180, 180] rotation
@@ -128,15 +128,15 @@ public class SwerveModule {
     }
 
     // calculate final target angle and set motor position to it
-    double optimalTargetAngle = getDegrees() + delta;
-    if (Math.abs(optimalTargetAngle - lastAngle) < Constants.maxAngularVelocity * 0.01) {
-      optimalTargetAngle = lastAngle;
+    double optimalTargetAngle = this.getDegrees() + delta;
+    if (Math.abs(optimalTargetAngle - this.lastAngle) < Constants.maxAngularVelocity * 0.01) {
+      optimalTargetAngle = this.lastAngle;
     }
 
-    lastAngle = optimalTargetAngle;
+    this.lastAngle = optimalTargetAngle;
 
     double falconTarget = Utils.degreesToFalcon(optimalTargetAngle, Constants.angleGearRatio);
-    angleMotor.set(ControlMode.Position, falconTarget);
+    this.angleMotor.set(ControlMode.Position, falconTarget);
 
     if (Constants.closedLoopDriveVelocity) {
       double velocity = Utils.MPSToFalcon(
@@ -144,10 +144,10 @@ public class SwerveModule {
           Constants.wheelCircumference,
           Constants.driveGearRatio);
 
-      driveMotor.set(ControlMode.Velocity, velocity * invertSpeed);
+      this.driveMotor.set(ControlMode.Velocity, velocity * invertSpeed);
     } else {
       double out = Math.abs(desiredState.speedMetersPerSecond) / Constants.maxSpeed;
-      driveMotor.set(ControlMode.PercentOutput, invertSpeed * out);
+      this.driveMotor.set(ControlMode.PercentOutput, invertSpeed * out);
     }
   }
 }

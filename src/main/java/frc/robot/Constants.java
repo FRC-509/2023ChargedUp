@@ -18,8 +18,16 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
+  // Vision-related constants.
+  public static final int redAllianceSubstationTagID = 5;
+  public static final int blueAllianceSubstationTagID = 4;
+  public static final int[] redAllianceTargetTagIDs = { 6, 7, 8 };
+  public static final int[] blueAllianceTargetTagIDs = { 3, 2, 1 };
+
+  // Control-related constants.
   public static final double stickDeadband = 0.1;
 
+  // Drivetrain-related constants.
   public static final double wheelCircumference = Units.inchesToMeters(4.0) * Math.PI;
   public static final double driveGearRatio = 6.75;
   public static final double angleGearRatio = 12.8;
@@ -32,6 +40,7 @@ public final class Constants {
   // public static final double driveKV = 2.3131;
   // public static final double driveKA = 0.10452;
 
+  public static final double safetyBuffer = Units.inchesToMeters(40);
   public static final double chassisLength = Units.inchesToMeters(28);
   public static final double chassisWidth = Units.inchesToMeters(28);
   public static final double offsetToSwerveModule = chassisLength / 2 - Units.inchesToMeters(3.25);

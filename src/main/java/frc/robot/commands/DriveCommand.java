@@ -35,14 +35,14 @@ public class DriveCommand extends CommandBase {
   @Override
   public void execute() {
     /* Get Values, Deadband */
-    double translationVal = MathUtil.applyDeadband(translationSup.getAsDouble(), Constants.stickDeadband);
-    double strafeVal = MathUtil.applyDeadband(strafeSup.getAsDouble(), Constants.stickDeadband);
-    double rotationVal = MathUtil.applyDeadband(rotationSup.getAsDouble(), Constants.stickDeadband);
+    double translationVal = MathUtil.applyDeadband(this.translationSup.getAsDouble(), Constants.stickDeadband);
+    double strafeVal = MathUtil.applyDeadband(this.strafeSup.getAsDouble(), Constants.stickDeadband);
+    double rotationVal = MathUtil.applyDeadband(this.rotationSup.getAsDouble(), Constants.stickDeadband);
 
     /* Drive */
-    s_Swerve.drive(
+    this.s_Swerve.drive(
         new Translation2d(translationVal, strafeVal).times(Constants.maxSpeed),
         rotationVal * Constants.maxAngularVelocity,
-        !robotCentricSup.getAsBoolean());
+        !this.robotCentricSup.getAsBoolean());
   }
 }
