@@ -65,7 +65,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousInit() {
-    this.robotContainer.initializeDriveTrain();
+    // this.robotContainer.initializeDriveTrain();
     this.autonomousCommand = this.robotContainer.getAutonomousCommand();
     this.autonomousCommand.schedule();
   }
@@ -85,7 +85,7 @@ public class Robot extends TimedRobot {
       this.autonomousCommand.cancel();
     }
 
-    this.robotContainer.initializeDriveTrain();
+    // this.robotContainer.initializeDriveTrain();
   }
 
   /** This function is called periodically during operator control. */

@@ -82,11 +82,12 @@ public class RobotContainer {
     this.pigeon2.zeroGyroBiasNow();
   }
 
-  public void initializeDriveTrain() {
-    this.swerveSubsystem.resetIntegratedToAbsolute();
-    PathPlannerServer.startServer(5811);
-  }
-
+  /*
+   * public void initializeDriveTrain() {
+   * this.swerveSubsystem.resetIntegratedToAbsolute();
+   * PathPlannerServer.startServer(5811);
+   * }
+   */
   public Command getAutonomousCommand() {
     return new TrajectoryBuilderWrapper("New Path").getPathFollowingCommand(this.swerveSubsystem);
   }
