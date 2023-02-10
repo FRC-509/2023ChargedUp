@@ -31,11 +31,16 @@ public final class Constants {
   public static final double stickDeadband = 0.1;
 
   // Drivetrain-related constants.
+  public static final double safetyBuffer = Units.inchesToMeters(40);
+  public static final double chassisLength = Units.inchesToMeters(28);
+  public static final double chassisWidth = Units.inchesToMeters(28);
+  public static final double offsetToSwerveModule = chassisLength / 2 - Units.inchesToMeters(3.25);
+
   public static final double wheelCircumference = Units.inchesToMeters(4.0) * Math.PI;
   public static final double driveGearRatio = 6.75;
   public static final double angleGearRatio = 12.8;
   public static final double maxSpeed = 4.96824; // 5.146844360768413;
-  public static final double maxAngularVelocity = 10.0;
+  public static final double maxAngularVelocity = maxSpeed / (Math.hypot(offsetToSwerveModule, offsetToSwerveModule));
 
   public static final boolean closedLoopDriveVelocity = true;
 
@@ -43,10 +48,16 @@ public final class Constants {
   // public static final double driveKV = 2.3131;
   // public static final double driveKA = 0.10452;
 
-  public static final double safetyBuffer = Units.inchesToMeters(40);
-  public static final double chassisLength = Units.inchesToMeters(28);
-  public static final double chassisWidth = Units.inchesToMeters(28);
-  public static final double offsetToSwerveModule = chassisLength / 2 - Units.inchesToMeters(3.25);
+  // public static final double TEST = 10.0 * 1023.0d / 2048.0 / maxSpeed /
+  // wheelCircumference / driveGearRatio;
+  // public static final double TEST2 = 1023
+  // / (maxSpeed / (Math.PI * Units.inchesToMeters(4.0) * (1.0d / driveGearRatio)
+  // / 2048.0 * 10));
+
+  // Rishabh's magic
+  // kF - 0.047542572
+  // kP - 0.0160000324
+  // kI - 0.01n
 
   public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
       new Translation2d(+offsetToSwerveModule, +offsetToSwerveModule),
@@ -80,35 +91,35 @@ public final class Constants {
       2,
       5,
       4,
-      140.28d,
+      -220.25390625d,
       new Utils.PIDConstants(0.2, 0, 0, 0),
-      new Utils.PIDConstants(0.02, 0.00055, 0.002, 0.0012));
+      new Utils.PIDConstants(0.005, 0.0, 0.0, 0.0475425981));
 
   public static final SwerveModuleConfigurations s_frontRight = new SwerveModuleConfigurations(
       1,
       0,
       1,
       0,
-      157.40d,
+      -201.708984375,
       new Utils.PIDConstants(0.2, 0, 0, 0),
-      new Utils.PIDConstants(0.02, 0.00055, 0.002, 0.0012));
+      new Utils.PIDConstants(0.005, 0.0, 0.0, 0.0475425981));
 
   public static final SwerveModuleConfigurations s_backLeft = new SwerveModuleConfigurations(
       2,
       1,
       3,
       6,
-      154.42d,
+      -206.015625,
       new Utils.PIDConstants(0.2, 0, 0, 0),
-      new Utils.PIDConstants(0.02, 0.00055, 0.002, 0.0012));
+      new Utils.PIDConstants(0.005, 0.0, 0.0, 0.0475425981));
 
   public static final SwerveModuleConfigurations s_backRight = new SwerveModuleConfigurations(
       3,
       3,
       7,
       2,
-      104.42d,
+      -346.11328125,
       new Utils.PIDConstants(0.2, 0, 0, 0),
-      new Utils.PIDConstants(0.02, 0.00055, 0.002, 0.0012));
+      new Utils.PIDConstants(0.005, 0.0, 0.0, 0.0475425981));
 
 }
