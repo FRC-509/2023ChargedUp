@@ -5,6 +5,9 @@ import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -105,6 +108,31 @@ public class LimelightWrapper {
 
     // Return target pose
     return Optional.of(targetPose);
+  }
+
+  public Optional<Translation2d> getRobotTransform() {
+    if (!hasTarget()) {
+      return Optional.empty();
+    }
+
+    double[] pose;
+
+    if (DriverStation.getAlliance() == Alliance.Blue) {
+      pose = NetworkTableInstance
+          .getDefault()
+          .getTable(this.limelightName)
+          .getEntry("botpose_wpiblue")
+          .getDoubleArray(new double[6]);
+    } else {
+      pose = NetworkTableInstance
+          .getDefault()
+          .getTable(this.limelightName)
+          .getEntry("botpose_wpired")
+          .getDoubleArray(new double[6]);
+    }
+
+    Translation2d translation = new Translation2d(pose[0], pose[1]);
+    return Optional.of(translation);
   }
 
   // Gets robot position on field using april tags

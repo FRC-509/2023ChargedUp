@@ -18,6 +18,9 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
+  public static final String frontCameraId = "limelight_front";
+  public static final String backCameraId = "limelight_back";
+
   // Vision-related constants.
   public static final int redAllianceSubstationTagID = 5;
   public static final int blueAllianceSubstationTagID = 4;
