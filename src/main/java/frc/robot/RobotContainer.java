@@ -36,7 +36,7 @@ public class RobotContainer {
   public final Odometry odometry;
   public final Intake intakeSubsystem;
   public final Arm armSubsystem;
-  //public final Claw clawSubsystem;
+  public final Claw clawSubsystem;
 
   public final GenericHID operatorController = new GenericHID(2);
   private final JoystickButton leftTrigger = new JoystickButton(leftStick, 1);
@@ -45,8 +45,6 @@ public class RobotContainer {
   private final JoystickButton leftStickButtonThree = new JoystickButton(leftStick, 3);
   private final JoystickButton operatorButtonOne = new JoystickButton(operatorController, 1);
   private final JoystickButton operatorButtonTwo = new JoystickButton(operatorController, 2);
-
-  private boolean clawOpen = true;
 
   public RobotContainer() {
     // Initialize and configure the gyroscope.
@@ -63,7 +61,7 @@ public class RobotContainer {
     // Instantiate the arm.
     this.armSubsystem = new Arm();
     // Instantiate the claw.
-    //this.clawSubsystem = new Claw();
+    this.clawSubsystem = new Claw();
     // Configure button/stick bindings.
     this.configureButtonBindings();
   }
@@ -88,19 +86,17 @@ public class RobotContainer {
 
     // The slider on the right stick controls the intake motor speed. Intake with
     // the right stick's trigger, outtake with the left stick's trigger.
-    // this.rightTrigger
-    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getThrottle() + 1.0d) / 2.0d));
-    // this.leftTrigger
-    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> -(this.rightStick.getThrottle() + 1.0d) / 2.0d));
+    this.rightTrigger
+        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getThrottle() + 1.0d) / 2.0d));
+    this.leftTrigger
+        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> -(this.rightStick.getThrottle() + 1.0d) / 2.0d));
 
     // The A button on the operator's Logitech controller, or button three on the
     // driver's left stick, is used for toggling the claw's state between open and
     // closed.
     // this.operatorButtonOne.onTrue(
-    //     new InstantCommand(() -> {
-    //       this.clawOpen = !this.clawOpen;
-    //       this.clawSubsystem.setState(clawOpen);
-    //     },
+    //     new InstantCommand(() -> 
+    //       this.clawSubsystem.openClose(),
     //         this.armSubsystem))
     //     .or(leftStickButtonThree);
 

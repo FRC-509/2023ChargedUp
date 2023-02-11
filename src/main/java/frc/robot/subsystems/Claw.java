@@ -8,14 +8,14 @@ public class Claw extends SubsystemBase {
   private DoubleSolenoid solenoid;
 
   public Claw() {
-    solenoid = new DoubleSolenoid(1, PneumaticsModuleType.REVPH, 0, 2);
+    solenoid = new DoubleSolenoid(17, PneumaticsModuleType.REVPH, 0, 2);
   }
 
-  public void setState(boolean state) {
-    if (solenoid.get() == DoubleSolenoid.Value.kForward) {
+  public void openClose() {
+    if (solenoid.get() == DoubleSolenoid.Value.kOff) {
       solenoid.set(DoubleSolenoid.Value.kReverse);
     } else {
-      solenoid.set(DoubleSolenoid.Value.kForward);
+      solenoid.toggle();
     }
   }
 
