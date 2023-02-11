@@ -1,12 +1,16 @@
 package frc.robot;
 
+import frc.robot.commands.ArmCommand;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.OdometryCommand;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Swerve;
 import frc.robot.vision.Odometry;
 
 import com.ctre.phoenix.sensors.Pigeon2;
-import com.pathplanner.lib.server.PathPlannerServer;
-
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -30,11 +34,16 @@ public class RobotContainer {
 
   public final Swerve swerveSubsystem;
   public final Odometry odometry;
+  public final Intake intakeSubsystem;
+  public final Arm armSubsystem;
+  public final Claw clawSubsystem;
 
   public final GenericHID operatorController = new GenericHID(2);
   private final JoystickButton leftTrigger = new JoystickButton(leftStick, 1);
   private final JoystickButton rightTrigger = new JoystickButton(rightStick, 1);
   private final JoystickButton leftStickButtonTwo = new JoystickButton(leftStick, 2);
+  private final JoystickButton operatorButtonOne = new JoystickButton(operatorController, 1);
+  private final JoystickButton operatorButtonTwo = new JoystickButton(operatorController, 2);
 
   public RobotContainer() {
     // Initialize and configure the gyroscope.
@@ -46,9 +55,14 @@ public class RobotContainer {
     this.odometry = new Odometry(pigeon2);
     // Instantiate the drivetrain.
     this.swerveSubsystem = new Swerve(pigeon2);
-
+    // Instantiate the intake.
+    this.intakeSubsystem = new Intake();
+    // Instantiate the arm.
+    this.armSubsystem = new Arm();
+    // Instantiate the claw.
+    this.clawSubsystem = new Claw();
     // Configure button/stick bindings.
-    configureButtonBindings();
+    this.configureButtonBindings();
   }
 
   public void configureButtonBindings() {
@@ -60,6 +74,8 @@ public class RobotContainer {
         () -> this.rightStick.getX(),
         () -> this.leftStick.getRawButton(2)));
 
+    this.odometry.setDefaultCommand(new OdometryCommand(this.odometry, this.swerveSubsystem.swerveOdometry));
+
     // When button two on the left stick is pressed, zero the gyroscope.
     // The swerve subsystem is added as a requirement, since although the Pigeon
     // does not live in it, it most certainly depends on it.
@@ -67,14 +83,21 @@ public class RobotContainer {
         new InstantCommand(() -> zeroGyro(),
             this.swerveSubsystem));
 
-    /*
-     * // The slider on the right stick controls the intake motor speed. Intake with
-     * the right stick's trigger, outtake with the left stick's trigger.
-     * rightTrigger.whileTrue(new IntakeCommand(() ->
-     * this.rightStick.getThrottle()));
-     * leftTrigger.whileTrue(new IntakeCommand(() ->
-     * -this.rightStick.getThrottle()));
-     */
+    // The slider on the right stick controls the intake motor speed. Intake with
+    // the right stick's trigger, outtake with the left stick's trigger.
+    this.rightTrigger
+        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getThrottle() + 1.0d) / 2.0d));
+    this.leftTrigger
+        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> -(this.rightStick.getThrottle() + 1.0d) / 2.0d));
+
+    // The A and B buttons on the operator's Logitech controller are used for
+    // opening and closing the claw.
+    this.operatorButtonOne.whileTrue(new InstantCommand(() -> this.clawSubsystem.open(), this.armSubsystem));
+    this.operatorButtonTwo.whileTrue(new InstantCommand(() -> this.clawSubsystem.close(), this.armSubsystem));
+
+    this.armSubsystem
+        .setDefaultCommand(new ArmCommand(armSubsystem, () -> (this.operatorController.getRawAxis(0) * 360.0d),
+            () -> this.operatorController.getRawAxis(1)));
   }
 
   public void zeroGyro() {
@@ -82,12 +105,6 @@ public class RobotContainer {
     this.pigeon2.zeroGyroBiasNow();
   }
 
-  /*
-   * public void initializeDriveTrain() {
-   * this.swerveSubsystem.resetIntegratedToAbsolute();
-   * PathPlannerServer.startServer(5811);
-   * }
-   */
   public Command getAutonomousCommand() {
     return new TrajectoryBuilderWrapper("New Path").getPathFollowingCommand(this.swerveSubsystem);
   }

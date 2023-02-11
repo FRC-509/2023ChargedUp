@@ -1,4 +1,4 @@
-/*
+
 package frc.robot.commands;
 
 import java.util.function.DoubleSupplier;
@@ -32,4 +32,3 @@ public class IntakeCommand extends CommandBase {
     this.intakeSubsystem.retract();
   }
 }
-*/

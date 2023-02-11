@@ -6,7 +6,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
@@ -15,13 +14,13 @@ import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 public class SwerveModule {
   public int moduleNumber;
 
-  // motor IDs
-  private TalonFX angleMotor;
-  private TalonFX driveMotor;
+  // Motor Controllers for Drive/Steer and Steering Encoder
+  private LazyTalonFX angleMotor;
+  private LazyTalonFX driveMotor;
   private CANCoder angleEncoder;
 
-  // module variables
-  private double lastAngle;
+  // The previously set steer angle.
+  private double lastSteerAngle;
 
   // Construct a new Swerve Module using a preset Configuration
   public SwerveModule(Constants.SwerveModuleConfigurations configs) {
@@ -32,11 +31,11 @@ public class SwerveModule {
     canCoderConfiguration.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
     canCoderConfiguration.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
     canCoderConfiguration.magnetOffsetDegrees = configs.angleEncoderOffset;
-    this.angleEncoder = new CANCoder(configs.angleEncoderId);
+    this.angleEncoder = new CANCoder(configs.angleEncoderId, Constants.CANIVORE);
     this.angleEncoder.configAllSettings(canCoderConfiguration);
 
     // Angle Motor Config
-    this.angleMotor = new TalonFX(configs.angleMotorId);
+    this.angleMotor = new LazyTalonFX(configs.angleMotorId, Constants.CANIVORE);
     this.angleMotor.setNeutralMode(NeutralMode.Coast);
     this.angleMotor.config_kP(0, configs.steerPID.kP);
     this.angleMotor.config_kI(0, configs.steerPID.kI);
@@ -44,19 +43,17 @@ public class SwerveModule {
     this.angleMotor.config_kF(0, configs.steerPID.kF);
 
     // Drive Motor Config
-    this.driveMotor = new TalonFX(configs.driveMotorId);
+    this.driveMotor = new LazyTalonFX(configs.driveMotorId, Constants.CANIVORE);
     this.driveMotor.setNeutralMode(NeutralMode.Brake);
     this.driveMotor.setSelectedSensorPosition(0);
     this.driveMotor.config_kP(0, configs.drivePID.kP);
     this.driveMotor.config_kI(0, configs.drivePID.kI);
     this.driveMotor.config_kD(0, configs.drivePID.kD);
     this.driveMotor.config_kF(0, configs.drivePID.kF);
-    // this.driveMotor.configVoltageCompSaturation(12); // "full output" will now
-    // scale to 12 Volts for all control modes
-    // // when enabled.
-    // this.driveMotor.enableVoltageCompensation(true); // turn on/off feature
-
-    this.lastAngle = 0.0d;
+    // "full output" will now scale to 12 Volts for all control modes.
+    this.driveMotor.configVoltageCompSaturation(12);
+    this.driveMotor.enableVoltageCompensation(true);
+    this.lastSteerAngle = getDegrees();
   }
 
   public void resetAngleToAbsolute() {
@@ -129,11 +126,11 @@ public class SwerveModule {
 
     // calculate final target angle and set motor position to it
     double optimalTargetAngle = this.getDegrees() + delta;
-    if (Math.abs(optimalTargetAngle - this.lastAngle) < Constants.maxAngularVelocity * 0.01) {
-      optimalTargetAngle = this.lastAngle;
+    if (Math.abs(optimalTargetAngle - this.lastSteerAngle) < Constants.maxAngularVelocity * 0.01) {
+      optimalTargetAngle = this.lastSteerAngle;
     }
 
-    this.lastAngle = optimalTargetAngle;
+    this.lastSteerAngle = optimalTargetAngle;
 
     double falconTarget = Utils.degreesToFalcon(optimalTargetAngle, Constants.angleGearRatio);
     this.angleMotor.set(ControlMode.Position, falconTarget);

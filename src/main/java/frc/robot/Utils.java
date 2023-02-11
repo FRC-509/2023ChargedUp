@@ -1,6 +1,9 @@
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -137,6 +140,21 @@ public final class Utils {
       this.kI = kI;
       this.kD = kD;
       this.kF = kF;
+    }
+
+    public void configureTalonFX(TalonFX talon) {
+      talon.config_kP(0, kP);
+      talon.config_kI(0, kI);
+      talon.config_kD(0, kD);
+      talon.config_kF(0, kF);
+    }
+
+    public void configureCANSparkMax(CANSparkMax spark) {
+      SparkMaxPIDController pid = spark.getPIDController();
+      pid.setP(kP);
+      pid.setI(kI);
+      pid.setD(kD);
+      pid.setFF(kF);
     }
   }
 }

@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -21,6 +22,15 @@ public class LimelightWrapper {
   public LimelightWrapper(String name) {
     this.limelightName = name;
     setLEDState(true);
+    setPipeline(0);
+  }
+
+  public void setPipeline(int pipeline) {
+    NetworkTableInstance
+        .getDefault()
+        .getTable(limelightName)
+        .getEntry("pipeline")
+        .setNumber(pipeline);
   }
 
   // Set LED state to on (true) or off (false)
@@ -105,6 +115,34 @@ public class LimelightWrapper {
 
     // Return target pose
     return Optional.of(targetPose);
+  }
+
+  public Optional<Translation2d> getRobotTransform() {
+
+    // Make sure has targets
+    if (!hasTarget()) {
+      return Optional.empty();
+    }
+
+    // Get raw robot position
+    double[] poseData;
+    if (DriverStation.getAlliance() == Alliance.Blue) {
+      poseData = NetworkTableInstance
+          .getDefault()
+          .getTable(this.limelightName)
+          .getEntry("botpose_wpiblue")
+          .getDoubleArray(new double[6]);
+    } else {
+      poseData = NetworkTableInstance
+          .getDefault()
+          .getTable(this.limelightName)
+          .getEntry("botpose_wpired")
+          .getDoubleArray(new double[6]);
+    }
+
+    // Get and return final robot position
+    Translation2d translation = new Translation2d(poseData[0], poseData[1]);
+    return Optional.of(translation);
   }
 
   // Gets robot position on field using april tags

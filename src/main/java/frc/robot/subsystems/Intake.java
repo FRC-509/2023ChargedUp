@@ -1,4 +1,3 @@
-/*
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
@@ -10,14 +9,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
   private DoubleSolenoid solenoid;
-  private CANSparkMax masterMotor;
-  private CANSparkMax slaveMotor;
+  private CANSparkMax primaryMotor;
+  private CANSparkMax secondaryMotor;
 
   public Intake() {
-    masterMotor = new CANSparkMax(0, MotorType.kBrushed);
-    slaveMotor = new CANSparkMax(1, MotorType.kBrushed);
-    slaveMotor.follow(masterMotor);
-    solenoid = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 0, 0);
+    primaryMotor = new CANSparkMax(0, MotorType.kBrushless);
+    secondaryMotor = new CANSparkMax(1, MotorType.kBrushless);
+    secondaryMotor.follow(primaryMotor);
+    solenoid = new DoubleSolenoid(1, PneumaticsModuleType.CTREPCM, 2, 3);
   }
 
   public void drop() {
@@ -33,11 +32,6 @@ public class Intake extends SubsystemBase {
   }
 
   public void spin(double v) {
-    masterMotor.set(v);
-  }
-
-  @Override
-  public void periodic() {
+    primaryMotor.set(v);
   }
 }
-*/

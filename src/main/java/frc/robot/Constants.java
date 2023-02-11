@@ -18,11 +18,15 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
+  public static final String CANIVORE = "509CANIvore";
+
   // Vision-related constants.
   public static final int redAllianceSubstationTagID = 5;
   public static final int blueAllianceSubstationTagID = 4;
   public static final int[] redAllianceTargetTagIDs = { 6, 7, 8 };
   public static final int[] blueAllianceTargetTagIDs = { 3, 2, 1 };
+  public static final String frontCameraId = "limelight-front";
+  public static final String backCameraId = "limelight-back";
 
   // Control-related constants.
   public static final double stickDeadband = 0.1;
