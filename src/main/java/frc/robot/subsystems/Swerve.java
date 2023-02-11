@@ -33,7 +33,7 @@ public class Swerve extends SubsystemBase {
         new SwerveModule(Constants.s_backRight),
     };
 
-    // Pause initialization for one second, to wait for the pheonix server to start
+    // Pause initialization for one second, to wait for the phoenix server to start
     // up. Prevents CAN frames from being dropped on init.
     Timer.delay(1.0);
     resetIntegratedToAbsolute();

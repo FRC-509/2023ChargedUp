@@ -32,7 +32,7 @@ public class LimelightWrapper {
         .setNumber(state ? 1 : 0);
   }
 
-  // Get offset funcs
+  // Get offsets
   public double getXOffset() {
     return NetworkTableInstance
         .getDefault()
@@ -46,14 +46,6 @@ public class LimelightWrapper {
         .getDefault()
         .getTable(this.limelightName)
         .getEntry("ty")
-        .getDouble(0);
-  }
-
-  public double getZOffset() {
-    return NetworkTableInstance
-        .getDefault()
-        .getTable(this.limelightName)
-        .getEntry("tz")
         .getDouble(0);
   }
 
@@ -77,36 +69,6 @@ public class LimelightWrapper {
     return rawTagID.intValue();
   }
 
-  // Gets pose of best reflective tape target
-  public Optional<Pose3d> getBestReflectiveTargetPose(Pose3d currentRobotPose) {
-
-    // Turn LEDs on
-    setLEDState(true);
-
-    // Make sure has targets
-    if (hasTarget()) {
-
-      // Turn off LED and return nothing
-      setLEDState(false);
-      return Optional.empty();
-    }
-
-    // Get target pose
-    double[] rawTargetPose = NetworkTableInstance
-        .getDefault()
-        .getTable(this.limelightName)
-        .getEntry("camtran").getDoubleArray((double[]) null);
-
-    Rotation3d targetRotation = new Rotation3d(rawTargetPose[4], rawTargetPose[5], rawTargetPose[6]);
-    Pose3d targetPose = new Pose3d(rawTargetPose[1], rawTargetPose[2], rawTargetPose[3], targetRotation);
-
-    // Turn LEDs off
-    setLEDState(false);
-
-    // Return target pose
-    return Optional.of(targetPose);
-  }
-
   // Gets robot position on field using april tags
   public Optional<Pose3d> getRobotPose() {
 
@@ -123,6 +85,7 @@ public class LimelightWrapper {
           .getTable(this.limelightName)
           .getEntry("botpose_wpiblue")
           .getDoubleArray(new double[6]);
+
     } else {
       poseData = NetworkTableInstance
           .getDefault()
