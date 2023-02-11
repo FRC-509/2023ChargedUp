@@ -60,11 +60,18 @@ public final class Constants {
   // kP - 0.0160000324
   // kI - 0.01n
 
+  /* 
+   * The order of each vector corresponds to the index of the swerve module inside the swerveModules array.
+   * 
+   * module 2 (-, -) |--b--| module 1 (-, +)
+   *                 |     |
+   * module 3 (+, -) |--f--| module 0 (+, +)
+  */
   public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
       new Translation2d(+offsetToSwerveModule, +offsetToSwerveModule),
-      new Translation2d(+offsetToSwerveModule, -offsetToSwerveModule),
       new Translation2d(-offsetToSwerveModule, +offsetToSwerveModule),
-      new Translation2d(-offsetToSwerveModule, -offsetToSwerveModule));
+      new Translation2d(-offsetToSwerveModule, -offsetToSwerveModule),
+      new Translation2d(+offsetToSwerveModule, -offsetToSwerveModule));
 
   public static final class SwerveModuleConfigurations {
     public int moduleNumber;
@@ -92,34 +99,34 @@ public final class Constants {
       0,
       8,
       4,
-      0,
+      -315.09,
       new Utils.PIDConstants(0.2, 0, 0, 0),
       new Utils.PIDConstants(0.005, 0.0, 0.0, 0.0475425981));
 
   public static final SwerveModuleConfigurations s_frontRight = new SwerveModuleConfigurations(
-      1,
-      1,
-      9,
-      5,
-      0,
+      3,
+      3,
+      11,
+      7,
+      -299.18,
       new Utils.PIDConstants(0.2, 0, 0, 0),
       new Utils.PIDConstants(0.005, 0.0, 0.0, 0.0475425981));
 
   public static final SwerveModuleConfigurations s_backLeft = new SwerveModuleConfigurations(
-      2,
-      2,
-      10,
-      6,
-      0,
+      1,
+    1,
+      9,
+      5,
+      -309.28,
       new Utils.PIDConstants(0.2, 0, 0, 0),
       new Utils.PIDConstants(0.005, 0.0, 0.0, 0.0475425981));
 
   public static final SwerveModuleConfigurations s_backRight = new SwerveModuleConfigurations(
-      3,
-      3,
-      11,
       2,
-      0,
+      2,
+      10,
+      6,
+      -156.44,
       new Utils.PIDConstants(0.2, 0, 0, 0),
       new Utils.PIDConstants(0.005, 0.0, 0.0, 0.0475425981));
 

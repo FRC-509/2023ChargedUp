@@ -28,7 +28,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  */
 public class RobotContainer {
 
-  public final Pigeon2 pigeon2 = new Pigeon2(0);
+  public final Pigeon2 pigeon2 = new Pigeon2(20, Constants.CANIVORE);
   public final Joystick leftStick = new Joystick(1);
   public final Joystick rightStick = new Joystick(0);
 
@@ -36,7 +36,7 @@ public class RobotContainer {
   public final Odometry odometry;
   public final Intake intakeSubsystem;
   public final Arm armSubsystem;
-  public final Claw clawSubsystem;
+  //public final Claw clawSubsystem;
 
   public final GenericHID operatorController = new GenericHID(2);
   private final JoystickButton leftTrigger = new JoystickButton(leftStick, 1);
@@ -63,7 +63,7 @@ public class RobotContainer {
     // Instantiate the arm.
     this.armSubsystem = new Arm();
     // Instantiate the claw.
-    this.clawSubsystem = new Claw();
+    //this.clawSubsystem = new Claw();
     // Configure button/stick bindings.
     this.configureButtonBindings();
   }
@@ -88,25 +88,25 @@ public class RobotContainer {
 
     // The slider on the right stick controls the intake motor speed. Intake with
     // the right stick's trigger, outtake with the left stick's trigger.
-    this.rightTrigger
-        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getThrottle() + 1.0d) / 2.0d));
-    this.leftTrigger
-        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> -(this.rightStick.getThrottle() + 1.0d) / 2.0d));
+    // this.rightTrigger
+    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getThrottle() + 1.0d) / 2.0d));
+    // this.leftTrigger
+    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> -(this.rightStick.getThrottle() + 1.0d) / 2.0d));
 
     // The A button on the operator's Logitech controller, or button three on the
     // driver's left stick, is used for toggling the claw's state between open and
     // closed.
-    this.operatorButtonOne.onTrue(
-        new InstantCommand(() -> {
-          this.clawOpen = !this.clawOpen;
-          this.clawSubsystem.setState(clawOpen);
-        },
-            this.armSubsystem))
-        .or(leftStickButtonThree);
+    // this.operatorButtonOne.onTrue(
+    //     new InstantCommand(() -> {
+    //       this.clawOpen = !this.clawOpen;
+    //       this.clawSubsystem.setState(clawOpen);
+    //     },
+    //         this.armSubsystem))
+    //     .or(leftStickButtonThree);
 
-    this.armSubsystem
-        .setDefaultCommand(new ArmCommand(armSubsystem, () -> (this.operatorController.getRawAxis(0) * 360.0d),
-            () -> this.operatorController.getRawAxis(1)));
+    // this.armSubsystem
+    //     .setDefaultCommand(new ArmCommand(armSubsystem, () -> (this.operatorController.getRawAxis(0) * 360.0d),
+    //         () -> this.operatorController.getRawAxis(1)));
   }
 
   public void zeroGyro() {

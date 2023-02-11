@@ -28,9 +28,9 @@ public class Swerve extends SubsystemBase {
 
     this.swerveModules = new SwerveModule[] {
         new SwerveModule(Constants.s_frontLeft),
-        new SwerveModule(Constants.s_frontRight),
         new SwerveModule(Constants.s_backLeft),
         new SwerveModule(Constants.s_backRight),
+        new SwerveModule(Constants.s_frontRight),
     };
 
     // Pause initialization for one second, to wait for the pheonix server to start
