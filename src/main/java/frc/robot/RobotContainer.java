@@ -42,8 +42,11 @@ public class RobotContainer {
   private final JoystickButton leftTrigger = new JoystickButton(leftStick, 1);
   private final JoystickButton rightTrigger = new JoystickButton(rightStick, 1);
   private final JoystickButton leftStickButtonTwo = new JoystickButton(leftStick, 2);
+  private final JoystickButton leftStickButtonThree = new JoystickButton(leftStick, 3);
   private final JoystickButton operatorButtonOne = new JoystickButton(operatorController, 1);
   private final JoystickButton operatorButtonTwo = new JoystickButton(operatorController, 2);
+
+  private boolean clawOpen = true;
 
   public RobotContainer() {
     // Initialize and configure the gyroscope.
@@ -90,10 +93,16 @@ public class RobotContainer {
     this.leftTrigger
         .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> -(this.rightStick.getThrottle() + 1.0d) / 2.0d));
 
-    // The A and B buttons on the operator's Logitech controller are used for
-    // opening and closing the claw.
-    this.operatorButtonOne.whileTrue(new InstantCommand(() -> this.clawSubsystem.open(), this.armSubsystem));
-    this.operatorButtonTwo.whileTrue(new InstantCommand(() -> this.clawSubsystem.close(), this.armSubsystem));
+    // The A button on the operator's Logitech controller, or button three on the
+    // driver's left stick, is used for toggling the claw's state between open and
+    // closed.
+    this.operatorButtonOne.onTrue(
+        new InstantCommand(() -> {
+          this.clawOpen = !this.clawOpen;
+          this.clawSubsystem.setState(clawOpen);
+        },
+            this.armSubsystem))
+        .or(leftStickButtonThree);
 
     this.armSubsystem
         .setDefaultCommand(new ArmCommand(armSubsystem, () -> (this.operatorController.getRawAxis(0) * 360.0d),

@@ -43,7 +43,7 @@ public final class Constants {
   public static final double maxSpeed = 4.96824; // 5.146844360768413;
   public static final double maxAngularVelocity = maxSpeed / (Math.hypot(offsetToSwerveModule, offsetToSwerveModule));
 
-  public static final boolean closedLoopDriveVelocity = true;
+  public static final boolean closedLoopDriveVelocity = false;
 
   // public static final double driveKS = 0.017371;
   // public static final double driveKV = 2.3131;
@@ -89,37 +89,37 @@ public final class Constants {
 
   public static final SwerveModuleConfigurations s_frontLeft = new SwerveModuleConfigurations(
       0,
-      2,
-      5,
+      0,
+      8,
       4,
-      -220.25390625d,
+      0,
       new Utils.PIDConstants(0.2, 0, 0, 0),
       new Utils.PIDConstants(0.005, 0.0, 0.0, 0.0475425981));
 
   public static final SwerveModuleConfigurations s_frontRight = new SwerveModuleConfigurations(
       1,
-      0,
       1,
+      9,
+      5,
       0,
-      -201.708984375,
       new Utils.PIDConstants(0.2, 0, 0, 0),
       new Utils.PIDConstants(0.005, 0.0, 0.0, 0.0475425981));
 
   public static final SwerveModuleConfigurations s_backLeft = new SwerveModuleConfigurations(
       2,
-      1,
-      3,
+      2,
+      10,
       6,
-      -206.015625,
+      0,
       new Utils.PIDConstants(0.2, 0, 0, 0),
       new Utils.PIDConstants(0.005, 0.0, 0.0, 0.0475425981));
 
   public static final SwerveModuleConfigurations s_backRight = new SwerveModuleConfigurations(
       3,
       3,
-      7,
+      11,
       2,
-      -346.11328125,
+      0,
       new Utils.PIDConstants(0.2, 0, 0, 0),
       new Utils.PIDConstants(0.005, 0.0, 0.0, 0.0475425981));
 

@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -63,8 +64,8 @@ public class SwerveModule {
 
   // Debug swerve module information to SmartDashboard
   public void debug() {
-    // SmartDashboard.putNumber(moduleNumber + " CANCoder",
-    // angleEncoder.getAbsolutePosition());
+    SmartDashboard.putNumber(moduleNumber + " CANCoder",
+        angleEncoder.getAbsolutePosition());
     // SmartDashboard.putNumber(moduleNumber + " Integrated",
     // Utils.falconToDegrees(angleMotor.getSelectedSensorPosition(),
     // Constants.angleGearRatio));
