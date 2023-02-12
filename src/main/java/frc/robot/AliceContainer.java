@@ -21,12 +21,12 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in
- * the {@link Robot}
+ * the {@link Alice}
  * periodic methods (other than the scheduler calls). Instead, the structure of
  * the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
-public class RobotContainer {
+public class AliceContainer {
 
   public final Pigeon2 pigeon2 = new Pigeon2(20, Constants.CANIVORE);
   public final Joystick leftStick = new Joystick(1);
@@ -46,7 +46,7 @@ public class RobotContainer {
   private final JoystickButton operatorButtonOne = new JoystickButton(operatorController, 1);
   private final JoystickButton operatorButtonTwo = new JoystickButton(operatorController, 2);
 
-  public RobotContainer() {
+  public AliceContainer() {
     // Initialize and configure the gyroscope.
     this.pigeon2.configFactoryDefault();
     // Zero the gyroscope rotation.

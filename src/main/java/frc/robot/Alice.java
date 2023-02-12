@@ -13,10 +13,10 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  * build.gradle file in the
  * project.
  */
-public class Robot extends TimedRobot {
+public class Alice extends TimedRobot {
   private Command autonomousCommand;
 
-  private RobotContainer robotContainer;
+  private AliceContainer robotContainer;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -28,7 +28,7 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
-    this.robotContainer = new RobotContainer();
+    this.robotContainer = new AliceContainer();
   }
 
   /**
