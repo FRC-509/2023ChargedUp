@@ -129,6 +129,27 @@ public final class Utils {
     return new Translation3d(xyz[0] / 16384d * 9.81d, xyz[1] / 16384d * 9.81d, xyz[2] / 16384d * 9.81d);
   }
 
+  /**
+   * @param input Velocity or voltage input
+   * @param encoderPos Current sensor position reading
+   * @param low Lower bound
+   * @param high Higher bound 
+   * @return Velocity or voltage input
+   */
+  public double softStop(double input, double encoderPos, double low, double high){
+    if (encoderPos < low){
+      if (input < 0){
+        input = 0;
+      }
+    }
+    else if (encoderPos > high){
+      if (input > 0){
+        input = 0;
+      }
+    }
+    return input;
+  }
+
   public static final class PIDConstants {
     public final double kP;
     public final double kI;

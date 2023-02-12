@@ -87,9 +87,9 @@ public class RobotContainer {
     // The slider on the right stick controls the intake motor speed. Intake with
     // the right stick's trigger, outtake with the left stick's trigger.
     this.rightTrigger
-        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getThrottle() + 1.0d) / 2.0d));
+        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> this.rightStick.getThrottle()));
     this.leftTrigger
-        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> -(this.rightStick.getThrottle() + 1.0d) / 2.0d));
+        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> this.rightStick.getThrottle()));
 
     // The A button on the operator's Logitech controller, or button three on the
     // driver's left stick, is used for toggling the claw's state between open and
