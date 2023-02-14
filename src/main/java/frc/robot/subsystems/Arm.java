@@ -22,7 +22,7 @@ public class Arm extends SubsystemBase {
   private final LazyTalonFX pivotMotor1 = new LazyTalonFX(12);
   private final LazyTalonFX pivotMotor2 = new LazyTalonFX(13);
 
-  private final CANSparkMax extensionMotor = new CANSparkMax(15, MotorType.kBrushless);
+  private final CANSparkMax extensionMotor = new CANSparkMax(14, MotorType.kBrushless);
   private SparkMaxPIDController extensionController;
   private RelativeEncoder extensionEncoder;
 

@@ -28,7 +28,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  */
 public class AliceContainer {
 
-  public final Pigeon2 pigeon2 = new Pigeon2(20, Constants.CANIVORE);
+  public final Pigeon2 pigeon2 = new Pigeon2(14, Constants.CANIVORE);
   public final Joystick leftStick = new Joystick(1);
   public final Joystick rightStick = new Joystick(0);
 
@@ -68,12 +68,12 @@ public class AliceContainer {
 
   public void configureButtonBindings() {
     // Set the default command of the drive train subsystem to DriveCommand.
-    this.swerveSubsystem.setDefaultCommand(new DriveCommand(
-        this.swerveSubsystem,
-        () -> this.leftStick.getY(),
-        () -> this.leftStick.getX(),
-        () -> this.rightStick.getX(),
-        () -> this.leftStick.getRawButton(2)));
+    // this.swerveSubsystem.setDefaultCommand(new DriveCommand(
+    //     this.swerveSubsystem,
+    //     () -> this.leftStick.getY(),
+    //     () -> this.leftStick.getX(),
+    //     () -> this.rightStick.getX(),
+    //     () -> this.leftStick.getRawButton(2)));
 
     this.odometry.setDefaultCommand(new OdometryCommand(this.odometry, this.swerveSubsystem.swerveOdometry));
 
