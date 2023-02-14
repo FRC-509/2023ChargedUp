@@ -14,9 +14,8 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.LazyTalonFX;
-import frc.robot.Utils;
-import frc.robot.Utils.PIDConstants;
+import frc.robot.util.LazyTalonFX;
+import frc.robot.util.Utils;
 
 public class Arm extends SubsystemBase {
   private final LazyTalonFX pivotMotor1 = new LazyTalonFX(12);
@@ -31,8 +30,8 @@ public class Arm extends SubsystemBase {
 
   // Dummy!
   private static final double maxExtension = 100;
-  private static final PIDConstants pivotConstants = new PIDConstants(1.0, 0, 0, 0);
-  private static final PIDConstants extensionConstants = new PIDConstants(1.0, 0, 0, 0);
+  private static final Utils.PIDConstants pivotConstants = new Utils.PIDConstants(1.0, 0, 0, 0);
+  private static final Utils.PIDConstants extensionConstants = new Utils.PIDConstants(1.0, 0, 0, 0);
 
   /*
    * Arm MUST start in a downward rotation, and completely retracted with an
@@ -60,20 +59,21 @@ public class Arm extends SubsystemBase {
     double currentAngle = getPivotAngle();
     double delta = targetAngle - (currentAngle % 360.0d);
     double outputAngle = Utils.degreesToFalcon(currentAngle + delta, pivotGearRatio);
-
-    // double lastAngle2 =
-    // Utils.falconToDegrees(pivotMotor2.getSelectedSensorPosition(),
-    // pivotGearRatio);
-    // double delta2 = angle - (lastAngle2 % 360.0d);
-    // double outputAngle2 = Utils.degreesToFalcon(lastAngle2 + delta2,
-    // pivotGearRatio);
-
     pivotMotor1.set(ControlMode.Position, outputAngle);
+  }
+
+  public void movePivotBy(double delta) {
+    pivotMotor1.set(ControlMode.Position, Utils.degreesToFalcon(getPivotAngle() + delta, pivotGearRatio));
   }
 
   public void setPercentExtension(double percentExtension) {
     percentExtension = MathUtil.clamp(percentExtension, -1.0, 1.0);
     extensionController.setReference(percentExtension * maxExtension, ControlType.kPosition);
+  }
+
+  public void extendArmBy(double percentExtension) {
+    double outputPos = extensionEncoder.getPosition() + MathUtil.clamp(percentExtension, -1.0, 1.0) * maxExtension;
+    extensionController.setReference(outputPos, ControlType.kPosition);
   }
 
   public double getPivotAngle() {

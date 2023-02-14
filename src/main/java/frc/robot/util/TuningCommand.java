@@ -1,13 +1,14 @@
-package frc.robot;
+package frc.robot.util;
 
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.SwerveModule;
 import frc.robot.subsystems.Swerve;
 
-public final class Tuning extends CommandBase {
+public final class TuningCommand extends CommandBase {
   static final double step = 0.2;
   static final double testTime = 10.0;
   final SwerveModule module;
@@ -26,7 +27,7 @@ public final class Tuning extends CommandBase {
   double preTime;
   double begTime;
 
-  public Tuning(Swerve swerve, int moduleId) {
+  public TuningCommand(Swerve swerve, int moduleId) {
     addRequirements(swerve);
 
     velPoints = new ArrayList<>();

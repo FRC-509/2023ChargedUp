@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import frc.robot.util.Utils;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -30,6 +31,8 @@ public final class Constants {
 
   // Control-related constants.
   public static final double stickDeadband = 0.1;
+  public static final double armPivotOperatorCoefficient = 0.1;
+  public static final double armExtensionOperatorCoefficient = 0.1;
 
   // Drivetrain-related constants.
   public static final double safetyBuffer = Units.inchesToMeters(40);
@@ -129,5 +132,4 @@ public final class Constants {
       -156.44,
       new Utils.PIDConstants(0.2, 0, 0, 0),
       new Utils.PIDConstants(0.005, 0.0, 0.0, 0.0475425981));
-
 }

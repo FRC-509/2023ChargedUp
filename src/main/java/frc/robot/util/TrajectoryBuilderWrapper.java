@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.util;
 
 import java.util.Map;
 
@@ -12,6 +12,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
 
 public class TrajectoryBuilderWrapper {

@@ -8,6 +8,7 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Swerve;
+import frc.robot.util.TrajectoryBuilderWrapper;
 import frc.robot.vision.Odometry;
 
 import com.ctre.phoenix.sensors.Pigeon2;
@@ -86,10 +87,12 @@ public class AliceContainer {
 
     // The slider on the right stick controls the intake motor speed. Intake with
     // the right stick's trigger, outtake with the left stick's trigger.
+    // Any function that returns a joystick axis does so from a scale of [-1, 1],
+    // so we need to convert that to [0, 1] for easier intake speed control.
     this.rightTrigger
-        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> this.rightStick.getThrottle()));
+        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getThrottle() + 1.0) / 2.0));
     this.leftTrigger
-        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> this.rightStick.getThrottle()));
+        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getThrottle() + 1.0) / 2.0));
 
     // The A button on the operator's Logitech controller, or button three on the
     // driver's left stick, is used for toggling the claw's state between open and
@@ -99,10 +102,10 @@ public class AliceContainer {
     //       this.clawSubsystem.openClose(),
     //         this.armSubsystem))
     //     .or(leftStickButtonThree);
-
+    
     // this.armSubsystem
-    //     .setDefaultCommand(new ArmCommand(armSubsystem, () -> (this.operatorController.getRawAxis(0) * 360.0d),
-    //         () -> this.operatorController.getRawAxis(1)));
+    //     .setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(2) * Constants.armPivotOperatorCoefficient,
+    //         () -> this.operatorController.getRawAxis(1) * Constants.armExtensionOperatorCoefficient));
   }
 
   public void zeroGyro() {
