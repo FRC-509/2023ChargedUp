@@ -31,8 +31,10 @@ public final class Constants {
 
   // Control-related constants.
   public static final double stickDeadband = 0.1;
-  public static final double armPivotOperatorCoefficient = 0.1;
-  public static final double armExtensionOperatorCoefficient = 0.1;
+  public static final double armPivotOperatorCoefficient = 0.5;
+  public static final double armExtensionOperatorCoefficient = 1.0;
+
+  public static final double intakePercentVel = 0.74;
 
   // Drivetrain-related constants.
   public static final double safetyBuffer = Units.inchesToMeters(40);

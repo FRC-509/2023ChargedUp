@@ -65,7 +65,6 @@ public class Alice extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousInit() {
-    // this.robotContainer.initializeDriveTrain();
     this.autonomousCommand = this.robotContainer.getAutonomousCommand();
     this.autonomousCommand.schedule();
   }
@@ -84,8 +83,6 @@ public class Alice extends TimedRobot {
     if (this.autonomousCommand != null) {
       this.autonomousCommand.cancel();
     }
-
-    // this.robotContainer.initializeDriveTrain();
   }
 
   /** This function is called periodically during operator control. */

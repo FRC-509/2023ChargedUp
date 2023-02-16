@@ -12,6 +12,8 @@ import frc.robot.util.TrajectoryBuilderWrapper;
 import frc.robot.vision.Odometry;
 
 import com.ctre.phoenix.sensors.Pigeon2;
+
+import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,7 +39,7 @@ public class AliceContainer {
   public final Odometry odometry;
   public final Intake intakeSubsystem;
   public final Arm armSubsystem;
-  public final Claw clawSubsystem;
+  // public final Claw clawSubsystem;
 
   public final GenericHID operatorController = new GenericHID(2);
   private final JoystickButton leftTrigger = new JoystickButton(leftStick, 1);
@@ -46,6 +48,7 @@ public class AliceContainer {
   private final JoystickButton leftStickButtonThree = new JoystickButton(leftStick, 3);
   private final JoystickButton operatorButtonOne = new JoystickButton(operatorController, 1);
   private final JoystickButton operatorButtonTwo = new JoystickButton(operatorController, 2);
+  private final AddressableLED led = new AddressableLED(0);
 
   public AliceContainer() {
     // Initialize and configure the gyroscope.
@@ -62,7 +65,7 @@ public class AliceContainer {
     // Instantiate the arm.
     this.armSubsystem = new Arm();
     // Instantiate the claw.
-    this.clawSubsystem = new Claw();
+    // this.clawSubsystem = new Claw();
     // Configure button/stick bindings.
     this.configureButtonBindings();
   }
@@ -83,17 +86,24 @@ public class AliceContainer {
     // does not live in it, it most certainly depends on it.
     this.leftStickButtonTwo.whileTrue(
         new InstantCommand(() -> zeroGyro(),
-            this.swerveSubsystem));
+            this.swerveSubsystem)); 
 
     // The slider on the right stick controls the intake motor speed. Intake with
     // the right stick's trigger, outtake with the left stick's trigger.
     // Any function that returns a joystick axis does so from a scale of [-1, 1],
     // so we need to convert that to [0, 1] for easier intake speed control.
-    this.rightTrigger
-        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getThrottle() + 1.0) / 2.0));
-    this.leftTrigger
-        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getThrottle() + 1.0) / 2.0));
+    // this.rightTrigger
+    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getRawAxis(3) + 1.0) / 2.0));
+    // this.leftTrigger
+    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getRawAxis(3) + 1.0) / 2.0));
 
+
+    this.rightTrigger
+        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> Constants.intakePercentVel));
+    this.leftTrigger
+        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> -Constants.intakePercentVel));
+
+    
     // The A button on the operator's Logitech controller, or button three on the
     // driver's left stick, is used for toggling the claw's state between open and
     // closed.
@@ -106,6 +116,9 @@ public class AliceContainer {
     // this.armSubsystem
     //     .setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(2) * Constants.armPivotOperatorCoefficient,
     //         () -> this.operatorController.getRawAxis(1) * Constants.armExtensionOperatorCoefficient));
+    this.armSubsystem
+        .setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(2) * Constants.armPivotOperatorCoefficient,
+            () -> -this.operatorController.getRawAxis(1) * Constants.armExtensionOperatorCoefficient));
   }
 
   public void zeroGyro() {

@@ -23,7 +23,7 @@ public class ArmCommand extends CommandBase {
 
   @Override
   public void execute() {
-    this.s_Arm.setPivotAngle(rotationSup.getAsDouble());
-    this.s_Arm.setPercentExtension(extensionSup.getAsDouble());
+    this.s_Arm.setPivotOutput(rotationSup.getAsDouble());
+    this.s_Arm.setExtensionOutput(extensionSup.getAsDouble());
   }
 }
