@@ -36,6 +36,9 @@ public class Constants {
     public static final int backRightSteerMotor = 10;
     public static final int frontRightSteerMotor = 11;
 
+    // gyro
+    public static final int gyro = -1;
+
     // arm motors
     public static final int extensionMotor = 12;
     public static final int leftPivotMotor = 12;

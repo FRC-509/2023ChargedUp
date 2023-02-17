@@ -11,9 +11,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Swerve extends SubsystemBase {
+public class Swerve {
   private final SwerveDriveKinematics kinematics;
   private final SwerveDriveOdometry odometer;
   private SwerveModule[] modules;
@@ -110,7 +109,6 @@ public class Swerve extends SubsystemBase {
     }
   }
 
-  @Override
   public void periodic() {
     odometer.update(Rotation2d.fromDegrees(getYaw()), modulePositions());
   }

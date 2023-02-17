@@ -4,18 +4,31 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.sensors.Pigeon2;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import frc.robot.Constants.Chassis;
 
 public class Robot extends TimedRobot {
   // Joysticks
   private Joystick leftJoystick = new Joystick(0);
   private Joystick rightJoystick = new Joystick(1);
+  private GenericHID operatorController = new GenericHID(2);
 
+  // Subsystems
+  private Swerve drivetrainSubsystem;
   private Arm armSubsystem;
   private Intake intakeSubsystem;
-  private boolean intakeState = true;
 
+  // Gyroscope
+  private Pigeon2 gyro = new Pigeon2(Constants.DeviceId.gyro);
+
+  //
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -25,6 +38,7 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     armSubsystem = new Arm();
     intakeSubsystem = new Intake();
+    drivetrainSubsystem = new Swerve(gyro);
   }
 
   /**
@@ -39,7 +53,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-
+    drivetrainSubsystem.periodic();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -71,6 +85,14 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    // double translationVal = MathUtil.applyDeadband(leftJoystick.getY(), 0.1);
+    // double strafeVal = MathUtil.applyDeadband(leftJoystick.getX(), 0.1);
+    // double rotationVal = MathUtil.applyDeadband(rightJoystick.getX(), 0.1);
+    // drivetrainSubsystem.drive(new Translation2d(translationVal,
+    // strafeVal).times(Constants.SwerveConfig.maxSpeed),
+    // rotationVal * Constants.SwerveConfig.maxAngularSpeed,
+    // !leftJoystick.getRawButton(2));
+
     // armSubsystem.setPivotOutput(leftJoystick.getY() / 2.0d);
     // armSubsystem.setExtensionOutput(rightJoystick.getX());
 
