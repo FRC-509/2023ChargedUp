@@ -12,6 +12,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Commands.DriveCommand;
 import frc.robot.Constants.Chassis;
 
 public class Robot extends TimedRobot {
@@ -39,6 +41,13 @@ public class Robot extends TimedRobot {
     armSubsystem = new Arm();
     intakeSubsystem = new Intake();
     drivetrainSubsystem = new Swerve(gyro);
+
+    // drivetrainSubsystem.setDefaultCommand(new DriveCommand(
+    // drivetrainSubsystem,
+    // () -> leftJoystick.getY(),
+    // () -> leftJoystick.getX(),
+    // () -> rightJoystick.getX(),
+    // () -> false));
   }
 
   /**
@@ -53,7 +62,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    drivetrainSubsystem.periodic();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -85,20 +93,20 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    // double translationVal = MathUtil.applyDeadband(leftJoystick.getY(), 0.1);
-    // double strafeVal = MathUtil.applyDeadband(leftJoystick.getX(), 0.1);
-    // double rotationVal = MathUtil.applyDeadband(rightJoystick.getX(), 0.1);
-    // drivetrainSubsystem.drive(new Translation2d(translationVal,
-    // strafeVal).times(Constants.SwerveConfig.maxSpeed),
-    // rotationVal * Constants.SwerveConfig.maxAngularSpeed,
-    // !leftJoystick.getRawButton(2));
+    double translationVal = MathUtil.applyDeadband(leftJoystick.getY(), 0.1);
+    double strafeVal = MathUtil.applyDeadband(leftJoystick.getX(), 0.1);
+    double rotationVal = MathUtil.applyDeadband(rightJoystick.getX(), 0.1);
 
-    // armSubsystem.setPivotOutput(leftJoystick.getY() / 2.0d);
-    // armSubsystem.setExtensionOutput(rightJoystick.getX());
+    drivetrainSubsystem.drive(
+        new Translation2d(translationVal, strafeVal).times(Constants.SwerveConfig.maxSpeed),
+        rotationVal * Constants.SwerveConfig.maxAngularSpeed,
+        false);
 
-    // if (rightJoystick.getRawButton(1)) {
-    // intakeSubsystem.spinIntake(0.0d);
-    // // intakeSubsystem.toggleIntake();
+    // armSubsystem.setPivotOutput(operatorController.getRawAxis(0) / 2.0d);
+    // armSubsystem.setExtensionOutput(operatorController.getRawAxis(1));
+
+    // if (rightJoystick.getRawButtonPressed(1)) {
+    // intakeSubsystem.toggleIntake();
     // }
   }
 
@@ -111,7 +119,7 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {
   }
 
-  /** This function is called once when the robot is first started up. */
+  /* /** This function is called once when the robot is first started up. */
   @Override
   public void simulationInit() {
   }

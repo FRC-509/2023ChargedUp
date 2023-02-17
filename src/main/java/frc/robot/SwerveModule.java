@@ -11,6 +11,7 @@ import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule {
   private final int moduleId;
@@ -34,19 +35,19 @@ public class SwerveModule {
     // Angle Motor Config
     this.steerMotor = new TalonFX(config.steerMotorId, Constants.Canivore);
     this.steerMotor.setNeutralMode(NeutralMode.Coast);
-    this.steerMotor.config_kP(0, config.steerPID.kP);
-    this.steerMotor.config_kI(0, config.steerPID.kI);
-    this.steerMotor.config_kD(0, config.steerPID.kD);
-    this.steerMotor.config_kF(0, config.steerPID.kF);
+    this.steerMotor.config_kP(0, Constants.SwerveConfig.steerPID.kP);
+    this.steerMotor.config_kI(0, Constants.SwerveConfig.steerPID.kI);
+    this.steerMotor.config_kD(0, Constants.SwerveConfig.steerPID.kD);
+    this.steerMotor.config_kF(0, Constants.SwerveConfig.steerPID.kF);
 
     // Drive Motor Config
     this.driveMotor = new TalonFX(config.driveMotorId, Constants.Canivore);
     this.driveMotor.setNeutralMode(NeutralMode.Brake);
     this.driveMotor.setSelectedSensorPosition(0);
-    this.driveMotor.config_kP(0, config.drivePID.kP);
-    this.driveMotor.config_kI(0, config.drivePID.kI);
-    this.driveMotor.config_kD(0, config.drivePID.kD);
-    this.driveMotor.config_kF(0, config.drivePID.kF);
+    this.driveMotor.config_kP(0, Constants.SwerveConfig.drivePID.kP);
+    this.driveMotor.config_kI(0, Constants.SwerveConfig.drivePID.kI);
+    this.driveMotor.config_kD(0, Constants.SwerveConfig.drivePID.kD);
+    this.driveMotor.config_kF(0, Constants.SwerveConfig.drivePID.kF);
 
     // scale 'full output' to 12 Volts for all control modes.
     this.driveMotor.configVoltageCompSaturation(12);
@@ -59,11 +60,11 @@ public class SwerveModule {
   }
 
   public double angle() {
-    return Util.degreesToFalcon(steerMotor.getSelectedSensorPosition(), Constants.SwerveConfig.angleGearRatio);
+    return Util.falconToDegrees(steerMotor.getSelectedSensorPosition(), Constants.SwerveConfig.angleGearRatio);
   }
 
   public double absoluteAngle() {
-    return Util.degreesToFalcon(angleEncoder.getAbsolutePosition(), Constants.SwerveConfig.angleGearRatio);
+    return angleEncoder.getAbsolutePosition();
   }
 
   public SwerveModulePosition position() {
@@ -86,9 +87,11 @@ public class SwerveModule {
 
   public void resetAngleToAbsolute() {
     steerMotor.setSelectedSensorPosition(absoluteAngle());
+    this.lastAngle = angle();
   }
 
   public void setState(SwerveModuleState state) {
+    SmartDashboard.putNumber("CANCoder " + this.moduleId, this.absoluteAngle());
     double sign = 1;
 
     // target angle [-180, 180]
@@ -112,6 +115,9 @@ public class SwerveModule {
     }
 
     lastAngle = optimalTargetAngle;
+
+    double falconTarget = Util.degreesToFalcon(optimalTargetAngle, Constants.SwerveConfig.angleGearRatio);
+    steerMotor.set(ControlMode.Position, falconTarget);
 
     if (Constants.SwerveConfig.driveClosedLoopVelocity) {
       double velocity = Util.MPSToFalcon(

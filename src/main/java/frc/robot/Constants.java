@@ -10,6 +10,9 @@ import frc.robot.Util.SwerveModuleConfig;
 
 public class Constants {
   public static String Canivore = "509CANIvore";
+  public static String Rio = "rio";
+
+  public static double stickDeadband = 0.05;
 
   public static final class Chassis {
     public static final double length = Units.inchesToMeters(28);
@@ -37,7 +40,7 @@ public class Constants {
     public static final int frontRightSteerMotor = 11;
 
     // gyro
-    public static final int gyro = -1;
+    public static final int gyro = 30;
 
     // arm motors
     public static final int extensionMotor = 12;
@@ -52,10 +55,10 @@ public class Constants {
     public static final int pneumaticHub = 0;
 
     // pneumatics
-    public static final int intakeForwardChannel = 5;
-    public static final int intakeReverseChannel = 7;
-    public static final int clawForwardChannel = 4;
-    public static final int clawReverseChannel = 6;
+    public static final int intakeForwardChannel = 4;
+    public static final int intakeReverseChannel = 6;
+    public static final int clawForwardChannel = 5;
+    public static final int clawReverseChannel = 7;
   }
 
   public static final class SwerveConfig {
@@ -64,7 +67,10 @@ public class Constants {
     public static final double angleGearRatio = 12.8;
     public static final double maxSpeed = 5.0d;
     public static final double maxAngularSpeed = maxSpeed / (Math.sqrt(2.0d) * Chassis.swerveModuleOffset);
-    public static final boolean driveClosedLoopVelocity = false;
+    public static final boolean driveClosedLoopVelocity = true;
+
+    public static final Util.PIDConstants steerPID = new Util.PIDConstants(0.2d, 0.0d, 0.0d, 0.0d);
+    public static final Util.PIDConstants drivePID = new Util.PIDConstants(0.005d, 0.0d, 0.0d, 0.0475d);
 
     public static final SwerveModuleConfig[] modules = new SwerveModuleConfig[] {
         new Util.SwerveModuleConfig(
@@ -83,7 +89,7 @@ public class Constants {
             DeviceId.backLeftCANCoder,
             DeviceId.backLeftDriveMotor,
             DeviceId.backLeftSteerMotor,
-            -299.18,
+            -309.28,
             -Chassis.swerveModuleOffset,
             +Chassis.swerveModuleOffset),
 
@@ -93,7 +99,7 @@ public class Constants {
             DeviceId.backRightCANCoder,
             DeviceId.backRightDriveMotor,
             DeviceId.backRightSteerMotor,
-            -299.18,
+            -156.44,
             -Chassis.swerveModuleOffset,
             -Chassis.swerveModuleOffset),
 
@@ -111,15 +117,15 @@ public class Constants {
 
   public static final Util.TalonFxConfig leftPivotMotor = new Util.TalonFxConfig(
       DeviceId.leftPivotMotor,
-      Canivore,
-      null,
+      Rio,
+      new Util.PIDConstants(0, 0, 0, 0),
       NeutralMode.Brake,
       false);
 
   public static final Util.TalonFxConfig rightPivotMotor = new Util.TalonFxConfig(
       DeviceId.rightPivotMotor,
-      Canivore,
-      null,
+      Rio,
+      new Util.PIDConstants(0, 0, 0, 0),
       NeutralMode.Brake,
       true);
 

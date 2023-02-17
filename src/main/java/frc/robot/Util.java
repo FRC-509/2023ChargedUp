@@ -139,6 +139,7 @@ public final class Util {
     public TalonFX build() {
       TalonFX motor = new TalonFX(motorId, canbus);
       motor.setNeutralMode(neutralMode);
+      motor.setInverted(inverted);
       motor.setSelectedSensorPosition(0);
       motor.config_kP(0, pidConstants.kP);
       motor.config_kI(0, pidConstants.kI);
@@ -201,9 +202,6 @@ public final class Util {
     public final double CANCoderOffset;
     public final double xOffset;
     public final double yOffset;
-
-    public final PIDConstants steerPID = new PIDConstants(0.2d, 0.0d, 0.0d, 0.0d);
-    public final PIDConstants drivePID = new PIDConstants(0.005d, 0.0d, 0.0d, 0.0475d);
 
     public SwerveModuleConfig(
         String name,

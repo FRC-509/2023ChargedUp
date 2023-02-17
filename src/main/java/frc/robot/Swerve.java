@@ -11,8 +11,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Swerve {
+public class Swerve extends SubsystemBase {
   private final SwerveDriveKinematics kinematics;
   private final SwerveDriveOdometry odometer;
   private SwerveModule[] modules;
@@ -38,6 +39,7 @@ public class Swerve {
     // - prevents dropped can frames
     Timer.delay(1.0);
 
+    resetModuleAnglesToAbsolute();
   }
 
   public Pose2d getPose() {
@@ -62,7 +64,7 @@ public class Swerve {
   }
 
   public double getYaw() {
-    return this.gyro.getYaw();
+    return 0; // this.gyro.getYaw();
   }
 
   public SwerveModulePosition[] modulePositions() {
@@ -109,6 +111,7 @@ public class Swerve {
     }
   }
 
+  @Override
   public void periodic() {
     odometer.update(Rotation2d.fromDegrees(getYaw()), modulePositions());
   }

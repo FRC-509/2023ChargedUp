@@ -15,13 +15,15 @@ public class Arm {
     this.leftPivotMotor = Constants.leftPivotMotor.build();
     this.rightPivotMotor = Constants.rightPivotMotor.build();
     this.extensionMotor = Constants.extensionMotor.build();
+
+    this.extensionMotor.setSmartCurrentLimit(15);
   }
 
   public void setPivotOutput(double output) {
     SmartDashboard.putNumber("Arm output current",
         extensionMotor.getOutputCurrent());
 
-    SmartDashboard.putNumber("Arm output current",
+    SmartDashboard.putNumber("Arm output position",
         extensionMotor.getEncoder().getPosition());
 
     output = MathUtil.clamp(output, -1.0d, 1.0d);
