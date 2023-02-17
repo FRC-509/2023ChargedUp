@@ -21,7 +21,7 @@ public class LimelightWrapper {
   // Constructor
   public LimelightWrapper(String name) {
     this.limelightName = name;
-    setLEDState(true);
+    setLEDState(false);
     setPipeline(0);
   }
 

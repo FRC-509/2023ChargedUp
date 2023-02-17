@@ -134,6 +134,13 @@ public class AliceContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new TrajectoryBuilderWrapper("New Path").getPathFollowingCommand(this.swerveSubsystem);
+    return new DriveCommand(
+      swerveSubsystem, 
+      1.0, 
+      0, 
+      0, true)
+    .withTimeout(0.5);
+
+    // return new TrajectoryBuilderWrapper("New Path").getPathFollowingCommand(this.swerveSubsystem);
   }
 }
