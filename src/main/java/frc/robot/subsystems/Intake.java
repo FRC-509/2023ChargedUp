@@ -17,8 +17,10 @@ public class Intake extends SubsystemBase {
     primaryMotor = new CANSparkMax(9, MotorType.kBrushless);
     secondaryMotor = new CANSparkMax(14, MotorType.kBrushless);
     // secondaryMotor.setInverted(true);
+    primaryMotor.setSmartCurrentLimit(30);
+    secondaryMotor.setSmartCurrentLimit(30);
     // secondaryMotor.follow(primaryMotor);
-    solenoid = new DoubleSolenoid(18, PneumaticsModuleType.REVPH, 5, 7);
+    solenoid = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 4, 6);
   }
 
   public void drop() {
@@ -35,7 +37,7 @@ public class Intake extends SubsystemBase {
 
   public void spin(double v) {
     SmartDashboard.putNumber("Shooter %", v);
-    // primaryMotor.set(-v);
-    secondaryMotor.set(v / 5.0d);
+    primaryMotor.set(-v);
+    secondaryMotor.set(v);
   }
 }

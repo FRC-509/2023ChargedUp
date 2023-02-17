@@ -19,7 +19,7 @@ import frc.robot.util.LazyTalonFX;
 import frc.robot.util.Utils;
 
 public class Arm extends SubsystemBase {
-  private final LazyTalonFX pivotMotor1 = new LazyTalonFX(12);
+  private final LazyTalonFX pivotMotor1 = new LazyTalonFX(20);
   private final LazyTalonFX pivotMotor2 = new LazyTalonFX(13);
 
   private final CANSparkMax extensionMotor = new CANSparkMax(12, MotorType.kBrushless);
@@ -44,8 +44,8 @@ public class Arm extends SubsystemBase {
     // Zero pivot encoders
     pivotMotor1.setSelectedSensorPosition(0);
     pivotMotor2.setSelectedSensorPosition(0);
-    pivotMotor1.setInverted(false);
-    pivotMotor2.setInverted(true);
+    pivotMotor1.setInverted(true);
+    pivotMotor2.setInverted(false);
     pivotMotor1.setNeutralMode(NeutralMode.Brake);
     pivotMotor2.setNeutralMode(NeutralMode.Brake);
   }

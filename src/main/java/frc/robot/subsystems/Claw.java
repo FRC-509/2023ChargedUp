@@ -8,7 +8,7 @@ public class Claw extends SubsystemBase {
   private DoubleSolenoid solenoid;
 
   public Claw() {
-    solenoid = new DoubleSolenoid(18, PneumaticsModuleType.REVPH, 0, 2);
+    solenoid = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 5, 7);
   }
 
   public void openClose() {

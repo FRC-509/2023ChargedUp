@@ -21,6 +21,8 @@ public final class Constants {
 
   public static final String CANIVORE = "509CANIvore";
 
+  public static final int LIGHTS_PORT = 0;
+
   public static final int ledPixelCount = 25;
 
   // Vision-related constants.

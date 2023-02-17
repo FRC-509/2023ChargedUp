@@ -1,21 +1,37 @@
 package frc.robot.subsystems;
 
-import com.fasterxml.jackson.databind.introspect.ConcreteBeanPropertyBase;
-
-import edu.wpi.first.wpilibj.AddressableLED;
-import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import frc.robot.Constants;
 
-public class Led {
-  public final AddressableLED led;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.None;
 
-  public Led(){
-    this.led = new AddressableLED(0);
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
+
+public class Led {
+  
+  public enum PatternID {
+      OFF(0, "off"),
+      VIOLET(0.91, "Solid Violet"),
+      YELLOW(0.69, "Solid Yellow");
+    private final double m_pwmVal;
+    private final String m_patternName;
+
+    private PatternID(double pwmVal, String patternName) {
+        m_pwmVal = pwmVal;
+        m_patternName = patternName;
+    }
+
+    private double getVal() {
+        return m_pwmVal;
+    }
+
+    public String getName() {
+        return m_patternName;
+    }
   }
 
-  public void changeColor(int r, int g, int b) {
-    var buffer = new AddressableLEDBuffer(Constants.ledPixelCount);
-    buffer.setRGB(0, r, g, b);
-    this.led.setData(buffer);
+  private static final Spark m_blinkin = new Spark(Constants.LIGHTS_PORT);
+
+  public static void set(PatternID pattern) {
+    m_blinkin.set(pattern.getVal());
   }
 }

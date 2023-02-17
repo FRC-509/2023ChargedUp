@@ -1,6 +1,7 @@
 package frc.robot;
 
 import frc.robot.commands.ArmCommand;
+import frc.robot.commands.ClawCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.OdometryCommand;
@@ -10,7 +11,6 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.TrajectoryBuilderWrapper;
 import frc.robot.vision.Odometry;
-
 import com.ctre.phoenix.sensors.Pigeon2;
 
 import edu.wpi.first.wpilibj.AddressableLED;
@@ -31,7 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  */
 public class AliceContainer {
 
-  public final Pigeon2 pigeon2 = new Pigeon2(14, Constants.CANIVORE);
+  public final Pigeon2 pigeon2 = new Pigeon2(30, Constants.CANIVORE);
   public final Joystick leftStick = new Joystick(1);
   public final Joystick rightStick = new Joystick(0);
 
@@ -39,7 +39,7 @@ public class AliceContainer {
   public final Odometry odometry;
   public final Intake intakeSubsystem;
   public final Arm armSubsystem;
-  // public final Claw clawSubsystem;
+  public final Claw clawSubsystem;
 
   public final GenericHID operatorController = new GenericHID(2);
   private final JoystickButton leftTrigger = new JoystickButton(leftStick, 1);
@@ -48,6 +48,8 @@ public class AliceContainer {
   private final JoystickButton leftStickButtonThree = new JoystickButton(leftStick, 3);
   private final JoystickButton operatorButtonOne = new JoystickButton(operatorController, 1);
   private final JoystickButton operatorButtonTwo = new JoystickButton(operatorController, 2);
+  private final JoystickButton rightStickButtonThree = new JoystickButton(rightStick, 3);
+  private final JoystickButton rightStickButtonFour = new JoystickButton(rightStick, 4);
   private final AddressableLED led = new AddressableLED(0);
 
   public AliceContainer() {
@@ -64,6 +66,8 @@ public class AliceContainer {
     this.intakeSubsystem = new Intake();
     // Instantiate the arm.
     this.armSubsystem = new Arm();
+
+    this.clawSubsystem = new Claw();
     // Instantiate the claw.
     // this.clawSubsystem = new Claw();
     // Configure button/stick bindings.
@@ -72,12 +76,12 @@ public class AliceContainer {
 
   public void configureButtonBindings() {
     // Set the default command of the drive train subsystem to DriveCommand.
-    // this.swerveSubsystem.setDefaultCommand(new DriveCommand(
-    //     this.swerveSubsystem,
-    //     () -> this.leftStick.getY(),
-    //     () -> this.leftStick.getX(),
-    //     () -> this.rightStick.getX(),
-    //     () -> this.leftStick.getRawButton(2)));
+    this.swerveSubsystem.setDefaultCommand(new DriveCommand(
+        this.swerveSubsystem,
+        () -> this.leftStick.getY(),
+         () -> this.leftStick.getX(),
+         () -> this.rightStick.getX(),
+         () -> this.leftStick.getRawButton(2)));
 
     this.odometry.setDefaultCommand(new OdometryCommand(this.odometry, this.swerveSubsystem.swerveOdometry));
 
@@ -92,16 +96,16 @@ public class AliceContainer {
     // the right stick's trigger, outtake with the left stick's trigger.
     // Any function that returns a joystick axis does so from a scale of [-1, 1],
     // so we need to convert that to [0, 1] for easier intake speed control.
-    // this.rightTrigger
-    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getRawAxis(3) + 1.0) / 2.0));
-    // this.leftTrigger
+    //  this.rightTrigger
+    //      .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getRawAxis(3) + 1.0) / 2.0));
+    //  this.leftTrigger
     //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getRawAxis(3) + 1.0) / 2.0));
 
 
-    this.rightTrigger
-        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> Constants.intakePercentVel));
-    this.leftTrigger
-        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> -Constants.intakePercentVel));
+    this.rightStickButtonThree
+        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> .75));
+    this.rightStickButtonFour
+        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> -.75));
 
     
     // The A button on the operator's Logitech controller, or button three on the
@@ -112,13 +116,14 @@ public class AliceContainer {
     //       this.clawSubsystem.openClose(),
     //         this.armSubsystem))
     //     .or(leftStickButtonThree);
-    
-    // this.armSubsystem
-    //     .setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(2) * Constants.armPivotOperatorCoefficient,
-    //         () -> this.operatorController.getRawAxis(1) * Constants.armExtensionOperatorCoefficient));
+    // this.operatorButtonOne.onTrue(getAutonomousCommand());
+    this.clawSubsystem.setDefaultCommand(new ClawCommand(clawSubsystem, () -> this.operatorController.getRawButtonPressed(1)));
     this.armSubsystem
-        .setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(2) * Constants.armPivotOperatorCoefficient,
-            () -> -this.operatorController.getRawAxis(1) * Constants.armExtensionOperatorCoefficient));
+         .setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(1) / 5.0d,
+             () -> this.operatorController.getRawAxis(5) * Constants.armExtensionOperatorCoefficient));
+  //  this.armSubsystem
+  //       .setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(2) * Constants.armPivotOperatorCoefficient,
+  //           () -> -this.operatorController.getRawAxis(1) * Constants.armExtensionOperatorCoefficient));
   }
 
   public void zeroGyro() {
