@@ -50,6 +50,7 @@ public class AliceContainer {
   private final JoystickButton operatorButtonTwo = new JoystickButton(operatorController, 2);
   private final JoystickButton rightStickButtonThree = new JoystickButton(rightStick, 3);
   private final JoystickButton rightStickButtonFour = new JoystickButton(rightStick, 4);
+  private final JoystickButton leftStickButtonFour = new JoystickButton(leftStick, 4);
   private final AddressableLED led = new AddressableLED(0);
 
   public AliceContainer() {
@@ -103,10 +104,11 @@ public class AliceContainer {
 
 
     this.rightStickButtonThree
-        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> .75));
+        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> .75, false));
     this.rightStickButtonFour
-        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> -.75));
-
+        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> .75, true));
+    this.leftStickButtonFour
+        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> -.75, true));
     
     // The A button on the operator's Logitech controller, or button three on the
     // driver's left stick, is used for toggling the claw's state between open and
@@ -120,7 +122,7 @@ public class AliceContainer {
     this.clawSubsystem.setDefaultCommand(new ClawCommand(clawSubsystem, () -> this.operatorController.getRawButtonPressed(1)));
     this.armSubsystem
          .setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(1) / 5.0d,
-             () -> this.operatorController.getRawAxis(5) * Constants.armExtensionOperatorCoefficient));
+             () -> this.operatorController.getRawAxis(5) * -Constants.armExtensionOperatorCoefficient));
   //  this.armSubsystem
   //       .setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(2) * Constants.armPivotOperatorCoefficient,
   //           () -> -this.operatorController.getRawAxis(1) * Constants.armExtensionOperatorCoefficient));
