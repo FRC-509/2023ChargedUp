@@ -89,8 +89,9 @@ public class AliceContainer {
     // the right stick's trigger, outtake with the left stick's trigger.
     // Any function that returns a joystick axis does so from a scale of [-1, 1],
     // so we need to convert that to [0, 1] for easier intake speed control.
-    this.rightTrigger
-        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getThrottle() + 1.0) / 2.0));
+ //   if (leftStick.getRawButtonPressed(2)) {
+   //   clawSubsystem.toggleIntake();
+    //}
     this.leftTrigger
         .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getThrottle() + 1.0) / 2.0));
 

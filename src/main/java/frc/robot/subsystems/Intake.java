@@ -17,7 +17,7 @@ public class Intake extends SubsystemBase {
     secondaryMotor = new CANSparkMax(12, MotorType.kBrushless);
     // secondaryMotor.setInverted(true);
     // secondaryMotor.follow(primaryMotor);
-    solenoid = new DoubleSolenoid(18, PneumaticsModuleType.REVPH, 5, 7);
+    solenoid = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 5, 7);
   }
 
   public void drop() {
