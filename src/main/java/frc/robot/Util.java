@@ -121,15 +121,15 @@ public final class Util {
 
   public static final class TalonFxConfig implements ConfigBuilder<TalonFX> {
     public final int motorId;
-    public final String canivore;
+    public final String canbus;
     public final PIDConstants pidConstants;
     public final NeutralMode neutralMode;
     public final boolean inverted;
 
-    public TalonFxConfig(int motorId, String canivore, PIDConstants pidConstants, NeutralMode neutralMode,
+    public TalonFxConfig(int motorId, String canbus, PIDConstants pidConstants, NeutralMode neutralMode,
         boolean inverted) {
       this.motorId = motorId;
-      this.canivore = canivore;
+      this.canbus = canbus;
       this.pidConstants = pidConstants;
       this.neutralMode = neutralMode;
       this.inverted = inverted;
@@ -137,7 +137,7 @@ public final class Util {
 
     @Override
     public TalonFX build() {
-      TalonFX motor = new TalonFX(motorId, canivore);
+      TalonFX motor = new TalonFX(motorId, canbus);
       motor.setNeutralMode(neutralMode);
       motor.setSelectedSensorPosition(0);
       motor.config_kP(0, pidConstants.kP);

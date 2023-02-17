@@ -41,7 +41,7 @@ public class Constants {
 
     // arm motors
     public static final int extensionMotor = 12;
-    public static final int leftPivotMotor = 12;
+    public static final int leftPivotMotor = 20;
     public static final int rightPivotMotor = 13;
 
     // intake motors
@@ -49,11 +49,13 @@ public class Constants {
     public static final int secondaryIntakeMotor = 15;
 
     // rev hubs
-    public static final int pneumaticHub = 19;
+    public static final int pneumaticHub = 0;
 
     // pneumatics
     public static final int intakeForwardChannel = 5;
     public static final int intakeReverseChannel = 7;
+    public static final int clawForwardChannel = 4;
+    public static final int clawReverseChannel = 6;
   }
 
   public static final class SwerveConfig {
@@ -144,6 +146,12 @@ public class Constants {
       PneumaticsModuleType.CTREPCM,
       DeviceId.intakeForwardChannel,
       DeviceId.intakeReverseChannel);
+
+  public static final Util.SolenoidConfig clawSolenoid = new Util.SolenoidConfig(
+      DeviceId.pneumaticHub,
+      PneumaticsModuleType.CTREPCM,
+      DeviceId.clawForwardChannel,
+      DeviceId.clawReverseChannel);
 
   public static final double intakeSpinVelocity = 0.0d;
   public static final double pivotGearRatio = 20.0d;
