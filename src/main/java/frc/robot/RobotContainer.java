@@ -8,7 +8,9 @@ import frc.robot.commands.OdometryCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.Led.PatternID;
 import frc.robot.util.TrajectoryBuilderWrapper;
 import frc.robot.vision.Odometry;
 import com.ctre.phoenix.sensors.Pigeon2;
@@ -16,6 +18,7 @@ import com.ctre.phoenix.sensors.Pigeon2;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -24,12 +27,12 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in
- * the {@link Alice}
+ * the {@link Robot}
  * periodic methods (other than the scheduler calls). Instead, the structure of
  * the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
-public class AliceContainer {
+public class RobotContainer {
 
   public final Pigeon2 pigeon2 = new Pigeon2(30, Constants.CANIVORE);
   public final Joystick leftStick = new Joystick(1);
@@ -51,9 +54,11 @@ public class AliceContainer {
   private final JoystickButton rightStickButtonThree = new JoystickButton(rightStick, 3);
   private final JoystickButton rightStickButtonFour = new JoystickButton(rightStick, 4);
   private final JoystickButton leftStickButtonFour = new JoystickButton(leftStick, 4);
-  private final AddressableLED led = new AddressableLED(0);
+  private final JoystickButton operatorButtonThree = new JoystickButton(operatorController, 3);
+  private final JoystickButton operatorButtonFour = new JoystickButton(operatorController, 4);
 
-  public AliceContainer() {
+  private final SendableChooser<Command> chooser =  new SendableChooser();
+  public RobotContainer() {
     // Initialize and configure the gyroscope.
     this.pigeon2.configFactoryDefault();
     // Zero the gyroscope rotation.
@@ -73,15 +78,27 @@ public class AliceContainer {
     // this.clawSubsystem = new Claw();
     // Configure button/stick bindings.
     this.configureButtonBindings();
+    this.addAutonomousRoutines();
+  }
+
+  private void addAutonomousRoutines() {
+    chooser.setDefaultOption("LiterallyDriveStraightFor0.7Seconds", new DriveCommand(
+      swerveSubsystem, 
+      1.0, 
+      0, 
+      0, true)
+    .withTimeout(0.7));
+    chooser.addOption("None", null);
+    // chooser.addOption("DO NOT SELECT", new TrajectoryBuilderWrapper("New Path").getPathFollowingCommand(this.swerveSubsystem));
   }
 
   public void configureButtonBindings() {
     // Set the default command of the drive train subsystem to DriveCommand.
     this.swerveSubsystem.setDefaultCommand(new DriveCommand(
         this.swerveSubsystem,
-        () -> this.leftStick.getY(),
-         () -> this.leftStick.getX(),
-         () -> this.rightStick.getX(),
+        () -> -this.leftStick.getY(),
+         () -> -this.leftStick.getX(),
+         () -> -this.rightStick.getX(),
          () -> this.leftStick.getRawButton(2)));
 
     this.odometry.setDefaultCommand(new OdometryCommand(this.odometry, this.swerveSubsystem.swerveOdometry));
@@ -93,6 +110,8 @@ public class AliceContainer {
         new InstantCommand(() -> zeroGyro(),
             this.swerveSubsystem)); 
 
+    
+
     // The slider on the right stick controls the intake motor speed. Intake with
     // the right stick's trigger, outtake with the left stick's trigger.
     // Any function that returns a joystick axis does so from a scale of [-1, 1],
@@ -101,14 +120,16 @@ public class AliceContainer {
     //      .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getRawAxis(3) + 1.0) / 2.0));
     //  this.leftTrigger
     //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getRawAxis(3) + 1.0) / 2.0));
+    this.operatorButtonFour.toggleOnTrue(new InstantCommand(() -> Led.set(PatternID.YELLOW)));
+    this.operatorButtonTwo.toggleOnTrue(new InstantCommand(() -> Led.set(PatternID.VIOLET)));
+    this.operatorButtonThree.toggleOnTrue(new InstantCommand(() -> Led.set(PatternID.OFF)));
 
-
-    this.rightStickButtonThree
-        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> .75, false));
-    this.rightStickButtonFour
-        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> .75, true));
-    this.leftStickButtonFour
-        .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> -.75, true));
+    // this.rightStickButtonThree
+    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> .75, false));
+    // this.rightStickButtonFour
+    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> .75, true));
+    // this.leftStickButtonFour
+    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> -.75, true));
     
     // The A button on the operator's Logitech controller, or button three on the
     // driver's left stick, is used for toggling the claw's state between open and
@@ -133,14 +154,29 @@ public class AliceContainer {
     this.pigeon2.zeroGyroBiasNow();
   }
 
-  public Command getAutonomousCommand() {
-    return new DriveCommand(
-      swerveSubsystem, 
-      1.0, 
-      0, 
-      0, true)
-    .withTimeout(0.5);
+  public void handleIntakeInput() {
+    if (rightStick.getRawButton(3)) {
+      intakeSubsystem.retract();
+    }
+    else if (rightStick.getRawButton(1)) {
+      intakeSubsystem.drop();
+      intakeSubsystem.spin(Constants.intakePercentVel);
+    }
+    else if (leftStick.getRawButton(1)) {
+      intakeSubsystem.drop();
+      intakeSubsystem.spin(-Constants.intakePercentVel);
+    }
+    else if (armSubsystem.inDanger()) {
+      intakeSubsystem.drop();
+      intakeSubsystem.spin(0);
+    }
+    else {
+      intakeSubsystem.retract();
+      intakeSubsystem.spin(0);
+    }
+  }
 
-    // return new TrajectoryBuilderWrapper("New Path").getPathFollowingCommand(this.swerveSubsystem);
+  public Command getAutonomousCommand() {
+    return chooser.getSelected();
   }
 }

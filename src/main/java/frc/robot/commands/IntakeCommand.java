@@ -9,12 +9,14 @@ import frc.robot.subsystems.Intake;
 
 public class IntakeCommand extends CommandBase {
   private final Intake intakeSubsystem;
+  private final DoubleSupplier armAngle;
   private final DoubleSupplier speedSupplier;
-  private final boolean boolS;
-  public IntakeCommand(Intake intakeSubsystem, DoubleSupplier speedSupplier, boolean boolS) {
+  private final boolean spinIntake;
+  public IntakeCommand(Intake intakeSubsystem, DoubleSupplier armAngle, DoubleSupplier speedSupplier, boolean spinIntake) {
     this.intakeSubsystem = intakeSubsystem;
+    this.armAngle = armAngle;
     this.speedSupplier = speedSupplier;
-    this.boolS = boolS;
+    this.spinIntake = spinIntake;
     addRequirements(this.intakeSubsystem);
   }
 
@@ -25,8 +27,8 @@ public class IntakeCommand extends CommandBase {
 
   @Override
   public void execute() {
-    if (boolS){
-    this.intakeSubsystem.spin(this.speedSupplier.getAsDouble());
+    if (spinIntake){
+      this.intakeSubsystem.spin(this.speedSupplier.getAsDouble());
     }
   }
 

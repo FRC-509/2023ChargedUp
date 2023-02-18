@@ -26,7 +26,7 @@ public class Arm extends SubsystemBase {
   private SparkMaxPIDController extensionController;
   private RelativeEncoder extensionEncoder;
 
-  private static final double pivotGearRatio = 20.0d;
+  private static final double pivotGearRatio = 256.0d;
   // private static final double extensionGearRatio = 256.0d;
 
   // Dummy!
@@ -48,6 +48,8 @@ public class Arm extends SubsystemBase {
     pivotMotor2.setInverted(false);
     pivotMotor1.setNeutralMode(NeutralMode.Brake);
     pivotMotor2.setNeutralMode(NeutralMode.Brake);
+    pivotMotor1.setSelectedSensorPosition(0);
+    pivotMotor2.setSelectedSensorPosition(0);
   }
 
   public void setPivotOutput(double output) {
@@ -58,11 +60,18 @@ public class Arm extends SubsystemBase {
     pivotMotor1.set(ControlMode.PercentOutput, output);
     pivotMotor2.set(ControlMode.PercentOutput, output);
 }
+  public double getArmDegrees() {
+    return Utils.falconToDegrees(pivotMotor1.getSelectedSensorPosition(), pivotGearRatio);
+  }
 
-public void setExtensionOutput(double output) {
-    output = MathUtil.clamp(output, -1.0d, 1.0d);
-    extensionMotor.set(output);
-}
+  public boolean inDanger() {
+    return getArmDegrees() >= -50 && getArmDegrees() <= -5;
+  }
+
+  public void setExtensionOutput(double output) {
+      output = MathUtil.clamp(output, -1.0d, 1.0d);
+      extensionMotor.set(output);
+  }
   @Override
   public void periodic() {
   }

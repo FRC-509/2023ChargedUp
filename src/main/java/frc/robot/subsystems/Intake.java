@@ -36,7 +36,6 @@ public class Intake extends SubsystemBase {
   }
 
   public void spin(double v) {
-    SmartDashboard.putNumber("Shooter %", v);
     primaryMotor.set(-v);
     secondaryMotor.set(v);
   }
