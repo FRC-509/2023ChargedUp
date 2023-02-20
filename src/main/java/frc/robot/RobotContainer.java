@@ -3,22 +3,29 @@ package frc.robot;
 import frc.robot.commands.ArmCommand;
 import frc.robot.commands.ClawCommand;
 import frc.robot.commands.DriveCommand;
-import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.OdometryCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Led.PatternID;
 import frc.robot.util.TrajectoryBuilderWrapper;
 import frc.robot.vision.Odometry;
-import com.ctre.phoenix.sensors.Pigeon2;
 
+import org.opencv.video.Video;
+
+import com.ctre.phoenix.sensors.Pigeon2;
+import frc.robot.vision.*;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CameraServerCvJNI;
+import edu.wpi.first.cscore.MjpegServer;
+import edu.wpi.first.cscore.VideoSink;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -40,10 +47,11 @@ public class RobotContainer {
 
   public final Swerve swerveSubsystem;
   public final Odometry odometry;
-  public final Intake intakeSubsystem;
+  // public final Intake intakeSubsystem;
   public final Arm armSubsystem;
   public final Claw clawSubsystem;
-
+  public final MjpegServer cam = CameraServer.addServer("limelight.local:5800");
+  
   public final GenericHID operatorController = new GenericHID(2);
   private final JoystickButton leftTrigger = new JoystickButton(leftStick, 1);
   private final JoystickButton rightTrigger = new JoystickButton(rightStick, 1);
@@ -59,17 +67,18 @@ public class RobotContainer {
 
   private final SendableChooser<Command> chooser =  new SendableChooser();
   public RobotContainer() {
+
     // Initialize and configure the gyroscope.
     this.pigeon2.configFactoryDefault();
     // Zero the gyroscope rotation.
     this.zeroGyro();
-
+  //  SmartDashboard.putData(cam);
     // Instantiate the odometer.
     this.odometry = new Odometry(pigeon2);
     // Instantiate the drivetrain.
     this.swerveSubsystem = new Swerve(pigeon2);
     // Instantiate the intake.
-    this.intakeSubsystem = new Intake();
+    // this.intakeSubsystem = new Intake();
     // Instantiate the arm.
     this.armSubsystem = new Arm();
 
@@ -120,10 +129,10 @@ public class RobotContainer {
     //      .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getRawAxis(3) + 1.0) / 2.0));
     //  this.leftTrigger
     //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getRawAxis(3) + 1.0) / 2.0));
-    this.operatorButtonFour.toggleOnTrue(new InstantCommand(() -> Led.set(PatternID.YELLOW)));
-    this.operatorButtonTwo.toggleOnTrue(new InstantCommand(() -> Led.set(PatternID.VIOLET)));
-    this.operatorButtonThree.toggleOnTrue(new InstantCommand(() -> Led.set(PatternID.OFF)));
-
+    // this.operatorButtonFour.toggleOnTrue(new InstantCommand(() -> Led.set(PatternID.YELLOW)));
+    // this.operatorButtonTwo.toggleOnTrue(new InstantCommand(() -> Led.set(PatternID.VIOLET)));
+    // this.operatorButtonThree.toggleOnTrue(new InstantCommand(() -> Led.set(PatternID.OFF)));
+    
     // this.rightStickButtonThree
     //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> .75, false));
     // this.rightStickButtonFour
@@ -154,27 +163,27 @@ public class RobotContainer {
     this.pigeon2.zeroGyroBiasNow();
   }
 
-  public void handleIntakeInput() {
-    if (rightStick.getRawButton(3)) {
-      intakeSubsystem.retract();
-    }
-    else if (rightStick.getRawButton(1)) {
-      intakeSubsystem.drop();
-      intakeSubsystem.spin(Constants.intakePercentVel);
-    }
-    else if (leftStick.getRawButton(1)) {
-      intakeSubsystem.drop();
-      intakeSubsystem.spin(-Constants.intakePercentVel);
-    }
-    else if (armSubsystem.inDanger()) {
-      intakeSubsystem.drop();
-      intakeSubsystem.spin(0);
-    }
-    else {
-      intakeSubsystem.retract();
-      intakeSubsystem.spin(0);
-    }
-  }
+  // public void handleIntakeInput() {
+  //   if (rightStick.getRawButton(3)) {
+  //     intakeSubsystem.retract();
+  //   }
+  //   else if (rightStick.getRawButton(1)) {
+  //     intakeSubsystem.drop();
+  //     intakeSubsystem.spin(Constants.intakePercentVel);
+  //   }
+  //   else if (leftStick.getRawButton(1)) {
+  //     intakeSubsystem.drop();
+  //     intakeSubsystem.spin(-Constants.intakePercentVel);
+  //   }
+  //   else if (armSubsystem.inDanger()) {
+  //     intakeSubsystem.drop();
+  //     intakeSubsystem.spin(0);
+  //   }
+  //   else {
+  //     intakeSubsystem.retract();
+  //     intakeSubsystem.spin(0);
+  //   }
+  // }
 
   public Command getAutonomousCommand() {
     return chooser.getSelected();
