@@ -1,16 +1,18 @@
-package frc.robot;
+package frc.robot.util;
 
+import java.util.ArrayList;
+
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.sensors.Pigeon2;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkMaxPIDController;
+
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Utils {
-
-  /*
-   * public static double CANcoderToDegrees(double positionCounts, double
-   * gearRatio) {
-   * return positionCounts * (360.0 / (gearRatio * 4096.0));
-   * }
-   */
-
+  // The following conversion utilites were written by team 364:
+  // https://github.com/Team364/BaseFalconSwerve/blob/main/src/main/java/frc/lib/math/Conversions.java
   /**
    * @param counts    Falcon Position Counts
    * @param gearRatio Gear Ratio between Falcon and Mechanism
@@ -99,13 +101,93 @@ public final class Utils {
     return meters / (circumference / (gearRatio * 2048.0));
   }
 
+  private static ArrayList<String> shuffleboardIds = new ArrayList<String>();
+
+  /**
+   * @param key Label on SmartDashboard
+   * @param val Default value
+   * @return Value on SmartDashboard
+   */
   public static double serializeNumber(String key, double val) {
+    shuffleboardIds.add(key);
     SmartDashboard.setDefaultNumber(key, val);
     return SmartDashboard.getNumber(key, 0.0);
   }
 
+  /**
+   * @param key Label on SmartDashboard
+   * @param val Default value
+   * @return Value on SmartDashboard
+   */
   public static boolean serializeBoolean(String key, boolean val) {
+    shuffleboardIds.add(key);
     SmartDashboard.setDefaultBoolean(key, val);
     return SmartDashboard.getBoolean(key, false);
+  }
+
+  public static void flushShuffleboard() {
+    for (String key : shuffleboardIds) {
+      SmartDashboard.clearPersistent(key);
+    }
+  }
+
+  /**
+   * @param gyro Pigeon2 instance
+   * @return Acceleration vector in m/s^2
+   */
+  public static Translation3d getAccelerometerData(Pigeon2 gyro) {
+    short[] xyz = new short[3];
+    gyro.getBiasedAccelerometer(xyz);
+    return new Translation3d(xyz[0] / 16384d * 9.81d, xyz[1] / 16384d * 9.81d, xyz[2] / 16384d * 9.81d);
+  }
+
+  /**
+   * @param input Velocity or voltage input
+   * @param encoderPos Current sensor position reading
+   * @param low Lower bound
+   * @param high Higher bound 
+   * @return Velocity or voltage input
+   */
+  public double softStop(double input, double encoderPos, double low, double high){
+    if (encoderPos < low){
+      if (input < 0){
+        input = 0;
+      }
+    }
+    else if (encoderPos > high){
+      if (input > 0){
+        input = 0;
+      }
+    }
+    return input;
+  }
+
+  public static final class PIDConstants {
+    public final double kP;
+    public final double kI;
+    public final double kD;
+    public final double kF;
+
+    public PIDConstants(double kP, double kI, double kD, double kF) {
+      this.kP = kP;
+      this.kI = kI;
+      this.kD = kD;
+      this.kF = kF;
+    }
+
+    public void configureTalonFX(TalonFX talon) {
+      talon.config_kP(0, kP);
+      talon.config_kI(0, kI);
+      talon.config_kD(0, kD);
+      talon.config_kF(0, kF);
+    }
+
+    public void configureCANSparkMax(CANSparkMax spark) {
+      SparkMaxPIDController pid = spark.getPIDController();
+      pid.setP(kP);
+      pid.setI(kI);
+      pid.setD(kD);
+      pid.setFF(kF);
+    }
   }
 }
