@@ -1,8 +1,10 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.util.Utils;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -13,10 +15,10 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  * build.gradle file in the
  * project.
  */
-public class Alice extends TimedRobot {
+public class Robot extends TimedRobot {
   private Command autonomousCommand;
 
-  private AliceContainer robotContainer;
+  private RobotContainer robotContainer;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -28,7 +30,7 @@ public class Alice extends TimedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
-    this.robotContainer = new AliceContainer();
+    this.robotContainer = new RobotContainer();
   }
 
   /**
@@ -51,11 +53,16 @@ public class Alice extends TimedRobot {
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+      robotContainer.armSubsystem.tunePID();
+  
+
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
+    Utils.flushShuffleboard();
   }
 
   @Override
@@ -65,7 +72,6 @@ public class Alice extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousInit() {
-    // this.robotContainer.initializeDriveTrain();
     this.autonomousCommand = this.robotContainer.getAutonomousCommand();
     this.autonomousCommand.schedule();
   }
@@ -85,14 +91,13 @@ public class Alice extends TimedRobot {
       this.autonomousCommand.cancel();
     }
 
-
-
-    // this.robotContainer.initializeDriveTrain();
+  
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    //this.robotContainer.handleIntakeInput();
   }
 
   @Override

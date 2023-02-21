@@ -21,6 +21,10 @@ public final class Constants {
 
   public static final String CANIVORE = "509CANIvore";
 
+  public static final int LIGHTS_PORT = 0;
+
+  public static final int ledPixelCount = 25;
+
   // Vision-related constants.
   public static final int redAllianceSubstationTagID = 5;
   public static final int blueAllianceSubstationTagID = 4;
@@ -31,8 +35,10 @@ public final class Constants {
 
   // Control-related constants.
   public static final double stickDeadband = 0.1;
-  public static final double armPivotOperatorCoefficient = 0.1;
-  public static final double armExtensionOperatorCoefficient = 0.1;
+  public static final double armPivotOperatorCoefficient = 0.5;
+  public static final double armExtensionOperatorCoefficient = 1.0;
+
+  public static final double intakePercentVel = 0.74;
 
   // Drivetrain-related constants.
   public static final double safetyBuffer = Units.inchesToMeters(40);

@@ -21,7 +21,7 @@ public class LimelightWrapper {
   // Constructor
   public LimelightWrapper(String name) {
     this.limelightName = name;
-    setLEDState(true);
+    setLEDState(false);
     setPipeline(0);
   }
 
@@ -43,6 +43,7 @@ public class LimelightWrapper {
   }
 
   // Get offset funcs
+ // public double getCameraFeed(  }
   public double getXOffset() {
     return NetworkTableInstance
         .getDefault()

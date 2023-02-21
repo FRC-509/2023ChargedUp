@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -110,5 +111,9 @@ public class Odometry extends SubsystemBase {
 
     // set offset to delta of translation
     this.offset = newPose.minus(this.odometryTranslation);
+  }
+
+  @Override
+  public void periodic() {
   }
 }

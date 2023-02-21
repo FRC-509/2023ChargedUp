@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
@@ -14,10 +15,12 @@ public class Intake extends SubsystemBase {
 
   public Intake() {
     primaryMotor = new CANSparkMax(9, MotorType.kBrushless);
-    secondaryMotor = new CANSparkMax(12, MotorType.kBrushless);
+    secondaryMotor = new CANSparkMax(14, MotorType.kBrushless);
     // secondaryMotor.setInverted(true);
+    primaryMotor.setSmartCurrentLimit(30);
+    secondaryMotor.setSmartCurrentLimit(30);
     // secondaryMotor.follow(primaryMotor);
-    solenoid = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 5, 7);
+    solenoid = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 4, 6);
   }
 
   public void drop() {
@@ -33,7 +36,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void spin(double v) {
-    primaryMotor.set(v);
-    // secondaryMotor.set(-v);
+    primaryMotor.set(-v);
+    secondaryMotor.set(v);
   }
 }

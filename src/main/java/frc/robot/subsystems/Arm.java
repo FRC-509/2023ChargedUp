@@ -9,23 +9,25 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.util.LazyTalonFX;
 import frc.robot.util.Utils;
 
 public class Arm extends SubsystemBase {
-  private final LazyTalonFX pivotMotor1 = new LazyTalonFX(12);
+  private final LazyTalonFX pivotMotor1 = new LazyTalonFX(20);
   private final LazyTalonFX pivotMotor2 = new LazyTalonFX(13);
 
-  private final CANSparkMax extensionMotor = new CANSparkMax(14, MotorType.kBrushless);
+  private final CANSparkMax extensionMotor = new CANSparkMax(12, MotorType.kBrushless);
   private SparkMaxPIDController extensionController;
   private RelativeEncoder extensionEncoder;
 
-  private static final double pivotGearRatio = 20.0d;
+  private static final double pivotGearRatio = 256.0d;
   // private static final double extensionGearRatio = 256.0d;
 
   // Dummy!
@@ -38,55 +40,67 @@ public class Arm extends SubsystemBase {
    * extension of 0.
    */
   public Arm() {
-    pivotConstants.configureTalonFX(pivotMotor1);
-    pivotConstants.configureTalonFX(pivotMotor2);
-    // Zero the pivot encoders.
+    extensionMotor.setSmartCurrentLimit(15);
+    extensionMotor.setIdleMode(IdleMode.kBrake);
+    // Zero pivot encoders
     pivotMotor1.setSelectedSensorPosition(0);
     pivotMotor2.setSelectedSensorPosition(0);
+    pivotMotor1.setInverted(false);
+    pivotMotor2.setInverted(true);
     pivotMotor1.setNeutralMode(NeutralMode.Brake);
     pivotMotor2.setNeutralMode(NeutralMode.Brake);
-    pivotMotor2.follow(pivotMotor1, FollowerType.AuxOutput1);
-
-    extensionConstants.configureCANSparkMax(extensionMotor);
-    extensionController = extensionMotor.getPIDController();
-    extensionEncoder = extensionMotor.getEncoder();
-
-    // Zero the extension encoder.
-    extensionEncoder.setPosition(0);
+    pivotMotor1.setSelectedSensorPosition(0);
+    pivotMotor2.setSelectedSensorPosition(0);
   }
 
-  public void setPivotAngle(double targetAngle) {
-    double currentAngle = getPivotAngle();
-    double delta = targetAngle - (currentAngle % 360.0d);
-    double outputAngle = Utils.degreesToFalcon(currentAngle + delta, pivotGearRatio);
-    pivotMotor1.set(ControlMode.Position, outputAngle);
+  double angle = 0;
+  public boolean manual = false;
+
+  public void tunePID() {
+    double kP = Utils.serializeNumber("kP", 0.0);
+    double kI = Utils.serializeNumber("kI", 0.0);
+    double kD = Utils.serializeNumber("kD", 0.0);
+
+    pivotMotor1.config_kP(0, kP);
+    pivotMotor2.config_kP(0, kP);
+    pivotMotor1.config_kI(0, kI);
+    pivotMotor2.config_kI(0, kI);
+    pivotMotor1.config_kD(0, kD);
+    pivotMotor2.config_kD(0, kD);
+
+    double encoder = Utils.falconToDegrees(pivotMotor1.getSelectedSensorPosition(), 227.556);
+
+    SmartDashboard.putNumber("arm encoder angle", encoder);
+
+    angle = Utils.serializeNumber("arm angle", angle);
+    double falcon = Utils.degreesToFalcon(angle, 227.556);
+
+    pivotMotor1.set(ControlMode.Position, falcon);
+    pivotMotor2.set(ControlMode.Position, falcon);
   }
 
-  public void movePivotBy(double delta) {
-    pivotMotor1.set(ControlMode.Position, Utils.degreesToFalcon(getPivotAngle() + delta, pivotGearRatio));
+  public void setPivotOutput(double output) {
+    SmartDashboard.putNumber("Arm output current", extensionMotor.getOutputCurrent());
+
+    SmartDashboard.putNumber("Arm output current", extensionMotor.getEncoder().getPosition());
+    output = MathUtil.clamp(output, -1.0d, 1.0d);
+    pivotMotor1.set(ControlMode.PercentOutput, output);
+    pivotMotor2.set(ControlMode.PercentOutput, output);
   }
 
-  public void setPercentExtension(double percentExtension) {
-    percentExtension = MathUtil.clamp(percentExtension, -1.0, 1.0);
-    extensionController.setReference(percentExtension * maxExtension, ControlType.kPosition);
-  }
-
-  public void extendArmBy(double percentExtension) {
-    double outputPos = extensionEncoder.getPosition() + MathUtil.clamp(percentExtension, -1.0, 1.0) * maxExtension;
-    extensionController.setReference(outputPos, ControlType.kPosition);
-  }
-
-  public double getPivotAngle() {
+  public double getArmDegrees() {
     return Utils.falconToDegrees(pivotMotor1.getSelectedSensorPosition(), pivotGearRatio);
   }
 
-  public double getPercentExtension() {
-    return extensionEncoder.getPosition() / maxExtension;
+  public boolean inDanger() {
+    return getArmDegrees() >= -50 && getArmDegrees() <= -5;
   }
 
+  public void setExtensionOutput(double output) {
+      output = MathUtil.clamp(output, -1.0d, 1.0d);
+      extensionMotor.set(output);
+  }
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Arm Extension", extensionEncoder.getPosition());
-    SmartDashboard.putNumber("Arm Pivot Angle", getPivotAngle());
   }
 }

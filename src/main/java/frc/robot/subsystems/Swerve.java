@@ -99,7 +99,7 @@ public class Swerve extends SubsystemBase {
     return positions;
   }
 
-  private Rotation2d getYaw() {
+  public Rotation2d getYaw() {
     return Rotation2d.fromDegrees(this.pigeon.getYaw());
   }
 

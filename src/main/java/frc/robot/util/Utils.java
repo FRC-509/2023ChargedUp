@@ -1,5 +1,7 @@
 package frc.robot.util;
 
+import java.util.ArrayList;
+
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.revrobotics.CANSparkMax;
@@ -99,12 +101,15 @@ public final class Utils {
     return meters / (circumference / (gearRatio * 2048.0));
   }
 
+  private static ArrayList<String> shuffleboardIds = new ArrayList<String>();
+
   /**
    * @param key Label on SmartDashboard
    * @param val Default value
    * @return Value on SmartDashboard
    */
   public static double serializeNumber(String key, double val) {
+    shuffleboardIds.add(key);
     SmartDashboard.setDefaultNumber(key, val);
     return SmartDashboard.getNumber(key, 0.0);
   }
@@ -115,8 +120,15 @@ public final class Utils {
    * @return Value on SmartDashboard
    */
   public static boolean serializeBoolean(String key, boolean val) {
+    shuffleboardIds.add(key);
     SmartDashboard.setDefaultBoolean(key, val);
     return SmartDashboard.getBoolean(key, false);
+  }
+
+  public static void flushShuffleboard() {
+    for (String key : shuffleboardIds) {
+      SmartDashboard.clearPersistent(key);
+    }
   }
 
   /**
