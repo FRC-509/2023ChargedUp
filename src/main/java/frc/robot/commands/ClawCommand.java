@@ -20,7 +20,7 @@ public class ClawCommand extends CommandBase{
   @Override
   public void execute() {
     if (toggle.getAsBoolean()) {
-      clawSubsystem.openClose();
+      clawSubsystem.toggleIntake();
     }
   }
 }
