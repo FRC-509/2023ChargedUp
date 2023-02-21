@@ -105,7 +105,7 @@ public class RobotContainer {
     // Set the default command of the drive train subsystem to DriveCommand.
     this.swerveSubsystem.setDefaultCommand(new DriveCommand(
         this.swerveSubsystem,
-        () -> -this.leftStick.getY(),
+         () -> -this.leftStick.getY(),
          () -> -this.leftStick.getX(),
          () -> -this.rightStick.getX(),
          () -> this.leftStick.getRawButton(2)));
@@ -149,10 +149,9 @@ public class RobotContainer {
     //         this.armSubsystem))
     //     .or(leftStickButtonThree);
     // this.operatorButtonOne.onTrue(getAutonomousCommand());
-    this.clawSubsystem.setDefaultCommand(new ClawCommand(clawSubsystem, () -> this.operatorController.getRawButtonPressed(1)));
-    this.armSubsystem
-         .setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(1) / 5.0d,
-             () -> this.operatorController.getRawAxis(5) * -Constants.armExtensionOperatorCoefficient));
+    // this.clawSubsystem.setDefaultCommand(new ClawCommand(clawSubsystem, () -> this.operatorController.getRawButtonPressed(1)));
+    // this.armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(1) / 5.0d,
+    //          () -> this.operatorController.getRawAxis(5) * -Constants.armExtensionOperatorCoefficient));
   //  this.armSubsystem
   //       .setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(2) * Constants.armPivotOperatorCoefficient,
   //           () -> -this.operatorController.getRawAxis(1) * Constants.armExtensionOperatorCoefficient));
