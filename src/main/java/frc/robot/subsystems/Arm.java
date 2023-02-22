@@ -27,12 +27,12 @@ public class Arm extends SubsystemBase {
   private SparkMaxPIDController extensionController;
   private RelativeEncoder extensionEncoder;
 
-  private static final double pivotGearRatio = 256.0d;
+  private static final double pivotGearRatio = 227.556;
   // private static final double extensionGearRatio = 256.0d;
 
   // Dummy!
   private static final double maxExtension = 100;
-  private static final Utils.PIDConstants pivotConstants = new Utils.PIDConstants(1.0, 0, 0, 0);
+  private static final Utils.PIDConstants pivotConstants = new Utils.PIDConstants(0.2, 0, 0, 0);
   private static final Utils.PIDConstants extensionConstants = new Utils.PIDConstants(1.0, 0, 0, 0);
 
   /*
@@ -49,13 +49,13 @@ public class Arm extends SubsystemBase {
     pivotMotor2.setInverted(true);
     pivotMotor1.setNeutralMode(NeutralMode.Brake);
     pivotMotor2.setNeutralMode(NeutralMode.Brake);
-    pivotMotor1.setSelectedSensorPosition(0);
-    pivotMotor2.setSelectedSensorPosition(0);
+    // Configure PID constants
+    pivotConstants.configureTalonFX(pivotMotor1);
+    pivotConstants.configureTalonFX(pivotMotor2);
   }
 
+  /* 
   double angle = 0;
-  public boolean manual = false;
-
   public void tunePID() {
     double kP = Utils.serializeNumber("kP", 0.0);
     double kI = Utils.serializeNumber("kI", 0.0);
@@ -68,16 +68,17 @@ public class Arm extends SubsystemBase {
     pivotMotor1.config_kD(0, kD);
     pivotMotor2.config_kD(0, kD);
 
-    double encoder = Utils.falconToDegrees(pivotMotor1.getSelectedSensorPosition(), 227.556);
+    double encoder = Utils.falconToDegrees(pivotMotor1.getSelectedSensorPosition(), pivotGearRatio);
 
     SmartDashboard.putNumber("arm encoder angle", encoder);
 
     angle = Utils.serializeNumber("arm angle", angle);
-    double falcon = Utils.degreesToFalcon(angle, 227.556);
+    double falcon = Utils.degreesToFalcon(angle, pivotGearRatio);
 
     pivotMotor1.set(ControlMode.Position, falcon);
     pivotMotor2.set(ControlMode.Position, falcon);
   }
+  */
 
   public void setPivotOutput(double output) {
     SmartDashboard.putNumber("Arm output current", extensionMotor.getOutputCurrent());
@@ -88,12 +89,17 @@ public class Arm extends SubsystemBase {
     pivotMotor2.set(ControlMode.PercentOutput, output);
   }
 
-  public double getArmDegrees() {
-    return Utils.falconToDegrees(pivotMotor1.getSelectedSensorPosition(), pivotGearRatio);
+  public void setPivotDegrees(double angle) {
+    // calculate "effective" delta angle and add back to raw encoder value to allow for continuous control
+    double bounded = getPivotDegrees() % 360.0d;
+    double targetPosition = Utils.degreesToFalcon(getPivotDegrees() + (angle - bounded), pivotGearRatio);
+
+    pivotMotor1.set(ControlMode.Position, targetPosition);
+    pivotMotor2.set(ControlMode.Position, targetPosition);
   }
 
-  public boolean inDanger() {
-    return getArmDegrees() >= -50 && getArmDegrees() <= -5;
+  public double getPivotDegrees() {
+    return Utils.falconToDegrees(pivotMotor1.getSelectedSensorPosition(), pivotGearRatio);
   }
 
   public void setExtensionOutput(double output) {

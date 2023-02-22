@@ -2,8 +2,6 @@ package frc.robot.subsystems;
 
 import frc.robot.Constants;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo.None;
-
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 public class Led {

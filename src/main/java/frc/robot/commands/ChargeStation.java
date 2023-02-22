@@ -32,7 +32,7 @@ public class ChargeStation extends CommandBase {
   private Odometry odometry;
 
   // Constructor
-  public ChargeStation(double pitchBuffer_, double moveIncrement_, Swerve swerve_, Pigeon2 gyro_, Odometry odometry_) {
+  public ChargeStation(double pitchBuffer_, double moveIncrement_, Swerve swerve_, Pigeon2 gyro_) {
 
     finished = false;
     this.pitchBuffer = pitchBuffer_;
@@ -44,9 +44,6 @@ public class ChargeStation extends CommandBase {
 
     // Get reference to gyro
     this.gyro = gyro_;
-
-    // Get reference to odometry
-    this.odometry = odometry_;
   }
 
   // Initialize
@@ -93,5 +90,11 @@ public class ChargeStation extends CommandBase {
 
     // Return finished
     return finished;
+  }
+
+  @Override
+  public void end(boolean wasInterrupted) {
+    // Enter the drivetrain's X-Stance to lock our position on the station.
+    swerve.enterXStance();
   }
 }
