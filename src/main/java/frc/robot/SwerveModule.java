@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -8,6 +9,7 @@ import frc.robot.util.LazyTalonFX;
 import frc.robot.util.Utils;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
@@ -24,6 +26,8 @@ public class SwerveModule {
 
   // The previously set steer angle.
   private double lastSteerAngle;
+
+  private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(Constants.kS, Constants.kV, Constants.kA);
 
   // Construct a new Swerve Module using a preset Configuration
   public SwerveModule(Constants.SwerveModuleConfigurations configs) {
@@ -53,6 +57,7 @@ public class SwerveModule {
     this.driveMotor.config_kI(0, configs.drivePID.kI);
     this.driveMotor.config_kD(0, configs.drivePID.kD);
     this.driveMotor.config_kF(0, configs.drivePID.kF);
+
     // "full output" will now scale to 12 Volts for all control modes.
     this.driveMotor.configVoltageCompSaturation(12);
     this.driveMotor.enableVoltageCompensation(true);
@@ -68,6 +73,8 @@ public class SwerveModule {
   public void debug() {
     SmartDashboard.putNumber(moduleNumber + " CANCoder",
         angleEncoder.getAbsolutePosition());
+        SmartDashboard.putNumber(moduleNumber + " vel",
+        driveMotor.getSelectedSensorVelocity());
   }
 
   public Rotation2d getCanCoder() {
@@ -141,7 +148,9 @@ public class SwerveModule {
           Constants.wheelCircumference,
           Constants.driveGearRatio);
 
-      this.driveMotor.set(ControlMode.Velocity, velocity * invertSpeed);
+      double velocityMps = Math.abs(desiredState.speedMetersPerSecond) * invertSpeed;
+      Utils.MPSToFalcon(velocityMps, Constants.wheelCircumference, Constants.driveGearRatio);
+      this.driveMotor.set(ControlMode.Velocity, velocity * invertSpeed, DemandType.ArbitraryFeedForward, feedforward.calculate(velocityMps));
     } else {
       double out = Math.abs(desiredState.speedMetersPerSecond) / Constants.maxSpeed;
       this.driveMotor.set(ControlMode.PercentOutput, invertSpeed * out);

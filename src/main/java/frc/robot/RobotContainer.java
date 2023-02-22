@@ -10,6 +10,7 @@ import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Led.PatternID;
 import frc.robot.util.TrajectoryBuilderWrapper;
+import frc.robot.util.TuningCommand;
 import frc.robot.vision.Odometry;
 
 import org.opencv.video.Video;
@@ -110,7 +111,10 @@ public class RobotContainer {
          () -> -this.rightStick.getX(),
          () -> this.leftStick.getRawButton(2)));
 
-    this.odometry.setDefaultCommand(new OdometryCommand(this.odometry, this.swerveSubsystem.swerveOdometry));
+    // this.swerveSubsystem.setDefaultCommand(new TuningCommand(
+    //   swerveSubsystem, 3));
+
+    // this.odometry.setDefaultCommand(new OdometryCommand(this.odometry, this.swerveSubsystem.swerveOdometry));
 
     // When button two on the left stick is pressed, zero the gyroscope.
     // The swerve subsystem is added as a requirement, since although the Pigeon
@@ -150,7 +154,7 @@ public class RobotContainer {
     //     .or(leftStickButtonThree);
     // this.operatorButtonOne.onTrue(getAutonomousCommand());
     // this.clawSubsystem.setDefaultCommand(new ClawCommand(clawSubsystem, () -> this.operatorController.getRawButtonPressed(1)));
-    // this.armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(1) / 5.0d,
+    // this.armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(1) * Constants.armPivotOperatorCoefficient,
     //          () -> this.operatorController.getRawAxis(5) * -Constants.armExtensionOperatorCoefficient));
   //  this.armSubsystem
   //       .setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(2) * Constants.armPivotOperatorCoefficient,

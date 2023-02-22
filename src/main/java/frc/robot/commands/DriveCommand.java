@@ -51,8 +51,8 @@ public class DriveCommand extends CommandBase {
   public void execute() {
     /* Get Values, Deadband */
     double translationVal = MathUtil.applyDeadband(this.translationSup.getAsDouble(), Constants.stickDeadband);
-    double strafeVal = MathUtil.applyDeadband(this.strafeSup.getAsDouble(), Constants.stickDeadband);
-    double rotationVal = MathUtil.applyDeadband(this.rotationSup.getAsDouble(), Constants.stickDeadband);
+    double strafeVal = 0; // MathUtil.applyDeadband(this.strafeSup.getAsDouble(), Constants.stickDeadband);
+    double rotationVal = 0;// MathUtil.applyDeadband(this.rotationSup.getAsDouble(), Constants.stickDeadband);
 
     /* Drive */
     this.s_Swerve.drive(
