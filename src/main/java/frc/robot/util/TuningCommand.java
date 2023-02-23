@@ -8,13 +8,15 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.SwerveModule;
 import frc.robot.subsystems.Swerve;
 
-public final class TuningCommand extends CommandBase {
+public final class TuningCommand {
   static final double step = 0.2;
-  static final double testTime = 10.0;
+  static final double testTime = 3.0;
   final SwerveModule module;
+  final int moduleNumber;
 
   ArrayList<Double> velPoints;
   ArrayList<Double> vltPoints;
+  ArrayList<Double> busVltPoints;
   Swerve swerve;
   double curOutput;
   double curVelSum;
@@ -28,11 +30,11 @@ public final class TuningCommand extends CommandBase {
   double begTime;
 
   public TuningCommand(Swerve swerve, int moduleId) {
-    addRequirements(swerve);
-
     velPoints = new ArrayList<>();
     vltPoints = new ArrayList<>();
+    busVltPoints = new ArrayList<>();
     this.swerve = swerve;
+    this.moduleNumber = moduleId;
     begTime = 0.0;
     curSampleCount = 0;
     curOutput = 0.0;
@@ -54,7 +56,11 @@ public final class TuningCommand extends CommandBase {
       return curVelSum / curSampleCount;
     }
 
-    module.supplyVoltage(curOutput);
+    if (moduleNumber == 0 || moduleNumber == 1) {
+      module.supplyVoltage(curOutput);
+    } else {
+      module.supplyVoltage(-curOutput);
+    }
 
     curTime = Timer.getFPGATimestamp();
     curPose = module.getPosition().distanceMeters;
@@ -63,6 +69,7 @@ public final class TuningCommand extends CommandBase {
       // add (Volt, vel) data npoint
       vltPoints.add(curOutput);
       velPoints.add(curVelSum / curSampleCount);
+      busVltPoints.add(module.getBusVoltage());
 
       // reset data measurements
       begTime = Timer.getFPGATimestamp();
@@ -91,25 +98,19 @@ public final class TuningCommand extends CommandBase {
     return deltaPose / deltaTime;
   }
 
-  @Override
   public void initialize() {
     begTime = Timer.getFPGATimestamp();
   }
 
-  @Override
-  public void end(boolean interrupted) {
-  }
-
-  @Override
   public boolean isFinished() {
     return false;
   }
 
-  @Override
   public void execute() {
     SmartDashboard.putNumber(module.moduleNumber + " output", curOutput);
     for (int i = 0; i < velPoints.size(); i++) {
       SmartDashboard.putNumber(module.moduleNumber + " vel" + i, velPoints.get(i));
+      SmartDashboard.putNumber(module.moduleNumber + " bus vlt" + i, busVltPoints.get(i));
     }
     SmartDashboard.putNumber(module.moduleNumber + " vel", deriveData());
   }

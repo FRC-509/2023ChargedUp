@@ -58,7 +58,9 @@ public final class Constants {
   public static final double kV = 2.3277 / 12.0;
   public static final double kA = 0.26532 / 12.0;
   
-  public static final Utils.PIDConstants drive = new Utils.PIDConstants(0.67488 / 12.0, 0, 0, 0);
+  //0.67488/12
+  //0.2
+  public static final Utils.PIDConstants drive = new Utils.PIDConstants(0.1, 0, 0, 0);
   public static final Utils.PIDConstants steer = new Utils.PIDConstants(0.2, 0, 0, 0);
   public static final boolean closedLoopDriveVelocity = true;
 

@@ -51,7 +51,7 @@ public class SwerveModule {
 
     // Drive Motor Config
     this.driveMotor = new LazyTalonFX(configs.driveMotorId, Constants.CANIVORE);
-    this.driveMotor.setNeutralMode(NeutralMode.Brake);
+    this.driveMotor.setNeutralMode(NeutralMode.Coast);
     this.driveMotor.setSelectedSensorPosition(0);
     this.driveMotor.config_kP(0, configs.drivePID.kP);
     this.driveMotor.config_kI(0, configs.drivePID.kI);
@@ -70,10 +70,10 @@ public class SwerveModule {
   }
 
   // Debug swerve module information to SmartDashboard
-  public void debug() {
+  public void debug(  ) {
     SmartDashboard.putNumber(moduleNumber + " CANCoder",
         angleEncoder.getAbsolutePosition());
-        SmartDashboard.putNumber(moduleNumber + " vel",
+    SmartDashboard.putNumber(moduleNumber + " vel",
         driveMotor.getSelectedSensorVelocity());
   }
 
@@ -142,6 +142,10 @@ public class SwerveModule {
     double falconTarget = Utils.degreesToFalcon(optimalTargetAngle, Constants.angleGearRatio);
     this.angleMotor.set(ControlMode.Position, falconTarget);
 
+    if (moduleNumber != 0 && moduleNumber != 1) {
+      return;
+    }
+
     if (Constants.closedLoopDriveVelocity) {
       double velocity = Utils.MPSToFalcon(
           Math.abs(desiredState.speedMetersPerSecond),
@@ -155,5 +159,9 @@ public class SwerveModule {
       double out = Math.abs(desiredState.speedMetersPerSecond) / Constants.maxSpeed;
       this.driveMotor.set(ControlMode.PercentOutput, invertSpeed * out);
     }
+  }
+
+  public double getBusVoltage() {
+    return driveMotor.getBusVoltage();
   }
 }

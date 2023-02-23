@@ -10,6 +10,7 @@ import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Led.PatternID;
 import frc.robot.util.TrajectoryBuilderWrapper;
+import frc.robot.util.Tuning;
 import frc.robot.util.TuningCommand;
 import frc.robot.vision.Odometry;
 
@@ -104,12 +105,14 @@ public class RobotContainer {
 
   public void configureButtonBindings() {
     // Set the default command of the drive train subsystem to DriveCommand.
-    this.swerveSubsystem.setDefaultCommand(new DriveCommand(
-        this.swerveSubsystem,
-         () -> -this.leftStick.getY(),
-         () -> -this.leftStick.getX(),
-         () -> -this.rightStick.getX(),
-         () -> this.leftStick.getRawButton(2)));
+    // this.swerveSubsystem.setDefaultCommand(new DriveCommand(
+    //     this.swerveSubsystem,
+    //      () -> -this.leftStick.getY(),
+    //      () -> -this.leftStick.getX(),
+    //      () -> -this.rightStick.getX(),
+    //      () -> this.leftStick.getRawButton(2)));
+
+    swerveSubsystem.setDefaultCommand(new Tuning(swerveSubsystem));
 
     // this.swerveSubsystem.setDefaultCommand(new TuningCommand(
     //   swerveSubsystem, 3));
