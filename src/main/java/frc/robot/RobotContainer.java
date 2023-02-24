@@ -11,7 +11,7 @@ import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Led.PatternID;
 import frc.robot.util.TrajectoryBuilderWrapper;
 import frc.robot.util.Tuning;
-import frc.robot.util.TuningCommand;
+import frc.robot.util.TuningCommandV;
 import frc.robot.vision.Odometry;
 
 import org.opencv.video.Video;

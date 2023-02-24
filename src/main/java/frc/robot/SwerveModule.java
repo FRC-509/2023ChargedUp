@@ -103,6 +103,11 @@ public class SwerveModule {
     this.driveMotor.set(ControlMode.PercentOutput, percentOutput);
   }
 
+  public void supplyVelocity(double percentVelocity) {
+    double velocity = Utils.MPSToFalcon(percentVelocity * Constants.maxSpeed, Constants.wheelCircumference, Constants.driveGearRatio);
+    this.driveMotor.set(ControlMode.Velocity, velocity);
+  }
+
   public double getDegrees() {
     double ticks = this.angleMotor.getSelectedSensorPosition();
     return Utils.falconToDegrees(ticks, Constants.angleGearRatio);

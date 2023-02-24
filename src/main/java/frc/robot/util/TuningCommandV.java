@@ -4,21 +4,21 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.SwerveModule;
 import frc.robot.subsystems.Swerve;
 
-public final class TuningCommand {
+public final class TuningCommandV {
   static final double step = 0.2;
   static final double testTime = 3.0;
   final SwerveModule module;
   final int moduleNumber;
 
-  ArrayList<Double> velPoints;
-  ArrayList<Double> vltPoints;
+  ArrayList<Double> encoderVelPoints;
+  ArrayList<Double> suppliedPercentVelPoints;
   ArrayList<Double> busVltPoints;
   Swerve swerve;
-  double curOutput;
+  double curSuppliedPercentVelocity;
   double curVelSum;
   int curSampleCount;
 
@@ -29,15 +29,15 @@ public final class TuningCommand {
   double preTime;
   double begTime;
 
-  public TuningCommand(Swerve swerve, int moduleId) {
-    velPoints = new ArrayList<>();
-    vltPoints = new ArrayList<>();
+  public TuningCommandV(Swerve swerve, int moduleId) {
+    encoderVelPoints = new ArrayList<>();
+    suppliedPercentVelPoints = new ArrayList<>();
     busVltPoints = new ArrayList<>();
     this.swerve = swerve;
     this.moduleNumber = moduleId;
     begTime = 0.0;
     curSampleCount = 0;
-    curOutput = 0.0;
+    curSuppliedPercentVelocity = 0.0;
     curVelSum = 0.0;
 
     module = swerve.getModules()[moduleId];
@@ -52,23 +52,23 @@ public final class TuningCommand {
       begTime = Timer.getFPGATimestamp();
     }
 
-    if (curOutput > 1) {
+    if (curSuppliedPercentVelocity > 1) {
       return curVelSum / curSampleCount;
     }
 
     if (moduleNumber == 0 || moduleNumber == 1) {
-      module.supplyVoltage(curOutput);
+      module.supplyVelocity(curSuppliedPercentVelocity);
     } else {
-      module.supplyVoltage(-curOutput);
+      module.supplyVelocity(-curSuppliedPercentVelocity);
     }
 
     curTime = Timer.getFPGATimestamp();
     curPose = module.getPosition().distanceMeters;
 
     if (curTime - begTime > testTime) {
-      // add (Volt, vel) data npoint
-      vltPoints.add(curOutput);
-      velPoints.add(curVelSum / curSampleCount);
+      // add (% Vel, vel) data npoint
+      suppliedPercentVelPoints.add(curSuppliedPercentVelocity);
+      encoderVelPoints.add(curVelSum / curSampleCount);
       busVltPoints.add(module.getBusVoltage());
 
       // reset data measurements
@@ -77,7 +77,7 @@ public final class TuningCommand {
       curVelSum = 0.0;
 
       // step voltage
-      curOutput += step;
+      curSuppliedPercentVelocity += step;
     }
 
     double vel = getVelocity();
@@ -107,9 +107,10 @@ public final class TuningCommand {
   }
 
   public void execute() {
-    SmartDashboard.putNumber(module.moduleNumber + " output", curOutput);
-    for (int i = 0; i < velPoints.size(); i++) {
-      SmartDashboard.putNumber(module.moduleNumber + " vel" + i, velPoints.get(i));
+    double suppliedVel = Utils.MPSToFalcon(curSuppliedPercentVelocity * Constants.maxSpeed, Constants.wheelCircumference, Constants.driveGearRatio);
+    SmartDashboard.putNumber(module.moduleNumber + " supvel", suppliedVel);
+    for (int i = 0; i < encoderVelPoints.size(); i++) {
+      SmartDashboard.putNumber(module.moduleNumber + " encvel" + i, encoderVelPoints.get(i));
       SmartDashboard.putNumber(module.moduleNumber + " bus vlt" + i, busVltPoints.get(i));
     }
     SmartDashboard.putNumber(module.moduleNumber + " vel", deriveData());

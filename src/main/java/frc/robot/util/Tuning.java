@@ -4,14 +4,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Swerve;
 
 public class Tuning extends CommandBase {
-  TuningCommand[] tuners;
+  TuningCommandV[] tuners;
 
   public Tuning(Swerve swerve) {
-    this.tuners = new TuningCommand[] {
-      new TuningCommand(swerve, 0),
-      new TuningCommand(swerve, 1),
-      new TuningCommand(swerve,2),
-      new TuningCommand(swerve, 3),
+    this.tuners = new TuningCommandV[] {
+      new TuningCommandV(swerve, 0),
+      new TuningCommandV(swerve, 1),
+      new TuningCommandV(swerve, 2),
+      new TuningCommandV(swerve, 3),
     };
 
     addRequirements(swerve);
@@ -19,7 +19,7 @@ public class Tuning extends CommandBase {
 
   @Override
   public void execute() {
-    for (TuningCommand tuner : tuners) {
+    for (TuningCommandV tuner : tuners) {
       tuner.execute();
     }
   }
