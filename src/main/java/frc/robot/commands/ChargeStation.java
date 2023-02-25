@@ -3,7 +3,6 @@ package frc.robot.commands;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
-import frc.robot.vision.Odometry;
 
 import com.ctre.phoenix.sensors.Pigeon2;
 
@@ -29,7 +28,8 @@ public class ChargeStation extends CommandBase {
   private Pigeon2 gyro;
 
   // Odometry reference
-  private Odometry odometry;
+  // private OdometryDeprecated odometry;
+
 
   // Constructor
   public ChargeStation(double pitchBuffer_, double moveIncrement_, Swerve swerve_, Pigeon2 gyro_) {
@@ -51,7 +51,7 @@ public class ChargeStation extends CommandBase {
   public void initialize() {
     
     // Makes robot parallel to charge station before driving
-    double robotRotationDegrees = odometry.getRobotPose().getRotation().getDegrees();
+    double robotRotationDegrees = swerve.getPose().getRotation().getDegrees();
     double difference = 90 - robotRotationDegrees;
     swerve.drive(new Translation2d(), difference, true);
   

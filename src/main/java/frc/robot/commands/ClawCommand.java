@@ -1,9 +1,7 @@
 package frc.robot.commands;
 
-import java.lang.module.ModuleDescriptor.Requires;
 import java.util.function.BooleanSupplier;
 
-import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Claw;
 

@@ -30,8 +30,9 @@ public final class Constants {
   public static final int blueAllianceSubstationTagID = 4;
   public static final int[] redAllianceTargetTagIDs = { 6, 7, 8 };
   public static final int[] blueAllianceTargetTagIDs = { 3, 2, 1 };
-  public static final String frontCameraId = "limelight-front";
-  public static final String backCameraId = "limelight-back";
+  // public static final String frontCameraId = "limelight-front";
+  // public static final String backCameraId = "limelight-back";
+  public static final String limelightName = "limelight";
 
   // Control-related constants.
   public static final double stickDeadband = 0.1;

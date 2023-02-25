@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -18,7 +17,7 @@ import java.io.IOException;
 
 import com.ctre.phoenix.sensors.Pigeon2;
 
-public class Odometry extends SubsystemBase {
+public class OdometryDeprecated extends SubsystemBase {
   private Pigeon2 gyro;
   private Field2d field;
 
@@ -41,17 +40,18 @@ public class Odometry extends SubsystemBase {
     NONE
   }
 
-  public Odometry(Pigeon2 pigeon) {
+  public OdometryDeprecated(Pigeon2 pigeon) {
     this.gyro = pigeon;
     this.field = new Field2d();
 
     this.odometryTranslation = new Translation2d();
     this.offset = new Translation2d();
 
-    this.cameras = new LimelightWrapper[2];
+    this.cameras = new LimelightWrapper[1];
 
-    this.cameras[0] = new LimelightWrapper(Constants.backCameraId);
-    this.cameras[1] = new LimelightWrapper(Constants.frontCameraId);
+    this.cameras[0] = new LimelightWrapper(Constants.limelightName);
+    // this.cameras[0] = new LimelightWrapper(Constants.backCameraId);
+    // this.cameras[1] = new LimelightWrapper(Constants.frontCameraId);
 
     try {
       // aprilTagFieldLayout = new
