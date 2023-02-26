@@ -14,9 +14,14 @@ import frc.robot.util.controllers.JoystickController.StickButton;
 import frc.robot.util.controllers.LogitechController.LogiButton;
 import frc.robot.vision.*;
 
+import java.io.IOException;
+
 import com.ctre.phoenix.sensors.Pigeon2;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,6 +43,7 @@ public class RobotContainer {
 
 	public final LimelightWrapper limelight = new LimelightWrapper(Constants.limelightName);
 	public final Pigeon2 pigeon2 = new Pigeon2(30, Constants.CANIvore);
+	public AprilTagFieldLayout fieldLayout;
 
 	public final Swerve swerveSubsystem;
 	public final Arm armSubsystem;
@@ -58,6 +64,15 @@ public class RobotContainer {
 		// Configure button bindings and put our sendable chooser on the dashboard.
 		this.configureButtonBindings();
 		this.addAutonomousRoutines();
+
+		// Initialize the AprilTagFieldLayout
+		try {
+			fieldLayout = new AprilTagFieldLayout(
+					Filesystem.getDeployDirectory().toPath().resolve("2023-chargedup.json"));
+		} catch (IOException e) {
+			DriverStation.reportWarning("failed to load april tag field layout json", true);
+			fieldLayout = null;
+		}
 	}
 
 	public void configureButtonBindings() {

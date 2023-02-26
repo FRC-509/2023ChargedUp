@@ -1,7 +1,9 @@
-package frc.robot.util;
+package frc.robot.util.drivers;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.REVLibError;
+
+import frc.robot.util.PIDConstants;
 
 public class NEOSparkMax extends CANSparkMax {
 	public NEOSparkMax(int deviceId) {

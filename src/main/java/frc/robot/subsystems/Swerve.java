@@ -14,6 +14,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -21,10 +23,10 @@ import frc.robot.SwerveModule;
 import frc.robot.vision.LimelightWrapper;
 
 public class Swerve extends SubsystemBase {
-	/** Creates a new ExampleSubsystem. */
 
 	public SwerveModule[] swerveModules;
 	public SwerveDrivePoseEstimator swerveDrivePoseEstimator;
+	private Field2d field2d;
 	private LimelightWrapper limelight;
 	private Pigeon2 pigeon;
 
@@ -32,7 +34,7 @@ public class Swerve extends SubsystemBase {
 		this.pigeon = pigeon;
 		this.limelight = limelight;
 
-		this.swerveModules = new SwerveModule[] {
+		swerveModules = new SwerveModule[] {
 				new SwerveModule(Constants.s_frontLeft),
 				new SwerveModule(Constants.s_backLeft),
 				new SwerveModule(Constants.s_backRight),
@@ -44,8 +46,12 @@ public class Swerve extends SubsystemBase {
 		Timer.delay(1.0);
 		resetIntegratedToAbsolute();
 
-		this.swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(Constants.swerveKinematics, getYaw(),
+		field2d = new Field2d();
+
+		swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(Constants.swerveKinematics, getYaw(),
 				getModulePositions(), limelight.getRobotPose().get().toPose2d());
+
+		Shuffleboard.getTab("Robot Field Position").add(field2d);
 	}
 
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond,
@@ -131,6 +137,8 @@ public class Swerve extends SubsystemBase {
 			swerveDrivePoseEstimator.addVisionMeasurement(llPose.get().toPose2d(), Timer.getFPGATimestamp());
 		}
 		swerveDrivePoseEstimator.update(getYaw(), getModulePositions());
+
+		field2d.setRobotPose(getPose());
 
 		SmartDashboard.putNumber("theta", getYaw().getDegrees());
 		SmartDashboard.putNumber("odometry-x", this.swerveDrivePoseEstimator.getEstimatedPosition().getX());

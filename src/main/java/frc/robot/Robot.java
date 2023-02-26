@@ -16,7 +16,6 @@ import frc.robot.util.Utils;
  */
 public class Robot extends TimedRobot {
 	private Command autonomousCommand;
-
 	private RobotContainer robotContainer;
 
 	/**
@@ -68,7 +67,9 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousInit() {
 		this.autonomousCommand = this.robotContainer.getAutonomousCommand();
-		this.autonomousCommand.schedule();
+		if (autonomousCommand != null) {
+			this.autonomousCommand.schedule();
+		}
 	}
 
 	/** This function is called periodically during autonomous. */

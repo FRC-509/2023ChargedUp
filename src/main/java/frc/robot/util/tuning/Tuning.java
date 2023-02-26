@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.util.tuning;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Swerve;

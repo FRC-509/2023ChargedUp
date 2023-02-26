@@ -10,10 +10,10 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.util.LazyTalonFX;
-import frc.robot.util.NEOSparkMax;
 import frc.robot.util.PIDConstants;
 import frc.robot.util.Utils;
+import frc.robot.util.drivers.LazyTalonFX;
+import frc.robot.util.drivers.NEOSparkMax;
 
 public class Arm extends SubsystemBase {
 	private final LazyTalonFX pivotMotor1 = new LazyTalonFX(20);

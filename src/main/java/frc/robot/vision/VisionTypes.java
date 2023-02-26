@@ -13,5 +13,4 @@ public class VisionTypes {
 		CONE,
 		NONE
 	}
-
 }

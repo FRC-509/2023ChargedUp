@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.util.drivers;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
