@@ -49,7 +49,7 @@ public class Swerve extends SubsystemBase {
 		field2d = new Field2d();
 
 		swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(Constants.swerveKinematics, getYaw(),
-				getModulePositions(), limelight.getRobotPose().get().toPose2d());
+				getModulePositions(), limelight.getRobotPose().orElse(new Pose3d()).toPose2d());
 
 		Shuffleboard.getTab("Robot Field Position").add(field2d);
 	}

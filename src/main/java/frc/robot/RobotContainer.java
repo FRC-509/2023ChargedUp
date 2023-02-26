@@ -107,7 +107,7 @@ public class RobotContainer {
 				0, true)
 				.withTimeout(0.7));
 		chooser.addOption("None", null);
-		SmartDashboard.putData(chooser);
+		SmartDashboard.putData("Auto Chooser", chooser);
 	}
 
 	public void zeroGyro() {
