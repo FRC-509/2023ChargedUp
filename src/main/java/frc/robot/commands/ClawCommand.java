@@ -18,7 +18,7 @@ public class ClawCommand extends CommandBase{
   @Override
   public void execute() {
     if (toggle.getAsBoolean()) {
-      clawSubsystem.toggleIntake();
+      clawSubsystem.toggleClaw();
     }
   }
 }

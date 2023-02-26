@@ -27,7 +27,7 @@ public class Led {
     }
   }
 
-  private static final Spark m_blinkin = new Spark(Constants.LIGHTS_PORT);
+  private static final Spark m_blinkin = new Spark(Constants.revBlinkinPort);
 
   public static void set(PatternID pattern) {
     m_blinkin.set(pattern.getVal());

@@ -42,7 +42,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  */
 public class RobotContainer {
 
-  public final Pigeon2 pigeon2 = new Pigeon2(30, Constants.CANIVORE);
+  public final Pigeon2 pigeon2 = new Pigeon2(30, Constants.CANIvore);
   public final Joystick leftStick = new Joystick(1);
   public final Joystick rightStick = new Joystick(0);
 

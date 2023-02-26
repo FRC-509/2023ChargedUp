@@ -38,11 +38,11 @@ public class SwerveModule {
     canCoderConfiguration.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
     canCoderConfiguration.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
     canCoderConfiguration.magnetOffsetDegrees = configs.angleEncoderOffset;
-    this.angleEncoder = new CANCoder(configs.angleEncoderId, Constants.CANIVORE);
+    this.angleEncoder = new CANCoder(configs.angleEncoderId, Constants.CANIvore);
     this.angleEncoder.configAllSettings(canCoderConfiguration);
 
     // Angle Motor Config
-    this.angleMotor = new LazyTalonFX(configs.angleMotorId, Constants.CANIVORE);
+    this.angleMotor = new LazyTalonFX(configs.angleMotorId, Constants.CANIvore);
     this.angleMotor.setNeutralMode(NeutralMode.Coast);
     this.angleMotor.config_kP(0, configs.steerPID.kP);
     this.angleMotor.config_kI(0, configs.steerPID.kI);
@@ -50,7 +50,7 @@ public class SwerveModule {
     this.angleMotor.config_kF(0, configs.steerPID.kF);
 
     // Drive Motor Config
-    this.driveMotor = new LazyTalonFX(configs.driveMotorId, Constants.CANIVORE);
+    this.driveMotor = new LazyTalonFX(configs.driveMotorId, Constants.CANIvore);
     this.driveMotor.setNeutralMode(NeutralMode.Coast);
     this.driveMotor.setSelectedSensorPosition(0);
     this.driveMotor.config_kP(0, configs.drivePID.kP);
