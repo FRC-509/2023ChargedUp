@@ -68,9 +68,11 @@ public class RobotContainer {
 				() -> -leftStick.getX(),
 				() -> -rightStick.getX(),
 				() -> leftStick.getRawButton(2)));
-		clawSubsystem.setDefaultCommand(new ClawCommand(clawSubsystem, () -> operatorController.isPressed(LogiButton.A)));
+		clawSubsystem
+				.setDefaultCommand(new ClawCommand(clawSubsystem, () -> operatorController.isPressed(LogiButton.A)));
 		armSubsystem.setDefaultCommand(
-				new ArmCommand(armSubsystem, () -> operatorController.getLeftStickX() * Constants.armPivotOperatorCoefficient,
+				new ArmCommand(armSubsystem,
+						() -> operatorController.getLeftStickX() * Constants.armPivotOperatorCoefficient,
 						() -> operatorController.getRightStickY() * -Constants.armExtensionOperatorCoefficient));
 
 		// swerveSubsystem.setDefaultCommand(new Tuning(swerveSubsystem));

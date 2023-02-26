@@ -19,117 +19,118 @@ import frc.robot.util.PIDConstants;
  */
 public final class Constants {
 
-  public static final String CANIvore = "509CANIvore";
+	public static final String CANIvore = "509CANIvore";
 
-  public static final int revBlinkinPort = 0;
-  public static final int ledPixelCount = 25;
+	public static final int revBlinkinPort = 0;
+	public static final int ledPixelCount = 25;
 
-  // Vision-related constants.
-  public static final int redAllianceSubstationTagID = 5;
-  public static final int blueAllianceSubstationTagID = 4;
-  public static final int[] redAllianceTargetTagIDs = { 6, 7, 8 };
-  public static final int[] blueAllianceTargetTagIDs = { 3, 2, 1 };
-  public static final String limelightName = "limelight";
+	// Vision-related constants.
+	public static final int redAllianceSubstationTagID = 5;
+	public static final int blueAllianceSubstationTagID = 4;
+	public static final int[] redAllianceTargetTagIDs = { 6, 7, 8 };
+	public static final int[] blueAllianceTargetTagIDs = { 3, 2, 1 };
+	public static final String limelightName = "limelight";
 
-  // Control-related constants.
-  public static final double stickDeadband = 0.1;
-  public static final double armPivotOperatorCoefficient = 0.2;
-  public static final double armExtensionOperatorCoefficient = 1.0;
+	// Control-related constants.
+	public static final double stickDeadband = 0.1;
+	public static final double armPivotOperatorCoefficient = 0.2;
+	public static final double armExtensionOperatorCoefficient = 1.0;
 
-  // Claw-related constants.
-  public static final double intakePercentVel = 0.74;
+	// Claw-related constants.
+	public static final double intakePercentVel = 0.74;
 
-  // Arm-related constants.
-  public static final double pivotGearRatio = 227.556;
-  public static final double extensionGearRatio = 64.0d;
+	// Arm-related constants.
+	public static final double pivotGearRatio = 227.556;
+	public static final double extensionGearRatio = 64.0d;
 
-  // Drivetrain-related constants.
-  public static final double safetyBuffer = Units.inchesToMeters(40);
-  public static final double chassisLength = Units.inchesToMeters(28);
-  public static final double chassisWidth = Units.inchesToMeters(28);
-  public static final double offsetToSwerveModule = chassisLength / 2 - Units.inchesToMeters(3.25);
+	// Drivetrain-related constants.
+	public static final double safetyBuffer = Units.inchesToMeters(40);
+	public static final double chassisLength = Units.inchesToMeters(28);
+	public static final double chassisWidth = Units.inchesToMeters(28);
+	public static final double offsetToSwerveModule = chassisLength / 2 - Units.inchesToMeters(3.25);
 
-  public static final double wheelCircumference = Units.inchesToMeters(4.0) * Math.PI; // 0.3192 meters
-  public static final double driveGearRatio = 6.75; // exact value is 425.0d / 63.0d
-  public static final double angleGearRatio = 12.8;
-  public static final double maxSpeed = 4.96824;
-  public static final double maxAngularVelocity = maxSpeed / (Math.hypot(offsetToSwerveModule, offsetToSwerveModule));
+	public static final double wheelCircumference = Units.inchesToMeters(4.0) * Math.PI; // 0.3192 meters
+	public static final double driveGearRatio = 6.75; // exact value is 425.0d / 63.0d
+	public static final double angleGearRatio = 12.8;
+	public static final double maxSpeed = 4.96824;
+	public static final double maxAngularVelocity = maxSpeed / (Math.hypot(offsetToSwerveModule, offsetToSwerveModule));
 
-  public static final double kS = 0.079354 / 12.0;
-  public static final double kV = 2.3277 / 12.0;
-  public static final double kA = 0.26532 / 12.0;
-  
-  public static final PIDConstants drive = new PIDConstants(0.1, 0, 0, 0);
-  public static final PIDConstants steer = new PIDConstants(0.2, 0, 0, 0);
-  public static final boolean closedLoopDriveVelocity = true;
+	public static final double kS = 0.079354 / 12.0;
+	public static final double kV = 2.3277 / 12.0;
+	public static final double kA = 0.26532 / 12.0;
 
-  /* 
-   * The order of each vector corresponds to the index of the swerve module inside the swerveModules array.
-   * 
-   * module 2 (-, -) |--b--| module 1 (-, +)
-   *                 |     |
-   * module 3 (+, -) |--f--| module 0 (+, +)
-  */
-  public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
-      new Translation2d(+offsetToSwerveModule, +offsetToSwerveModule),
-      new Translation2d(-offsetToSwerveModule, +offsetToSwerveModule),
-      new Translation2d(-offsetToSwerveModule, -offsetToSwerveModule),
-      new Translation2d(+offsetToSwerveModule, -offsetToSwerveModule));
+	public static final PIDConstants drive = new PIDConstants(0.1, 0, 0, 0);
+	public static final PIDConstants steer = new PIDConstants(0.2, 0, 0, 0);
+	public static final boolean closedLoopDriveVelocity = true;
 
-  public static final class SwerveModuleConfigurations {
-    public int moduleNumber;
-    public int angleEncoderId;
-    public int angleMotorId;
-    public int driveMotorId;
-    public double angleEncoderOffset;
-    public PIDConstants steerPID;
-    public PIDConstants drivePID;
+	/*
+	 * The order of each vector corresponds to the index of the swerve module inside
+	 * the swerveModules array.
+	 * 
+	 * module 2 (-, -) |--b--| module 1 (-, +)
+	 * | |
+	 * module 3 (+, -) |--f--| module 0 (+, +)
+	 */
+	public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
+			new Translation2d(+offsetToSwerveModule, +offsetToSwerveModule),
+			new Translation2d(-offsetToSwerveModule, +offsetToSwerveModule),
+			new Translation2d(-offsetToSwerveModule, -offsetToSwerveModule),
+			new Translation2d(+offsetToSwerveModule, -offsetToSwerveModule));
 
-    public SwerveModuleConfigurations(int moduleNumber, int angleEncoderId, int angleMotorId, int driveMotorId,
-        double angleEncoderOffset, PIDConstants steerPID, PIDConstants drivePID) {
-      this.moduleNumber = moduleNumber;
-      this.angleEncoderId = angleEncoderId;
-      this.angleMotorId = angleMotorId;
-      this.driveMotorId = driveMotorId;
-      this.angleEncoderOffset = angleEncoderOffset;
-      this.steerPID = steerPID;
-      this.drivePID = drivePID;
-    }
-  }
+	public static final class SwerveModuleConfigurations {
+		public int moduleNumber;
+		public int angleEncoderId;
+		public int angleMotorId;
+		public int driveMotorId;
+		public double angleEncoderOffset;
+		public PIDConstants steerPID;
+		public PIDConstants drivePID;
 
-  public static final SwerveModuleConfigurations s_frontLeft = new SwerveModuleConfigurations(
-      0,
-      0,
-      8,
-      4,
-      -315.09,
-      steer,
-      drive);
+		public SwerveModuleConfigurations(int moduleNumber, int angleEncoderId, int angleMotorId, int driveMotorId,
+				double angleEncoderOffset, PIDConstants steerPID, PIDConstants drivePID) {
+			this.moduleNumber = moduleNumber;
+			this.angleEncoderId = angleEncoderId;
+			this.angleMotorId = angleMotorId;
+			this.driveMotorId = driveMotorId;
+			this.angleEncoderOffset = angleEncoderOffset;
+			this.steerPID = steerPID;
+			this.drivePID = drivePID;
+		}
+	}
 
-  public static final SwerveModuleConfigurations s_frontRight = new SwerveModuleConfigurations(
-      3,
-      3,
-      11,
-      7,
-      -299.18,
-      steer,
-      drive);
+	public static final SwerveModuleConfigurations s_frontLeft = new SwerveModuleConfigurations(
+			0,
+			0,
+			8,
+			4,
+			-315.09,
+			steer,
+			drive);
 
-  public static final SwerveModuleConfigurations s_backLeft = new SwerveModuleConfigurations(
-      1,
-    1,
-      9,
-      5,
-      -309.28,
-      steer,
-      drive);
+	public static final SwerveModuleConfigurations s_frontRight = new SwerveModuleConfigurations(
+			3,
+			3,
+			11,
+			7,
+			-299.18,
+			steer,
+			drive);
 
-  public static final SwerveModuleConfigurations s_backRight = new SwerveModuleConfigurations(
-      2,
-      2,
-      10,
-      6,
-      -156.44,
-      steer,
-      drive);
+	public static final SwerveModuleConfigurations s_backLeft = new SwerveModuleConfigurations(
+			1,
+			1,
+			9,
+			5,
+			-309.28,
+			steer,
+			drive);
+
+	public static final SwerveModuleConfigurations s_backRight = new SwerveModuleConfigurations(
+			2,
+			2,
+			10,
+			6,
+			-156.44,
+			steer,
+			drive);
 }

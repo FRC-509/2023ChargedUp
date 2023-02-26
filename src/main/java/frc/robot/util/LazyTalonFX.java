@@ -10,27 +10,27 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
  * commands. (By default the Talon flushes the Tx buffer on every set call).
  */
 public class LazyTalonFX extends TalonFX {
-  protected double lastSet = Double.NaN;
-  protected ControlMode lastControlMode = null;
+	protected double lastSet = Double.NaN;
+	protected ControlMode lastControlMode = null;
 
-  public LazyTalonFX(int deviceId, String canBus) {
-	super(deviceId, canBus);
-  }
-
-  public LazyTalonFX(int deviceId) {
-	super(deviceId, "rio");
-  }
-
-  public double getLastSet() {
-	return lastSet;
-  }
-
-  @Override
-  public void set(ControlMode mode, double value) {
-	if (value != lastSet || mode != lastControlMode) {
-	  lastSet = value;
-	  lastControlMode = mode;
-	  super.set(mode, value);
+	public LazyTalonFX(int deviceId, String canBus) {
+		super(deviceId, canBus);
 	}
-  }
+
+	public LazyTalonFX(int deviceId) {
+		super(deviceId, "rio");
+	}
+
+	public double getLastSet() {
+		return lastSet;
+	}
+
+	@Override
+	public void set(ControlMode mode, double value) {
+		if (value != lastSet || mode != lastControlMode) {
+			lastSet = value;
+			lastControlMode = mode;
+			super.set(mode, value);
+		}
+	}
 }

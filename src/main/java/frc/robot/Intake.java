@@ -24,8 +24,7 @@ public class Intake {
 		if (solenoid.get() == DoubleSolenoid.Value.kForward) {
 			retractIntake();
 			spinIntake(0.25d);
-		}
-		else {
+		} else {
 			extendIntake();
 			spinIntake(0.0d);
 		}
