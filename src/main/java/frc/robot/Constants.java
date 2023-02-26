@@ -3,7 +3,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
-import frc.robot.util.Utils;
+import frc.robot.util.PIDConstants;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -33,7 +33,7 @@ public final class Constants {
 
   // Control-related constants.
   public static final double stickDeadband = 0.1;
-  public static final double armPivotOperatorCoefficient = 0.5;
+  public static final double armPivotOperatorCoefficient = 0.2;
   public static final double armExtensionOperatorCoefficient = 1.0;
 
   // Claw-related constants.
@@ -59,8 +59,8 @@ public final class Constants {
   public static final double kV = 2.3277 / 12.0;
   public static final double kA = 0.26532 / 12.0;
   
-  public static final Utils.PIDConstants drive = new Utils.PIDConstants(0.1, 0, 0, 0);
-  public static final Utils.PIDConstants steer = new Utils.PIDConstants(0.2, 0, 0, 0);
+  public static final PIDConstants drive = new PIDConstants(0.1, 0, 0, 0);
+  public static final PIDConstants steer = new PIDConstants(0.2, 0, 0, 0);
   public static final boolean closedLoopDriveVelocity = true;
 
   /* 
@@ -82,11 +82,11 @@ public final class Constants {
     public int angleMotorId;
     public int driveMotorId;
     public double angleEncoderOffset;
-    public Utils.PIDConstants steerPID;
-    public Utils.PIDConstants drivePID;
+    public PIDConstants steerPID;
+    public PIDConstants drivePID;
 
     public SwerveModuleConfigurations(int moduleNumber, int angleEncoderId, int angleMotorId, int driveMotorId,
-        double angleEncoderOffset, Utils.PIDConstants steerPID, Utils.PIDConstants drivePID) {
+        double angleEncoderOffset, PIDConstants steerPID, PIDConstants drivePID) {
       this.moduleNumber = moduleNumber;
       this.angleEncoderId = angleEncoderId;
       this.angleMotorId = angleMotorId;

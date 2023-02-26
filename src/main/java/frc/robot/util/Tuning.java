@@ -7,20 +7,20 @@ public class Tuning extends CommandBase {
   TuningCommandV[] tuners;
 
   public Tuning(Swerve swerve) {
-    this.tuners = new TuningCommandV[] {
-      new TuningCommandV(swerve, 0),
-      new TuningCommandV(swerve, 1),
-      new TuningCommandV(swerve, 2),
-      new TuningCommandV(swerve, 3),
-    };
+	this.tuners = new TuningCommandV[] {
+	  new TuningCommandV(swerve, 0),
+	  new TuningCommandV(swerve, 1),
+	  new TuningCommandV(swerve, 2),
+	  new TuningCommandV(swerve, 3),
+	};
 
-    addRequirements(swerve);
+	addRequirements(swerve);
   }
 
   @Override
   public void execute() {
-    for (TuningCommandV tuner : tuners) {
-      tuner.execute();
-    }
+	for (TuningCommandV tuner : tuners) {
+	  tuner.execute();
+	}
   }
 }

@@ -8,28 +8,19 @@ import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Led.PatternID;
-import frc.robot.util.TrajectoryBuilderWrapper;
-import frc.robot.util.Tuning;
-import frc.robot.util.TuningCommandV;
-
-import org.opencv.video.Video;
+import frc.robot.util.controllers.JoystickController;
+import frc.robot.util.controllers.LogitechController;
+import frc.robot.util.controllers.JoystickController.StickButton;
+import frc.robot.util.controllers.LogitechController.LogiButton;
+import frc.robot.vision.*;
 
 import com.ctre.phoenix.sensors.Pigeon2;
-import frc.robot.vision.*;
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.CameraServerCvJNI;
-import edu.wpi.first.cscore.MjpegServer;
-import edu.wpi.first.cscore.VideoSink;
+
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.AddressableLED;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -41,139 +32,77 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+	public final JoystickController leftStick = new JoystickController(1);
+	public final JoystickController rightStick = new JoystickController(0);
+	public final LogitechController operatorController = new LogitechController(2);
 
-  public final Pigeon2 pigeon2 = new Pigeon2(30, Constants.CANIvore);
-  public final Joystick leftStick = new Joystick(1);
-  public final Joystick rightStick = new Joystick(0);
+	public final LimelightWrapper limelight = new LimelightWrapper(Constants.limelightName);
+	public final Pigeon2 pigeon2 = new Pigeon2(30, Constants.CANIvore);
 
-  public final Swerve swerveSubsystem;
-  public final LimelightWrapper limelight = new LimelightWrapper(Constants.limelightName);
-  // public final OdometryDeprecated odometry;
-  // public final Intake intakeSubsystem;
-  public final Arm armSubsystem;
-  public final Claw clawSubsystem;
-  public final MjpegServer cam = CameraServer.addServer("limelight.local:5800");
-  
-  public final GenericHID operatorController = new GenericHID(2);
-  private final JoystickButton leftTrigger = new JoystickButton(leftStick, 1);
-  private final JoystickButton rightTrigger = new JoystickButton(rightStick, 1);
-  private final JoystickButton leftStickButtonTwo = new JoystickButton(leftStick, 2);
-  private final JoystickButton leftStickButtonThree = new JoystickButton(leftStick, 3);
-  private final JoystickButton operatorButtonOne = new JoystickButton(operatorController, 1);
-  private final JoystickButton operatorButtonTwo = new JoystickButton(operatorController, 2);
-  private final JoystickButton rightStickButtonThree = new JoystickButton(rightStick, 3);
-  private final JoystickButton rightStickButtonFour = new JoystickButton(rightStick, 4);
-  private final JoystickButton leftStickButtonFour = new JoystickButton(leftStick, 4);
-  private final JoystickButton operatorButtonThree = new JoystickButton(operatorController, 3);
-  private final JoystickButton operatorButtonFour = new JoystickButton(operatorController, 4);
+	public final Swerve swerveSubsystem;
+	public final Arm armSubsystem;
+	public final Claw clawSubsystem;
 
-  private final SendableChooser<Command> chooser =  new SendableChooser();
-  public RobotContainer() {
+	private final SendableChooser<Command> chooser = new SendableChooser<Command>();
 
-    // Initialize and configure the gyroscope.
-    this.pigeon2.configFactoryDefault();
-    // Zero the gyroscope rotation.
-    this.zeroGyro();
-    // SmartDashboard.putData(cam);
-    // Instantiate the odometer.
-    // this.odometry = new OdometryDeprecated(pigeon2);
-    // Instantiate the drivetrain.
-    this.swerveSubsystem = new Swerve(pigeon2, limelight);
-    // Instantiate the intake.
-    // this.intakeSubsystem = new Intake();
-    // Instantiate the arm.
-    this.armSubsystem = new Arm();
+	public RobotContainer() {
+		// Initialize and configure the gyroscope.
+		this.pigeon2.configFactoryDefault();
+		this.zeroGyro();
 
-    this.clawSubsystem = new Claw();
-    // Instantiate the claw.
-    // this.clawSubsystem = new Claw();
-    // Configure button/stick bindings.
-    this.configureButtonBindings();
-    this.addAutonomousRoutines();
-  }
+		// Initialize subsystems.
+		this.swerveSubsystem = new Swerve(pigeon2, limelight);
+		this.armSubsystem = new Arm();
+		this.clawSubsystem = new Claw();
 
-  private void addAutonomousRoutines() {
-    chooser.setDefaultOption("LiterallyDriveStraightFor0.7Seconds", new DriveCommand(
-      swerveSubsystem, 
-      1.0, 
-      0, 
-      0, true)
-    .withTimeout(0.7));
-    chooser.addOption("None", null);
-    // chooser.addOption("DO NOT SELECT", new TrajectoryBuilderWrapper("New Path").getPathFollowingCommand(this.swerveSubsystem));
-  }
+		// Configure button bindings and put our sendable chooser on the dashboard.
+		this.configureButtonBindings();
+		this.addAutonomousRoutines();
+	}
 
-  public void configureButtonBindings() {
-    // Set the default command of the drive train subsystem to DriveCommand.
-    // this.swerveSubsystem.setDefaultCommand(new DriveCommand(
-    //     this.swerveSubsystem,
-    //      () -> -this.leftStick.getY(),
-    //      () -> -this.leftStick.getX(),
-    //      () -> -this.rightStick.getX(),
-    //      () -> this.leftStick.getRawButton(2)));
+	public void configureButtonBindings() {
+		// Set the default command of the drive train subsystem to DriveCommand.
+		swerveSubsystem.setDefaultCommand(new DriveCommand(
+				swerveSubsystem,
+				() -> -leftStick.getY(),
+				() -> -leftStick.getX(),
+				() -> -rightStick.getX(),
+				() -> leftStick.getRawButton(2)));
+		clawSubsystem.setDefaultCommand(new ClawCommand(clawSubsystem, () -> operatorController.isPressed(LogiButton.A)));
+		armSubsystem.setDefaultCommand(
+				new ArmCommand(armSubsystem, () -> operatorController.getLeftStickX() * Constants.armPivotOperatorCoefficient,
+						() -> operatorController.getRightStickY() * -Constants.armExtensionOperatorCoefficient));
 
-    swerveSubsystem.setDefaultCommand(new Tuning(swerveSubsystem));
+		// swerveSubsystem.setDefaultCommand(new Tuning(swerveSubsystem));
 
-    // this.swerveSubsystem.setDefaultCommand(new TuningCommand(
-    //   swerveSubsystem, 3));
+		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
 
-    // this.odometry.setDefaultCommand(new OdometryCommand(this.odometry, this.swerveSubsystem.swerveOdometry));
+		operatorController.isPressedBind(LogiButton.X, new InstantCommand(() -> Led.set(PatternID.OFF)));
+		operatorController.isPressedBind(LogiButton.Y, new InstantCommand(() -> Led.set(PatternID.YELLOW)));
+		operatorController.isPressedBind(LogiButton.B, new InstantCommand(() -> Led.set(PatternID.VIOLET)));
+	}
 
-    // When button two on the left stick is pressed, zero the gyroscope.
-    // The swerve subsystem is added as a requirement, since although the Pigeon
-    // does not live in it, it most certainly depends on it.
-    this.leftStickButtonTwo.whileTrue(
-        new InstantCommand(() -> zeroGyro(),
-            this.swerveSubsystem)); 
+	private void addAutonomousRoutines() {
+		chooser.setDefaultOption("WeekZeroTaxi", new DriveCommand(
+				swerveSubsystem,
+				1.0,
+				0,
+				0, true)
+				.withTimeout(0.7));
+		chooser.addOption("None", null);
+		SmartDashboard.putData(chooser);
+	}
 
-    
+	public void zeroGyro() {
+		this.pigeon2.setYaw(0);
+		this.pigeon2.zeroGyroBiasNow();
+	}
 
-    // The slider on the right stick controls the intake motor speed. Intake with
-    // the right stick's trigger, outtake with the left stick's trigger.
-    // Any function that returns a joystick axis does so from a scale of [-1, 1],
-    // so we need to convert that to [0, 1] for easier intake speed control.
-    //  this.rightTrigger
-    //      .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getRawAxis(3) + 1.0) / 2.0));
-    //  this.leftTrigger
-    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getRawAxis(3) + 1.0) / 2.0));
-    // this.operatorButtonFour.toggleOnTrue(new InstantCommand(() -> Led.set(PatternID.YELLOW)));
-    // this.operatorButtonTwo.toggleOnTrue(new InstantCommand(() -> Led.set(PatternID.VIOLET)));
-    // this.operatorButtonThree.toggleOnTrue(new InstantCommand(() -> Led.set(PatternID.OFF)));
-    
-    // this.rightStickButtonThree
-    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> .75, false));
-    // this.rightStickButtonFour
-    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> .75, true));
-    // this.leftStickButtonFour
-    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> -.75, true));
-    
-    // The A button on the operator's Logitech controller, or button three on the
-    // driver's left stick, is used for toggling the claw's state between open and
-    // closed.
-    // this.operatorButtonOne.onTrue(
-    //     new InstantCommand(() -> 
-    //       this.clawSubsystem.openClose(),
-    //         this.armSubsystem))
-    //     .or(leftStickButtonThree);
-    // this.operatorButtonOne.onTrue(getAutonomousCommand());
-    // this.clawSubsystem.setDefaultCommand(new ClawCommand(clawSubsystem, () -> this.operatorController.getRawButtonPressed(1)));
-    // this.armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(1) * Constants.armPivotOperatorCoefficient,
-    //          () -> this.operatorController.getRawAxis(5) * -Constants.armExtensionOperatorCoefficient));
-  //  this.armSubsystem
-  //       .setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(2) * Constants.armPivotOperatorCoefficient,
-  //           () -> -this.operatorController.getRawAxis(1) * Constants.armExtensionOperatorCoefficient));
-  }
+	public Pose2d getEstimatedPose() {
+		return swerveSubsystem.getPose();
+	}
 
-  public void zeroGyro() {
-    this.pigeon2.setYaw(0);
-    this.pigeon2.zeroGyroBiasNow();
-  }
-
-  public Pose2d getEstimatedPose() {
-    return swerveSubsystem.getPose();
-  }
-  
-  public Command getAutonomousCommand() {
-    return chooser.getSelected();
-  }
+	public Command getAutonomousCommand() {
+		return chooser.getSelected();
+	}
 }

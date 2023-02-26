@@ -10,34 +10,34 @@ public class Claw extends SubsystemBase {
   private NEOSparkMax intakeMotor;
 
   public Claw() {
-    solenoid = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 5, 7);
-    intakeMotor = new NEOSparkMax(0xFF);
+	solenoid = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 5, 7);
+	intakeMotor = new NEOSparkMax(0xFF);
   }
 
   public void toggleClaw() {
-    if (solenoid.get() == DoubleSolenoid.Value.kForward) {
-      retractClaw();
-    }
-    else {
-      extendClaw();
-    }
+	if (solenoid.get() == DoubleSolenoid.Value.kForward) {
+	  retractClaw();
+	}
+	else {
+	  extendClaw();
+	}
   }
 
   public void extendClaw() {
-    if (solenoid.get() == DoubleSolenoid.Value.kForward) {
-      return;
-    }
-    solenoid.set(DoubleSolenoid.Value.kForward);
+	if (solenoid.get() == DoubleSolenoid.Value.kForward) {
+	  return;
+	}
+	solenoid.set(DoubleSolenoid.Value.kForward);
   }
 
   public void retractClaw() {
-    if (solenoid.get() == DoubleSolenoid.Value.kReverse) {
-      return;
-    }
-    solenoid.set(DoubleSolenoid.Value.kReverse);
+	if (solenoid.get() == DoubleSolenoid.Value.kReverse) {
+	  return;
+	}
+	solenoid.set(DoubleSolenoid.Value.kReverse);
   }
 
   public void spinIntake() {
-    intakeMotor.set(Constants.intakePercentVel);
+	intakeMotor.set(Constants.intakePercentVel);
   }
 }

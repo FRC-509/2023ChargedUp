@@ -2,15 +2,9 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -18,13 +12,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LazyTalonFX;
 import frc.robot.util.NEOSparkMax;
+import frc.robot.util.PIDConstants;
 import frc.robot.util.Utils;
 
 public class Arm extends SubsystemBase {
   private final LazyTalonFX pivotMotor1 = new LazyTalonFX(20);
   private final LazyTalonFX pivotMotor2 = new LazyTalonFX(13);
 
-  private static final Utils.PIDConstants pivotConstants = new Utils.PIDConstants(0.2, 0, 0, 0);
+  private static final PIDConstants pivotConstants = new PIDConstants(0.2, 0, 0, 0);
   
   private final NEOSparkMax extensionMotor = new NEOSparkMax(12);
   
@@ -74,7 +69,6 @@ public class Arm extends SubsystemBase {
   */
 
   public void setPivotOutput(double output) {
-
     output = MathUtil.clamp(output, -1.0d, 1.0d);
     pivotMotor1.set(ControlMode.PercentOutput, output);
     pivotMotor2.set(ControlMode.PercentOutput, output);

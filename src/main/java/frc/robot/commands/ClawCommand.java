@@ -10,15 +10,15 @@ public class ClawCommand extends CommandBase{
   private BooleanSupplier toggle;
 
   public ClawCommand(Claw claw, BooleanSupplier toggle){
-    addRequirements(claw);
-    clawSubsystem = claw;
-    this.toggle = toggle;
+	addRequirements(claw);
+	clawSubsystem = claw;
+	this.toggle = toggle;
   }
 
   @Override
   public void execute() {
-    if (toggle.getAsBoolean()) {
-      clawSubsystem.toggleClaw();
-    }
+	if (toggle.getAsBoolean()) {
+	  clawSubsystem.toggleClaw();
+	}
   }
 }

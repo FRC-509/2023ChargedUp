@@ -28,89 +28,89 @@ public class OdometryDeprecated extends SubsystemBase {
   private LimelightWrapper[] cameras;
 
   public enum CameraType {
-    FRONT,
-    BACK,
-    NONE
+	FRONT,
+	BACK,
+	NONE
   }
 
   public enum TargetType {
-    SUBSTATION,
-    CUBE,
-    CONE,
-    NONE
+	SUBSTATION,
+	CUBE,
+	CONE,
+	NONE
   }
 
   public OdometryDeprecated(Pigeon2 pigeon) {
-    this.gyro = pigeon;
-    this.field = new Field2d();
+	this.gyro = pigeon;
+	this.field = new Field2d();
 
-    this.odometryTranslation = new Translation2d();
-    this.offset = new Translation2d();
+	this.odometryTranslation = new Translation2d();
+	this.offset = new Translation2d();
 
-    this.cameras = new LimelightWrapper[1];
+	this.cameras = new LimelightWrapper[1];
 
-    this.cameras[0] = new LimelightWrapper(Constants.limelightName);
-    // this.cameras[0] = new LimelightWrapper(Constants.backCameraId);
-    // this.cameras[1] = new LimelightWrapper(Constants.frontCameraId);
+	this.cameras[0] = new LimelightWrapper(Constants.limelightName);
+	// this.cameras[0] = new LimelightWrapper(Constants.backCameraId);
+	// this.cameras[1] = new LimelightWrapper(Constants.frontCameraId);
 
-    try {
-      // aprilTagFieldLayout = new
-      // AprilTagFieldLayout(AprilTagFields.k2023ChargedUp.m_resourceFile);
-      aprilTagFieldLayout = new AprilTagFieldLayout(
-          Filesystem.getDeployDirectory().toPath().resolve("2023-chargedup.json"));
-    } catch (IOException e) {
-      DriverStation.reportError("failed to load april tag field layout json",
-          true);
-    }
-    // Display robot field position
-    Shuffleboard.getTab("Robot Field Position").add(this.field);
+	try {
+	  // aprilTagFieldLayout = new
+	  // AprilTagFieldLayout(AprilTagFields.k2023ChargedUp.m_resourceFile);
+	  aprilTagFieldLayout = new AprilTagFieldLayout(
+		  Filesystem.getDeployDirectory().toPath().resolve("2023-chargedup.json"));
+	} catch (IOException e) {
+	  DriverStation.reportError("failed to load april tag field layout json",
+		  true);
+	}
+	// Display robot field position
+	Shuffleboard.getTab("Robot Field Position").add(this.field);
   }
 
   // Gets the robot position
   public Pose2d getRobotPose() {
-    return new Pose2d(
-        this.odometryTranslation.plus(this.offset),
-        Rotation2d.fromDegrees(this.gyro.getYaw()));
+	return new Pose2d(
+		this.odometryTranslation.plus(this.offset),
+		Rotation2d.fromDegrees(this.gyro.getYaw()));
   }
 
   // Returns if any camera has a target
   public boolean hasTarget() {
-    for (LimelightWrapper camera : this.cameras) {
-      if (camera.hasTarget()) {
-        return true;
-      }
-    }
-    return false;
+	for (LimelightWrapper camera : this.cameras) {
+	  if (camera.hasTarget()) {
+		return true;
+	  }
+	}
+	return false;
   }
 
   public void updatePose(SwerveDriveOdometry swerveOdometry) {
-    this.odometryTranslation = swerveOdometry
-        .getPoseMeters()
-        .getTranslation();
+	this.odometryTranslation = swerveOdometry
+		.getPoseMeters()
+		.getTranslation();
 
-    if (!this.hasTarget()) {
-      return;
-    }
+	if (!this.hasTarget()) {
+	  return;
+	}
 
-    // Run through cameras and average their translations
+	// Run through cameras and average their translations
 
-    Translation2d newPose = new Translation2d();
-    for (LimelightWrapper camera : this.cameras) {
-      if (!camera.hasTarget()) {
-        continue;
-      }
+	Translation2d newPose = new Translation2d();
+	for (LimelightWrapper camera : this.cameras) {
+	  if (!camera.hasTarget()) {
+		continue;
+	  }
 
-      Translation2d cameraPose = camera
-          .getRobotTransform()
-          .get();
+	  Translation2d cameraPose = camera
+		  .getRobotTransform()
+		  .get();
 
-      newPose = newPose.plus(cameraPose);
-    }
+	  newPose = newPose.plus(cameraPose);
+	}
 
-    newPose.div(this.cameras.length);
+	newPose.div(this.cameras.length);
 
-    // set offset to delta of translation
-    this.offset = newPose.minus(this.odometryTranslation);
+	// set offset to delta of translation
+	this.offset = newPose.minus(this.odometryTranslation);
   }
 
   @Override

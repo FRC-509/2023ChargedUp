@@ -14,23 +14,23 @@ public class LazyTalonFX extends TalonFX {
   protected ControlMode lastControlMode = null;
 
   public LazyTalonFX(int deviceId, String canBus) {
-    super(deviceId, canBus);
+	super(deviceId, canBus);
   }
 
   public LazyTalonFX(int deviceId) {
-    super(deviceId, "rio");
+	super(deviceId, "rio");
   }
 
   public double getLastSet() {
-    return lastSet;
+	return lastSet;
   }
 
   @Override
   public void set(ControlMode mode, double value) {
-    if (value != lastSet || mode != lastControlMode) {
-      lastSet = value;
-      lastControlMode = mode;
-      super.set(mode, value);
-    }
+	if (value != lastSet || mode != lastControlMode) {
+	  lastSet = value;
+	  lastControlMode = mode;
+	  super.set(mode, value);
+	}
   }
 }
