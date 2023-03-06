@@ -2,8 +2,10 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
+import com.ctre.phoenix.Util;
 import com.ctre.phoenix.sensors.Pigeon2;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -13,13 +15,16 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
+import frc.robot.util.Utils;
 import frc.robot.vision.LimelightWrapper;
 
 public class Swerve extends SubsystemBase {
@@ -29,6 +34,11 @@ public class Swerve extends SubsystemBase {
 	private Field2d field2d;
 	private LimelightWrapper limelight;
 	private Pigeon2 pigeon;
+
+	// the angle the robot SHOULD face
+	private double targetHeading;
+	private double timeStamp;
+	private PIDController rotationPID = new PIDController(0.2, 0.0, 0.0);
 
 	public Swerve(Pigeon2 pigeon, LimelightWrapper limelight) {
 		this.pigeon = pigeon;
@@ -41,45 +51,67 @@ public class Swerve extends SubsystemBase {
 				new SwerveModule(Constants.s_frontRight),
 		};
 
-		// Pause initialization for one second, to wait for the pheonix server to start
-		// up. Prevents CAN frames from being dropped on init.
-		Timer.delay(1.0);
-		resetIntegratedToAbsolute();
+		targetHeading = 0.0;
+		timeStamp = Timer.getFPGATimestamp();
 
+		// Pause initialization for the pheonix server to start to prevent dropping CAN
+		// frames on init
+		Timer.delay(1.0);
+
+		resetIntegratedToAbsolute();
 		field2d = new Field2d();
 
-		swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(Constants.swerveKinematics, getYaw(),
-				getModulePositions(), limelight.getRobotPose().orElse(new Pose3d()).toPose2d());
+		swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(
+				Constants.swerveKinematics,
+				getYaw(),
+				getModulePositions(),
+				limelight.getRobotPose().orElse(new Pose3d()).toPose2d());
 
 		Shuffleboard.getTab("Robot Field Position").add(field2d);
 	}
 
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond,
 			boolean fieldRelative) {
-		SwerveModuleState[] swerveModuleStates = Constants.swerveKinematics.toSwerveModuleStates(
-				fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
-						translationMetersPerSecond.getX(),
-						translationMetersPerSecond.getY(),
-						rotationRadiansPerSecond,
-						getYaw())
-						: new ChassisSpeeds(
-								translationMetersPerSecond.getX(),
-								translationMetersPerSecond.getY(),
-								rotationRadiansPerSecond));
+
+		// amount heading changes in degrees
+		double delta = Units.radiansToDegrees(rotationRadiansPerSecond) * (Timer.getFPGATimestamp() - timeStamp);
+		timeStamp = Timer.getFPGATimestamp();
+
+		// update heading
+		targetHeading += delta;
+
+		// compute rotation output in radians
+		double rotationInput = Units.degreesToRadians(rotationPID.calculate(pigeon.getYaw(), targetHeading));
+
+		SwerveModuleState[] moduleStates;
+
+		if (fieldRelative) {
+			moduleStates = Constants.swerveKinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(
+					translationMetersPerSecond.getX(),
+					translationMetersPerSecond.getY(),
+					rotationInput,
+					getYaw()));
+		} else {
+			moduleStates = Constants.swerveKinematics.toSwerveModuleStates(new ChassisSpeeds(
+					translationMetersPerSecond.getX(),
+					translationMetersPerSecond.getY(),
+					rotationInput));
+		}
 
 		// normalize wheel speeds
-		SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.maxSpeed);
+		SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, Constants.maxSpeed);
 
-		for (SwerveModule mod : this.swerveModules) {
-			mod.setDesiredState(swerveModuleStates[mod.moduleNumber]);
+		for (SwerveModule mod : swerveModules) {
+			mod.setDesiredState(moduleStates[mod.moduleNumber]);
 		}
 	}
 
 	public void enterXStance() {
-		this.swerveModules[0].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(45.0d)));
-		this.swerveModules[1].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(135.0d)));
-		this.swerveModules[2].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(45.0d)));
-		this.swerveModules[3].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(135.0d)));
+		for (SwerveModule module : swerveModules) {
+			module.setDesiredState(new SwerveModuleState(
+					0.0d,
+					Rotation2d.fromDegrees(45.0d)));
+		}
 	}
 
 	/* Used by SwerveControllerCommand in Auto */

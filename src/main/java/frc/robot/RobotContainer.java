@@ -39,7 +39,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 public class RobotContainer {
 	public final JoystickController leftStick = new JoystickController(1);
 	public final JoystickController rightStick = new JoystickController(0);
-	public final LogitechController operatorController = new LogitechController(2);
+	public final LogitechController controller = new LogitechController(2);
 
 	public final LimelightWrapper limelight = new LimelightWrapper(Constants.limelightName);
 	public final Pigeon2 pigeon2 = new Pigeon2(30, Constants.CANIvore);
@@ -61,14 +61,17 @@ public class RobotContainer {
 		this.armSubsystem = new Arm();
 		this.clawSubsystem = new Claw();
 
-		// Configure button bindings and put our sendable chooser on the dashboard.
+		// Configure button bindings
 		this.configureButtonBindings();
 		this.addAutonomousRoutines();
 
 		// Initialize the AprilTagFieldLayout
 		try {
 			fieldLayout = new AprilTagFieldLayout(
-					Filesystem.getDeployDirectory().toPath().resolve("2023-chargedup.json"));
+					Filesystem
+							.getDeployDirectory()
+							.toPath()
+							.resolve("2023-chargedup.json"));
 		} catch (IOException e) {
 			DriverStation.reportWarning("failed to load april tag field layout json", true);
 			fieldLayout = null;
@@ -76,27 +79,26 @@ public class RobotContainer {
 	}
 
 	public void configureButtonBindings() {
-		// Set the default command of the drive train subsystem to DriveCommand.
 		swerveSubsystem.setDefaultCommand(new DriveCommand(
 				swerveSubsystem,
 				() -> -leftStick.getY(),
 				() -> -leftStick.getX(),
 				() -> -rightStick.getX(),
 				() -> leftStick.getRawButton(2)));
-		clawSubsystem
-				.setDefaultCommand(new ClawCommand(clawSubsystem, () -> operatorController.isPressed(LogiButton.A)));
-		armSubsystem.setDefaultCommand(
-				new ArmCommand(armSubsystem,
-						() -> operatorController.getLeftStickX() * Constants.armPivotOperatorCoefficient,
-						() -> operatorController.getRightStickY() * -Constants.armExtensionOperatorCoefficient));
 
-		// swerveSubsystem.setDefaultCommand(new Tuning(swerveSubsystem));
+		clawSubsystem.setDefaultCommand(new ClawCommand(
+				clawSubsystem,
+				() -> controller.isPressed(LogiButton.A)));
+
+		armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem,
+				() -> controller.getLeftStickX() * Constants.armPivotOperatorCoefficient,
+				() -> controller.getRightStickY() * -Constants.armExtensionOperatorCoefficient));
 
 		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
 
-		operatorController.isPressedBind(LogiButton.X, new InstantCommand(() -> Led.set(PatternID.OFF)));
-		operatorController.isPressedBind(LogiButton.Y, new InstantCommand(() -> Led.set(PatternID.YELLOW)));
-		operatorController.isPressedBind(LogiButton.B, new InstantCommand(() -> Led.set(PatternID.VIOLET)));
+		controller.isPressedBind(LogiButton.X, new InstantCommand(() -> Led.set(PatternID.OFF)));
+		controller.isPressedBind(LogiButton.Y, new InstantCommand(() -> Led.set(PatternID.YELLOW)));
+		controller.isPressedBind(LogiButton.B, new InstantCommand(() -> Led.set(PatternID.VIOLET)));
 	}
 
 	private void addAutonomousRoutines() {
@@ -104,8 +106,8 @@ public class RobotContainer {
 				swerveSubsystem,
 				1.0,
 				0,
-				0, true)
-				.withTimeout(0.7));
+				0, true).withTimeout(0.7));
+
 		chooser.addOption("None", null);
 		SmartDashboard.putData("Auto Chooser", chooser);
 	}
