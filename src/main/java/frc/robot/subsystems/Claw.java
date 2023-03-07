@@ -1,18 +1,19 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.util.drivers.NEOSparkMax;
 
 public class Claw extends SubsystemBase {
 	private DoubleSolenoid solenoid;
-	private NEOSparkMax intakeMotor;
+	// private CANSparkMax intakeMotor;
 
 	public Claw() {
 		solenoid = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 5, 7);
-		intakeMotor = new NEOSparkMax(0xFF);
+		// intakeMotor = new CANSparkMax(0xFF, MotorType.kBrushed);
 	}
 
 	public void toggleClaw() {
@@ -38,6 +39,6 @@ public class Claw extends SubsystemBase {
 	}
 
 	public void spinIntake() {
-		intakeMotor.set(Constants.intakePercentVel);
+		// intakeMotor.set(Constants.intakePercentVel);
 	}
 }
