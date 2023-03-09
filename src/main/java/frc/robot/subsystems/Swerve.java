@@ -32,16 +32,18 @@ public class Swerve extends SubsystemBase {
 	private Field2d field2d;
 	private LimelightWrapper limelight;
 	private Pigeon2 pigeon;
+	private double kNorm = 1.5d;
 
 	// the angle the robot SHOULD face
 	private double targetHeading;
 	private double timeStamp;
-	private PIDController rotationPID = new PIDController(0.2, 0.0, 0.0);
+	private PIDController rotationPID = new PIDController(8, 0.5, 0.1);
 
 	private void serializeRotationPID() {
 		double kP = Utils.serializeNumber("rot P", 0.0);
 		double kI = Utils.serializeNumber("rot I", 0.0);
 		double kD = Utils.serializeNumber("rot D", 0.0);
+		kNorm = Utils.serializeNumber("kNorm", 1.0);
 
 		rotationPID.setP(kP);
 		rotationPID.setI(kI);
@@ -87,8 +89,8 @@ public class Swerve extends SubsystemBase {
 		double delta = Units.radiansToDegrees(rotationRadiansPerSecond) * (Timer.getFPGATimestamp() - timeStamp);
 		timeStamp = Timer.getFPGATimestamp();
 
-		// update heading
-		targetHeading += delta;
+		// update headings
+		targetHeading += delta / kNorm;
 
 		// compute rotation output in radians
 		double pidfOutput = rotationPID.calculate(pigeon.getYaw(), targetHeading);
