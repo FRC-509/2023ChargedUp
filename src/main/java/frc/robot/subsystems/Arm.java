@@ -3,21 +3,27 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.PIDConstants;
+import frc.robot.util.PositionTarget;
 import frc.robot.util.Utils;
 import frc.robot.util.drivers.LazyTalonFX;
 import frc.robot.util.drivers.NEOSparkMax;
 
 public class Arm extends SubsystemBase {
+	private static final double maxExtension = 500;
+
 	private final LazyTalonFX pivotMotor1 = new LazyTalonFX(20);
 	private final LazyTalonFX pivotMotor2 = new LazyTalonFX(13);
+	private final PositionTarget extensionTarget;
+	private PIDController extensionPID;
 
 	private static final PIDConstants pivotConstants = new PIDConstants(0.2, 0, 0, 0);
 
@@ -28,8 +34,12 @@ public class Arm extends SubsystemBase {
 	 * extension of 0.
 	 */
 	public Arm() {
-		extensionMotor.setSmartCurrentLimit(15);
+		extensionTarget = new PositionTarget(0, 400, 150);
+		extensionPID = new PIDController(0.1, 0.0, 0.0);
+
+		extensionMotor.setSmartCurrentLimit(20);
 		extensionMotor.setIdleMode(IdleMode.kBrake);
+		extensionMotor.setSensorPosition(0);
 		// Zero pivot encoders
 		pivotMotor1.setSelectedSensorPosition(0);
 		pivotMotor2.setSelectedSensorPosition(0);
@@ -42,38 +52,25 @@ public class Arm extends SubsystemBase {
 		pivotConstants.configureTalonFX(pivotMotor2);
 	}
 
-	/*
-	 * double angle = 0;
-	 * public void tunePID() {
-	 * double kP = Utils.serializeNumber("kP", 0.0);
-	 * double kI = Utils.serializeNumber("kI", 0.0);
-	 * double kD = Utils.serializeNumber("kD", 0.0);
-	 * 
-	 * pivotMotor1.config_kP(0, kP);
-	 * pivotMotor2.config_kP(0, kP);
-	 * pivotMotor1.config_kI(0, kI);
-	 * pivotMotor2.config_kI(0, kI);
-	 * pivotMotor1.config_kD(0, kD);
-	 * pivotMotor2.config_kD(0, kD);
-	 * 
-	 * double encoder =
-	 * Utils.falconToDegrees(pivotMotor1.getSelectedSensorPosition(),
-	 * pivotGearRatio);
-	 * 
-	 * SmartDashboard.putNumber("arm encoder angle", encoder);
-	 * 
-	 * angle = Utils.serializeNumber("arm angle", angle);
-	 * double falcon = Utils.degreesToFalcon(angle, pivotGearRatio);
-	 * 
-	 * pivotMotor1.set(ControlMode.Position, falcon);
-	 * pivotMotor2.set(ControlMode.Position, falcon);
-	 * }
-	 */
+	public void tunePID() {
+		double kP = Utils.serializeNumber("ExkP", 1.0);
+		double kI = Utils.serializeNumber("ExkI", 0.0);
+		double kD = Utils.serializeNumber("ExkD", 0.0);
+		double rate = Utils.serializeNumber("rate", 0.0);
 
-	public void setPivotOutput(double output) {
-		output = MathUtil.clamp(output, -1.0d, 1.0d);
-		pivotMotor1.set(ControlMode.PercentOutput, output);
-		pivotMotor2.set(ControlMode.PercentOutput, output);
+		extensionTarget.setRate(rate);
+
+		extensionPID.setP(kP);
+		extensionPID.setI(kI);
+		extensionPID.setD(kD);
+	}
+
+	public void setPivotOutput(double percentOutput) {
+		SmartDashboard.putNumber("pivot percent ou", percentOutput);
+		percentOutput = MathUtil.clamp(percentOutput, -1.0d, 1.0d);
+
+		pivotMotor1.set(ControlMode.PercentOutput, percentOutput);
+		pivotMotor2.set(ControlMode.PercentOutput, percentOutput);
 	}
 
 	public void setPivotDegrees(double angle) {
@@ -86,18 +83,42 @@ public class Arm extends SubsystemBase {
 		pivotMotor2.set(ControlMode.Position, targetPosition);
 	}
 
+	public void setPivotNeutralMode(NeutralMode neutralMode) {
+		pivotMotor1.setNeutralMode(neutralMode);
+		pivotMotor2.setNeutralMode(neutralMode);
+	}
+
 	public double getPivotDegrees() {
 		return Utils.falconToDegrees(pivotMotor1.getSelectedSensorPosition(), Constants.pivotGearRatio);
 	}
 
-	public void setExtensionOutput(double output) {
-		output = MathUtil.clamp(output, -1.0d, 1.0d);
+	public void resetExtensionSensorPosition() {
+		extensionMotor.setSensorPosition(0);
+	}
+
+	public void setExtensionPosition(double percent) {
+		double position = extensionTarget.update(percent);
+		double output = extensionPID.calculate(extensionMotor.getSensorPosition(), position);
 		extensionMotor.set(output);
+	}
+
+	public void setExtensionRaw(double percentOutput) {
+		extensionMotor.set(percentOutput);
 	}
 
 	@Override
 	public void periodic() {
+		tunePID();
 		SmartDashboard.putNumber("Arm extension current", extensionMotor.getOutputCurrent());
 		SmartDashboard.putNumber("Arm extension position", extensionMotor.getSensorPosition());
+		SmartDashboard.putNumber("Target", extensionTarget.getTarget());
+	}
+
+	public void moveArmBy(double deltaDegrees) {
+		// calculate "effective" delta angle and add back to raw encoder value to allow
+		// for continuous control
+		double targetPosition = Utils.degreesToFalcon(getPivotDegrees() + deltaDegrees, Constants.pivotGearRatio);
+		pivotMotor1.set(ControlMode.Position, targetPosition);
+		pivotMotor2.set(ControlMode.Position, targetPosition);
 	}
 }

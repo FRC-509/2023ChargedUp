@@ -26,19 +26,26 @@ public class NEOSparkMax extends CANSparkMax {
 		return getEncoder().getVelocity();
 	}
 
-	REVLibError setSensorPosition(double position) {
+	public REVLibError setSensorPosition(double position) {
 		return getEncoder().setPosition(position);
 	}
 
-	REVLibError setSensorPositionConversionFactor(double factor) {
+	public REVLibError setSensorPositionConversionFactor(double factor) {
 		return getEncoder().setPositionConversionFactor(factor);
 	}
 
-	REVLibError setSensorVelocityConversionFactor(double factor) {
+	public REVLibError setSensorVelocityConversionFactor(double factor) {
 		return getEncoder().setVelocityConversionFactor(factor);
 	}
 
 	public void setReference(double value, CANSparkMax.ControlType controlType) {
 		getPIDController().setReference(value, controlType);
+	}
+
+	public void configurePID(PIDConstants pid) {
+		getPIDController().setP(pid.kP);
+		getPIDController().setP(pid.kI);
+		getPIDController().setP(pid.kD);
+		getPIDController().setFF(pid.kF);
 	}
 }

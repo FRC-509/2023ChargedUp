@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
+import frc.robot.util.Utils;
 import frc.robot.vision.LimelightWrapper;
 
 public class Swerve extends SubsystemBase {
@@ -36,6 +37,16 @@ public class Swerve extends SubsystemBase {
 	private double targetHeading;
 	private double timeStamp;
 	private PIDController rotationPID = new PIDController(0.2, 0.0, 0.0);
+
+	private void serializeRotationPID() {
+		double kP = Utils.serializeNumber("rot P", 0.0);
+		double kI = Utils.serializeNumber("rot I", 0.0);
+		double kD = Utils.serializeNumber("rot D", 0.0);
+
+		rotationPID.setP(kP);
+		rotationPID.setI(kI);
+		rotationPID.setD(kD);
+	}
 
 	public Swerve(Pigeon2 pigeon, LimelightWrapper limelight) {
 		this.pigeon = pigeon;
@@ -70,6 +81,8 @@ public class Swerve extends SubsystemBase {
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond,
 			boolean fieldRelative) {
 
+		serializeRotationPID();
+
 		// amount heading changes in degrees
 		double delta = Units.radiansToDegrees(rotationRadiansPerSecond) * (Timer.getFPGATimestamp() - timeStamp);
 		timeStamp = Timer.getFPGATimestamp();
@@ -78,7 +91,8 @@ public class Swerve extends SubsystemBase {
 		targetHeading += delta;
 
 		// compute rotation output in radians
-		double rotationInput = Units.degreesToRadians(rotationPID.calculate(pigeon.getYaw(), targetHeading));
+		double pidfOutput = rotationPID.calculate(pigeon.getYaw(), targetHeading);
+		double rotationInput = Units.degreesToRadians(pidfOutput);
 
 		SwerveModuleState[] moduleStates;
 
@@ -176,5 +190,9 @@ public class Swerve extends SubsystemBase {
 		for (SwerveModule module : this.swerveModules) {
 			module.debug();
 		}
+	}
+
+	public void zeroHeading() {
+		targetHeading = 0.0d;
 	}
 }

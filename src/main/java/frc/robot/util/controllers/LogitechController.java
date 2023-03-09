@@ -6,16 +6,18 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 public class LogitechController extends GenericHID {
 	public enum LogiButton {
-		A(1),
-		B(2),
-		X(3),
+		A(2),
+		B(3),
+		X(1),
 		Y(4),
 		LBTrigger(5),
 		RBTrigger(6),
-		Back(7),
-		Start(8),
-		LStick(9),
-		RStick(10);
+		LTrigger(7),
+		RTrigger(8),
+		Back(9),
+		Start(10),
+		LStick(11),
+		RStick(12);
 
 		public final int id;
 
@@ -29,11 +31,10 @@ public class LogitechController extends GenericHID {
 	}
 
 	public enum LogiAxis {
-		LeftStickX(1),
-		LeftStickY(2),
-		Triggers(3),
-		RightStickX(4),
-		RightStickY(5);
+		LeftStickX(0),
+		LeftStickY(1),
+		RightStickX(2),
+		RightStickY(3);
 
 		public final int id;
 
@@ -101,8 +102,9 @@ public class LogitechController extends GenericHID {
 	public double getRightStickY() {
 		return super.getRawAxis(LogiAxis.RightStickY.id());
 	}
-
-	public double getTriggers() {
-		return super.getRawAxis(LogiAxis.Triggers.id());
-	}
+	/*
+	 * public double getTriggers() {
+	 * return super.getRawAxis(LogiAxis.Triggers.id());
+	 * }
+	 */
 }

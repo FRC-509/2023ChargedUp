@@ -51,7 +51,7 @@ public class SwerveModule {
 
 		// Drive Motor Config
 		this.driveMotor = new LazyTalonFX(configs.driveMotorId, Constants.CANIvore);
-		this.driveMotor.setNeutralMode(NeutralMode.Coast);
+		this.driveMotor.setNeutralMode(NeutralMode.Brake);
 		this.driveMotor.setSelectedSensorPosition(0);
 		this.driveMotor.config_kP(0, configs.drivePID.kP);
 		this.driveMotor.config_kI(0, configs.drivePID.kI);
@@ -115,7 +115,6 @@ public class SwerveModule {
 	}
 
 	public void setDesiredState(SwerveModuleState desiredState) {
-		this.debug();
 		// target angle [-180, 180]
 		double targetAngle = desiredState.angle.getDegrees();
 		double delta = (targetAngle - this.getDegrees()) % 360;
@@ -147,10 +146,6 @@ public class SwerveModule {
 
 		double falconTarget = Utils.degreesToFalcon(optimalTargetAngle, Constants.angleGearRatio);
 		this.angleMotor.set(ControlMode.Position, falconTarget);
-
-		if (moduleNumber != 0 && moduleNumber != 1) {
-			return;
-		}
 
 		if (Constants.closedLoopDriveVelocity) {
 			double velocity = Utils.MPSToFalcon(

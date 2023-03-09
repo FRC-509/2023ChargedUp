@@ -25,6 +25,7 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void robotInit() {
+		Utils.flushShuffleboard();
 		// Instantiate our RobotContainer. This will perform all our button bindings,
 		// and put our
 		// autonomous chooser on the dashboard.
@@ -56,7 +57,6 @@ public class Robot extends TimedRobot {
 	/** This function is called once each time the robot enters Disabled mode. */
 	@Override
 	public void disabledInit() {
-		Utils.flushShuffleboard();
 	}
 
 	@Override
@@ -86,11 +86,13 @@ public class Robot extends TimedRobot {
 		if (this.autonomousCommand != null) {
 			this.autonomousCommand.cancel();
 		}
+		robotContainer.onTeleopInit();
 	}
 
 	/** This function is called periodically during operator control. */
 	@Override
 	public void teleopPeriodic() {
+
 	}
 
 	@Override

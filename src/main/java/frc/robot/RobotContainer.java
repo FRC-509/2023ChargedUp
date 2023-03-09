@@ -2,6 +2,7 @@ package frc.robot;
 
 import frc.robot.commands.ArmCommand;
 import frc.robot.commands.ClawCommand;
+import frc.robot.commands.ClawIntakeCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import com.ctre.phoenix.sensors.Pigeon2;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -50,11 +52,11 @@ public class RobotContainer {
 	public final Claw clawSubsystem;
 
 	private final SendableChooser<Command> chooser = new SendableChooser<Command>();
+	private final SendableChooser<String> loopTypeForExtension = new SendableChooser<String>();
 
 	public RobotContainer() {
 		// Initialize and configure the gyroscope.
 		this.pigeon2.configFactoryDefault();
-		this.zeroGyro();
 
 		// Initialize subsystems.
 		this.swerveSubsystem = new Swerve(pigeon2, limelight);
@@ -64,6 +66,12 @@ public class RobotContainer {
 		// Configure button bindings
 		this.configureButtonBindings();
 		this.addAutonomousRoutines();
+
+		this.loopTypeForExtension.addOption("Closed Loop", "CL");
+		this.loopTypeForExtension.addOption("Open Loop", "OL");
+		SmartDashboard.putData(loopTypeForExtension);
+
+		this.zeroGyro();
 
 		// Initialize the AprilTagFieldLayout
 		try {
@@ -86,13 +94,18 @@ public class RobotContainer {
 				() -> -rightStick.getX(),
 				() -> leftStick.getRawButton(2)));
 
-		clawSubsystem.setDefaultCommand(new ClawCommand(
+		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
 				clawSubsystem,
-				() -> controller.isPressed(LogiButton.A)));
+				() -> controller.isPressed(LogiButton.A),
+				() -> controller.isDown(LogiButton.RTrigger),
+				() -> controller.isDown(LogiButton.LTrigger)));
 
 		armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem,
-				() -> controller.getLeftStickX() * Constants.armPivotOperatorCoefficient,
-				() -> controller.getRightStickY() * -Constants.armExtensionOperatorCoefficient));
+				() -> MathUtil.applyDeadband(controller.getLeftStickY(), Constants.stickDeadband)
+						* -Constants.armPivotOperatorCoefficient,
+				() -> MathUtil.applyDeadband(controller.getRightStickY(), Constants.stickDeadband)
+						* -Constants.armExtensionOperatorCoefficient,
+				() -> controller.isPressed(LogiButton.B)));
 
 		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
 
@@ -113,8 +126,9 @@ public class RobotContainer {
 	}
 
 	public void zeroGyro() {
-		this.pigeon2.setYaw(0);
-		this.pigeon2.zeroGyroBiasNow();
+		pigeon2.setYaw(0);
+		pigeon2.zeroGyroBiasNow();
+		swerveSubsystem.zeroHeading();
 	}
 
 	public Pose2d getEstimatedPose() {
@@ -123,5 +137,9 @@ public class RobotContainer {
 
 	public Command getAutonomousCommand() {
 		return chooser.getSelected();
+	}
+
+	public void onTeleopInit() {
+		Constants.isExtensionClosedLoop = loopTypeForExtension.getSelected() == "CL";
 	}
 }

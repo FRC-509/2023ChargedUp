@@ -6,14 +6,19 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class Claw extends SubsystemBase {
 	private DoubleSolenoid solenoid;
-	// private CANSparkMax intakeMotor;
+	private CANSparkMax intakeMotor;
 
 	public Claw() {
 		solenoid = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 5, 7);
-		// intakeMotor = new CANSparkMax(0xFF, MotorType.kBrushed);
+		intakeMotor = new CANSparkMax(14, MotorType.kBrushed);
+	}
+
+	public boolean isClosed() {
+		return solenoid.get() == DoubleSolenoid.Value.kForward;
 	}
 
 	public void toggleClaw() {
@@ -38,7 +43,15 @@ public class Claw extends SubsystemBase {
 		solenoid.set(DoubleSolenoid.Value.kReverse);
 	}
 
-	public void spinIntake() {
-		// intakeMotor.set(Constants.intakePercentVel);
+	public void spinIntake(boolean inwards) {
+		if (inwards) {
+			intakeMotor.set(-Constants.intakePercentVel);
+		} else {
+			intakeMotor.set(Constants.intakePercentVel);
+		}
+	}
+
+	public void stopIntake() {
+		intakeMotor.set(0);
 	}
 }
