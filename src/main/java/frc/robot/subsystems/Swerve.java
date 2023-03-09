@@ -89,14 +89,14 @@ public class Swerve extends SubsystemBase {
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond,
 			boolean fieldRelative) {
 
-		// serializeRotationPID();
+		serializeRotationPID();
 
 		rotationInterplator.setPoint(rotationRadiansPerSecond);
-
 		double interpolatedRotation = rotationInterplator.update();
 
 		double output;
-		if (interpolatedRotation != 0) {
+
+		if (!Utils.withinDeadband(rotationRadiansPerSecond, 0, 0.05)) {
 			output = interpolatedRotation;
 			targetHeading += Units.radiansToDegrees(interpolatedRotation *
 					timeStamp.deltaTime());
