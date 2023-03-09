@@ -2,8 +2,8 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
@@ -26,6 +26,9 @@ public class Arm extends SubsystemBase {
 	private PIDController extensionPID;
 
 	private static final PIDConstants pivotConstants = new PIDConstants(0.2, 0, 0, 0);
+
+	// the percent output needed to maintain a completely horizontal position.
+	private static final double maximumFF = 0;
 
 	private final NEOSparkMax extensionMotor = new NEOSparkMax(12);
 
@@ -78,9 +81,9 @@ public class Arm extends SubsystemBase {
 		// for continuous control
 		double bounded = getPivotDegrees() % 360.0d;
 		double targetPosition = Utils.degreesToFalcon(getPivotDegrees() + (angle - bounded), Constants.pivotGearRatio);
-
-		pivotMotor1.set(ControlMode.Position, targetPosition);
-		pivotMotor2.set(ControlMode.Position, targetPosition);
+		double feedforward = Math.cos(Math.toRadians(getPivotDegrees())) * maximumFF;
+		pivotMotor1.set(ControlMode.Position, targetPosition, DemandType.ArbitraryFeedForward, feedforward);
+		pivotMotor2.set(ControlMode.Position, targetPosition, DemandType.ArbitraryFeedForward, feedforward);
 	}
 
 	public void setPivotNeutralMode(NeutralMode neutralMode) {

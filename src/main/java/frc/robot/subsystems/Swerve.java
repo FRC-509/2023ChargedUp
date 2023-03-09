@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
+import frc.robot.util.TimeStamp;
 import frc.robot.util.Utils;
 import frc.robot.vision.LimelightWrapper;
 
@@ -32,11 +33,11 @@ public class Swerve extends SubsystemBase {
 	private Field2d field2d;
 	private LimelightWrapper limelight;
 	private Pigeon2 pigeon;
-	private double kNorm = 1.5d;
 
 	// the angle the robot SHOULD face
+	private TimeStamp timeStamp;
 	private double targetHeading;
-	private double timeStamp;
+	private double kNorm = 1.5d;
 	private PIDController rotationPID = new PIDController(8, 0.5, 0.1);
 
 	private void serializeRotationPID() {
@@ -62,7 +63,6 @@ public class Swerve extends SubsystemBase {
 		};
 
 		targetHeading = 0.0;
-		timeStamp = Timer.getFPGATimestamp();
 
 		// Pause initialization for the pheonix server to start to prevent dropping CAN
 		// frames on init
@@ -78,6 +78,8 @@ public class Swerve extends SubsystemBase {
 				limelight.getRobotPose().orElse(new Pose3d()).toPose2d());
 
 		Shuffleboard.getTab("Robot Field Position").add(field2d);
+
+		timeStamp = new TimeStamp();
 	}
 
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond,
@@ -85,16 +87,13 @@ public class Swerve extends SubsystemBase {
 
 		serializeRotationPID();
 
-		// amount heading changes in degrees
-		double delta = Units.radiansToDegrees(rotationRadiansPerSecond) * (Timer.getFPGATimestamp() - timeStamp);
-		timeStamp = Timer.getFPGATimestamp();
-
-		// update headings
-		targetHeading += delta / kNorm;
-
-		// compute rotation output in radians
-		double pidfOutput = rotationPID.calculate(pigeon.getYaw(), targetHeading);
-		double rotationInput = Units.degreesToRadians(pidfOutput);
+		double output;
+		if (rotationRadiansPerSecond != 0) {
+			output = rotationRadiansPerSecond;
+			targetHeading += Units.radiansToDegrees(rotationRadiansPerSecond * timeStamp.deltaTime());
+		} else {
+			output = Units.degreesToRadians(rotationPID.calculate(pigeon.getYaw(), targetHeading));
+		}
 
 		SwerveModuleState[] moduleStates;
 
@@ -102,13 +101,13 @@ public class Swerve extends SubsystemBase {
 			moduleStates = Constants.swerveKinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(
 					translationMetersPerSecond.getX(),
 					translationMetersPerSecond.getY(),
-					rotationInput,
+					output,
 					getYaw()));
 		} else {
 			moduleStates = Constants.swerveKinematics.toSwerveModuleStates(new ChassisSpeeds(
 					translationMetersPerSecond.getX(),
 					translationMetersPerSecond.getY(),
-					rotationInput));
+					output));
 		}
 
 		// normalize wheel speeds
@@ -192,6 +191,7 @@ public class Swerve extends SubsystemBase {
 		for (SwerveModule module : this.swerveModules) {
 			module.debug();
 		}
+		timeStamp.update();
 	}
 
 	public void zeroHeading() {

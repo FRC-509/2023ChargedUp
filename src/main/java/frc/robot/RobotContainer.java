@@ -1,7 +1,6 @@
 package frc.robot;
 
 import frc.robot.commands.ArmCommand;
-import frc.robot.commands.ClawCommand;
 import frc.robot.commands.ClawIntakeCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.Arm;
@@ -9,6 +8,7 @@ import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Led.PatternID;
+import frc.robot.util.TimeStamp;
 import frc.robot.util.controllers.JoystickController;
 import frc.robot.util.controllers.LogitechController;
 import frc.robot.util.controllers.JoystickController.StickButton;
@@ -42,6 +42,8 @@ public class RobotContainer {
 	public final JoystickController leftStick = new JoystickController(1);
 	public final JoystickController rightStick = new JoystickController(0);
 	public final LogitechController controller = new LogitechController(2);
+
+	public static TimeStamp timeStamp = new TimeStamp();
 
 	public final LimelightWrapper limelight = new LimelightWrapper(Constants.limelightName);
 	public final Pigeon2 pigeon2 = new Pigeon2(30, Constants.CANIvore);
