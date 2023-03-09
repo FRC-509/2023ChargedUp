@@ -18,6 +18,7 @@ import frc.robot.util.PIDConstants;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+	public static final double Voltage = 12.0d;
 
 	public static final String CANIvore = "509CANIvore";
 
@@ -63,7 +64,7 @@ public final class Constants {
 
 	public static final PIDConstants drive = new PIDConstants(0.1, 0, 0, 0);
 	public static final PIDConstants steer = new PIDConstants(0.2, 0, 0, 0);
-	public static final boolean closedLoopDriveVelocity = true;
+	public static final boolean closedLoopDriveVelocity = false;
 
 	/*
 	 * The order of each vector corresponds to the index of the swerve module inside

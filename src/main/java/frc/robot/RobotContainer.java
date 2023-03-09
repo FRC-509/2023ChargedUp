@@ -1,5 +1,6 @@
 package frc.robot;
 
+import frc.robot.autonomous.OneCone;
 import frc.robot.commands.ArmCommand;
 import frc.robot.commands.ClawIntakeCommand;
 import frc.robot.commands.DriveCommand;
@@ -7,8 +8,8 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.TimeStamp;
 import frc.robot.subsystems.Led.PatternID;
-import frc.robot.util.TimeStamp;
 import frc.robot.util.controllers.JoystickController;
 import frc.robot.util.controllers.LogitechController;
 import frc.robot.util.controllers.JoystickController.StickButton;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import com.ctre.phoenix.sensors.Pigeon2;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -52,16 +54,19 @@ public class RobotContainer {
 	public final Swerve swerveSubsystem;
 	public final Arm armSubsystem;
 	public final Claw clawSubsystem;
+	public final UsbCamera usbCamera;
 
 	private final SendableChooser<Command> chooser = new SendableChooser<Command>();
 	private final SendableChooser<String> loopTypeForExtension = new SendableChooser<String>();
 
 	public RobotContainer() {
+		usbCamera = new UsbCamera("camera", 0);
+
 		// Initialize and configure the gyroscope.
 		this.pigeon2.configFactoryDefault();
 
 		// Initialize subsystems.
-		this.swerveSubsystem = new Swerve(pigeon2, limelight);
+		this.swerveSubsystem = new Swerve(timeStamp, pigeon2, limelight);
 		this.armSubsystem = new Arm();
 		this.clawSubsystem = new Claw();
 
@@ -88,7 +93,17 @@ public class RobotContainer {
 		}
 	}
 
+	public double deltaTime() {
+		return timeStamp.deltaTime();
+	}
+
 	public void configureButtonBindings() {
+		timeStamp.setDefaultCommand(new InstantCommand(
+				() -> {
+					timeStamp.update();
+				},
+				timeStamp));
+
 		swerveSubsystem.setDefaultCommand(new DriveCommand(
 				swerveSubsystem,
 				() -> -leftStick.getY(),
@@ -122,8 +137,9 @@ public class RobotContainer {
 				1.0,
 				0,
 				0, true).withTimeout(0.7));
-
+		chooser.addOption("one cone", new OneCone(armSubsystem, clawSubsystem));
 		chooser.addOption("None", null);
+
 		SmartDashboard.putData("Auto Chooser", chooser);
 	}
 

@@ -18,7 +18,7 @@ import frc.robot.util.drivers.LazyTalonFX;
 import frc.robot.util.drivers.NEOSparkMax;
 
 public class Arm extends SubsystemBase {
-	private static final double maxExtension = 500;
+	public static final double maxExtension = 500;
 
 	private final LazyTalonFX pivotMotor1 = new LazyTalonFX(20);
 	private final LazyTalonFX pivotMotor2 = new LazyTalonFX(13);

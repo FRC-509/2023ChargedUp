@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
-import frc.robot.util.TimeStamp;
+import frc.robot.util.Interpolator;
 import frc.robot.util.Utils;
 import frc.robot.vision.LimelightWrapper;
 
@@ -34,26 +34,18 @@ public class Swerve extends SubsystemBase {
 	private LimelightWrapper limelight;
 	private Pigeon2 pigeon;
 
-	// the angle the robot SHOULD face
 	private TimeStamp timeStamp;
+	private Interpolator rotationInterplator;
+
+	// the angle the robot SHOULD face
 	private double targetHeading;
-	private double kNorm = 1.5d;
-	private PIDController rotationPID = new PIDController(8, 0.5, 0.1);
+	private PIDController rotationPID = new PIDController(1.5, 0.5, 0.1);
 
-	private void serializeRotationPID() {
-		double kP = Utils.serializeNumber("rot P", 0.0);
-		double kI = Utils.serializeNumber("rot I", 0.0);
-		double kD = Utils.serializeNumber("rot D", 0.0);
-		kNorm = Utils.serializeNumber("kNorm", 1.0);
-
-		rotationPID.setP(kP);
-		rotationPID.setI(kI);
-		rotationPID.setD(kD);
-	}
-
-	public Swerve(Pigeon2 pigeon, LimelightWrapper limelight) {
+	public Swerve(TimeStamp stamp, Pigeon2 pigeon, LimelightWrapper limelight) {
 		this.pigeon = pigeon;
 		this.limelight = limelight;
+		this.timeStamp = stamp;
+		this.rotationInterplator = new Interpolator(timeStamp, Constants.maxAngularVelocity);
 
 		swerveModules = new SwerveModule[] {
 				new SwerveModule(Constants.s_frontLeft),
@@ -78,21 +70,40 @@ public class Swerve extends SubsystemBase {
 				limelight.getRobotPose().orElse(new Pose3d()).toPose2d());
 
 		Shuffleboard.getTab("Robot Field Position").add(field2d);
+	}
 
-		timeStamp = new TimeStamp();
+	private void serializeRotationPID() {
+		SmartDashboard.putNumber("Yaw: ", pigeon.getYaw());
+		SmartDashboard.putNumber("Target Yaw: ", targetHeading);
+		SmartDashboard.putNumber("interpolation: ", rotationInterplator.getPosition());
+
+		double kP = Utils.serializeNumber("rot P", 0.0);
+		double kI = Utils.serializeNumber("rot I", 0.0);
+		double kD = Utils.serializeNumber("rot D", 0.0);
+
+		rotationPID.setP(kP);
+		rotationPID.setI(kI);
+		rotationPID.setD(kD);
 	}
 
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond,
 			boolean fieldRelative) {
 
-		serializeRotationPID();
+		// serializeRotationPID();
+
+		rotationInterplator.setPoint(rotationRadiansPerSecond);
+
+		double interpolatedRotation = rotationInterplator.update();
 
 		double output;
-		if (rotationRadiansPerSecond != 0) {
-			output = rotationRadiansPerSecond;
-			targetHeading += Units.radiansToDegrees(rotationRadiansPerSecond * timeStamp.deltaTime());
+		if (interpolatedRotation != 0) {
+			output = interpolatedRotation;
+			targetHeading += Units.radiansToDegrees(interpolatedRotation *
+					timeStamp.deltaTime());
 		} else {
-			output = Units.degreesToRadians(rotationPID.calculate(pigeon.getYaw(), targetHeading));
+			double outputDegrees = Constants.Voltage *
+					rotationPID.calculate(pigeon.getYaw(), targetHeading);
+			output = Units.degreesToRadians(outputDegrees);
 		}
 
 		SwerveModuleState[] moduleStates;
@@ -111,7 +122,8 @@ public class Swerve extends SubsystemBase {
 		}
 
 		// normalize wheel speeds
-		SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, Constants.maxSpeed);
+		SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates,
+				Constants.maxSpeed);
 
 		for (SwerveModule mod : swerveModules) {
 			mod.setDesiredState(moduleStates[mod.moduleNumber]);
@@ -188,9 +200,10 @@ public class Swerve extends SubsystemBase {
 		SmartDashboard.putNumber("odometry-x", this.swerveDrivePoseEstimator.getEstimatedPosition().getX());
 		SmartDashboard.putNumber("odometry-y", this.swerveDrivePoseEstimator.getEstimatedPosition().getY());
 
-		for (SwerveModule module : this.swerveModules) {
-			module.debug();
-		}
+		// for (SwerveModule module : this.swerveModules) {
+		// module.debug();
+		// }
+
 		timeStamp.update();
 	}
 
