@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.util.Utils;
+import frc.robot.util.telemetry.Thunderstorm;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -17,6 +18,7 @@ import frc.robot.util.Utils;
 public class Robot extends TimedRobot {
 	private Command autonomousCommand;
 	private RobotContainer robotContainer;
+	private Thunderstorm thunderstorm;
 
 	/**
 	 * This function is run when the robot is first started up and should be used
@@ -30,6 +32,7 @@ public class Robot extends TimedRobot {
 		// and put our
 		// autonomous chooser on the dashboard.
 		this.robotContainer = new RobotContainer();
+		this.thunderstorm = new Thunderstorm();
 	}
 
 	/**
@@ -52,6 +55,7 @@ public class Robot extends TimedRobot {
 		// robot's periodic
 		// block in order for anything in the Command-based framework to work.
 		CommandScheduler.getInstance().run();
+		thunderstorm.update(this.robotContainer.swerveSubsystem.getModuleStates());
 	}
 
 	/** This function is called once each time the robot enters Disabled mode. */
