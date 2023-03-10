@@ -6,10 +6,10 @@ import frc.robot.commands.ClawIntakeCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Led;
+//import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.TimeStamp;
-import frc.robot.subsystems.Led.PatternID;
+//import frc.robot.subsystems.Led.PatternID;
 import frc.robot.util.controllers.JoystickController;
 import frc.robot.util.controllers.LogitechController;
 import frc.robot.util.controllers.JoystickController.StickButton;
@@ -26,6 +26,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -55,13 +56,14 @@ public class RobotContainer {
 	public final Arm armSubsystem;
 	public final Claw clawSubsystem;
 	public final UsbCamera usbCamera;
-
+	// public final Spark led;
 	private final SendableChooser<Command> chooser = new SendableChooser<Command>();
 	private final SendableChooser<String> loopTypeForExtension = new SendableChooser<String>();
 
 	public RobotContainer() {
-		usbCamera = new UsbCamera("camera", 0);
+		// led = new Spark(5);
 
+		usbCamera = new UsbCamera("camera", 0);
 		// Initialize and configure the gyroscope.
 		this.pigeon2.configFactoryDefault();
 
@@ -126,9 +128,14 @@ public class RobotContainer {
 
 		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
 
-		controller.isPressedBind(LogiButton.X, new InstantCommand(() -> Led.set(PatternID.OFF)));
-		controller.isPressedBind(LogiButton.Y, new InstantCommand(() -> Led.set(PatternID.YELLOW)));
-		controller.isPressedBind(LogiButton.B, new InstantCommand(() -> Led.set(PatternID.VIOLET)));
+		/*
+		 * controller.isPressedBind(LogiButton.X, new InstantCommand(() ->
+		 * Led.set(PatternID.OFF)));
+		 * controller.isPressedBind(LogiButton.Y, new InstantCommand(() ->
+		 * Led.set(PatternID.YELLOW)));
+		 * controller.isPressedBind(LogiButton.B, new InstantCommand(() ->
+		 * Led.set(PatternID.VIOLET)));
+		 */
 	}
 
 	private void addAutonomousRoutines() {

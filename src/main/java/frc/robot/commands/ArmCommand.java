@@ -28,6 +28,7 @@ public class ArmCommand extends CommandBase {
 
 	@Override
 	public void execute() {
+
 		if (resetExtension.getAsBoolean()) {
 			s_Arm.resetExtensionSensorPosition();
 		}
@@ -37,6 +38,7 @@ public class ArmCommand extends CommandBase {
 		if (Constants.isExtensionClosedLoop) {
 			s_Arm.setExtensionPosition(extensionSup.getAsDouble());
 		} else {
+			System.out.println(extensionSup.getAsDouble());
 			s_Arm.setExtensionRaw(extensionSup.getAsDouble());
 		}
 	}

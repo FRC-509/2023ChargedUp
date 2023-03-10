@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.time.Duration;
 import java.util.Optional;
 
 import com.ctre.phoenix.sensors.Pigeon2;
@@ -39,9 +40,15 @@ public class Swerve extends SubsystemBase {
 
 	// the angle the robot SHOULD face
 	private double targetHeading;
-	private PIDController rotationPID = new PIDController(1.5, 0.5, 0.1);
+	private PIDController rotationPID = new PIDController(1.1, 0.8, 0.05);
+	private double rotationTimeout = 0.5;
+	private Timer timer;
 
 	public Swerve(TimeStamp stamp, Pigeon2 pigeon, LimelightWrapper limelight) {
+		this.timer = new Timer();
+		timer.reset();
+		timer.start();
+
 		this.pigeon = pigeon;
 		this.limelight = limelight;
 		this.timeStamp = stamp;
@@ -76,6 +83,7 @@ public class Swerve extends SubsystemBase {
 		SmartDashboard.putNumber("Yaw: ", pigeon.getYaw());
 		SmartDashboard.putNumber("Target Yaw: ", targetHeading);
 		SmartDashboard.putNumber("interpolation: ", rotationInterplator.getPosition());
+		SmartDashboard.putNumber("timer: ", timer.get());
 
 		double kP = Utils.serializeNumber("rot P", 0.0);
 		double kI = Utils.serializeNumber("rot I", 0.0);
@@ -89,21 +97,25 @@ public class Swerve extends SubsystemBase {
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond,
 			boolean fieldRelative) {
 
-		serializeRotationPID();
-
 		rotationInterplator.setPoint(rotationRadiansPerSecond);
 		double interpolatedRotation = rotationInterplator.update();
 
-		double output;
+		double rotationOutput;
 
-		if (!Utils.withinDeadband(rotationRadiansPerSecond, 0, 0.05)) {
-			output = interpolatedRotation;
-			targetHeading += Units.radiansToDegrees(interpolatedRotation *
-					timeStamp.deltaTime());
+		// if this can be switched to checking the interpolated value, move the
+		// interpolator to the tick input rather than doing it over the fed velocity
+		boolean hasRotationInput = !Utils.withinDeadband(rotationRadiansPerSecond, 0, 0.01);
+
+		if (hasRotationInput) {
+			timer.reset();
+		}
+
+		if (hasRotationInput || timer.get() < rotationTimeout) {
+			rotationOutput = interpolatedRotation;
+			targetHeading = pigeon.getYaw();
 		} else {
-			double outputDegrees = Constants.Voltage *
-					rotationPID.calculate(pigeon.getYaw(), targetHeading);
-			output = Units.degreesToRadians(outputDegrees);
+			double outputDegrees = Constants.Voltage * rotationPID.calculate(pigeon.getYaw(), targetHeading);
+			rotationOutput = Units.degreesToRadians(outputDegrees);
 		}
 
 		SwerveModuleState[] moduleStates;
@@ -112,13 +124,13 @@ public class Swerve extends SubsystemBase {
 			moduleStates = Constants.swerveKinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(
 					translationMetersPerSecond.getX(),
 					translationMetersPerSecond.getY(),
-					output,
+					rotationOutput,
 					getYaw()));
 		} else {
 			moduleStates = Constants.swerveKinematics.toSwerveModuleStates(new ChassisSpeeds(
 					translationMetersPerSecond.getX(),
 					translationMetersPerSecond.getY(),
-					output));
+					rotationOutput));
 		}
 
 		// normalize wheel speeds

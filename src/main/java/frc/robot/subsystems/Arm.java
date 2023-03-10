@@ -25,7 +25,7 @@ public class Arm extends SubsystemBase {
 	private final PositionTarget extensionTarget;
 	private PIDController extensionPID;
 
-	private static final PIDConstants pivotConstants = new PIDConstants(0.2, 0, 0, 0);
+	private static final PIDConstants pivotConstants = new PIDConstants(0.03, 0, 0, 0);
 
 	// the percent output needed to maintain a completely horizontal position.
 	private static final double maximumFF = 0;
@@ -37,7 +37,7 @@ public class Arm extends SubsystemBase {
 	 * extension of 0.
 	 */
 	public Arm() {
-		extensionTarget = new PositionTarget(0, 400, 150);
+		extensionTarget = new PositionTarget(0, 500, 170);
 		extensionPID = new PIDController(0.1, 0.0, 0.0);
 
 		extensionMotor.setSmartCurrentLimit(20);
@@ -53,19 +53,35 @@ public class Arm extends SubsystemBase {
 		// Configure PID constants
 		pivotConstants.configureTalonFX(pivotMotor1);
 		pivotConstants.configureTalonFX(pivotMotor2);
+
+		pivotMotor1.config_kP(0, pivotConstants.kP);
+		pivotMotor1.config_kI(0, pivotConstants.kI);
+		pivotMotor1.config_kD(0, pivotConstants.kD);
+
+		pivotMotor2.config_kP(0, pivotConstants.kP);
+		pivotMotor2.config_kI(0, pivotConstants.kI);
+		pivotMotor2.config_kD(0, pivotConstants.kD);
 	}
 
 	public void tunePID() {
 		double kP = Utils.serializeNumber("ExkP", 1.0);
 		double kI = Utils.serializeNumber("ExkI", 0.0);
 		double kD = Utils.serializeNumber("ExkD", 0.0);
-		double rate = Utils.serializeNumber("rate", 0.0);
 
-		extensionTarget.setRate(rate);
+		SmartDashboard.putNumber("current rotation: ", getPivotDegrees());
 
-		extensionPID.setP(kP);
-		extensionPID.setI(kI);
-		extensionPID.setD(kD);
+		pivotMotor1.config_kP(0, kP);
+		pivotMotor1.config_kI(0, kI);
+		pivotMotor1.config_kD(0, kD);
+
+		pivotMotor2.config_kP(0, kP);
+		pivotMotor2.config_kI(0, kI);
+		pivotMotor2.config_kD(0, kD);
+
+		double target = Utils.serializeNumber("arm rotation: ", 0.0);
+
+		pivotMotor1.set(ControlMode.Position, Utils.degreesToFalcon(target, Constants.pivotGearRatio));
+		pivotMotor2.set(ControlMode.Position, Utils.degreesToFalcon(target, Constants.pivotGearRatio));
 	}
 
 	public void setPivotOutput(double percentOutput) {
@@ -86,11 +102,6 @@ public class Arm extends SubsystemBase {
 		pivotMotor2.set(ControlMode.Position, targetPosition, DemandType.ArbitraryFeedForward, feedforward);
 	}
 
-	public void setPivotNeutralMode(NeutralMode neutralMode) {
-		pivotMotor1.setNeutralMode(neutralMode);
-		pivotMotor2.setNeutralMode(neutralMode);
-	}
-
 	public double getPivotDegrees() {
 		return Utils.falconToDegrees(pivotMotor1.getSelectedSensorPosition(), Constants.pivotGearRatio);
 	}
@@ -99,19 +110,21 @@ public class Arm extends SubsystemBase {
 		extensionMotor.setSensorPosition(0);
 	}
 
-	public void setExtensionPosition(double percent) {
-		double position = extensionTarget.update(percent);
+	public void setExtensionPosition(double targetPos) {
+		double position = extensionTarget.update(targetPos);
 		double output = extensionPID.calculate(extensionMotor.getSensorPosition(), position);
 		extensionMotor.set(output);
 	}
 
 	public void setExtensionRaw(double percentOutput) {
+		System.out.println("do" + percentOutput);
 		extensionMotor.set(percentOutput);
 	}
 
 	@Override
 	public void periodic() {
-		tunePID();
+		// tunePID();
+		SmartDashboard.putNumber("Arm pviot current", getPivotDegrees());
 		SmartDashboard.putNumber("Arm extension current", extensionMotor.getOutputCurrent());
 		SmartDashboard.putNumber("Arm extension position", extensionMotor.getSensorPosition());
 		SmartDashboard.putNumber("Target", extensionTarget.getTarget());
