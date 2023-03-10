@@ -16,12 +16,12 @@ public class OneCone extends SequentialCommandGroup {
 						(end) -> {
 							arm.setPivotOutput(0);
 						},
-						() -> false, arm).withTimeout(2),
+						() -> false, arm).withTimeout(3),
 				new FunctionalCommand(() -> {
-				}, () -> arm.setExtensionPosition(530),
+				}, () -> arm.setExtensionPosition(509),
 						(end) -> {
 						},
-						() -> false, arm).withTimeout(2),
+						() -> false, arm).withTimeout(4),
 				new InstantCommand(() -> claw.toggleClaw(), claw)
 
 		);
