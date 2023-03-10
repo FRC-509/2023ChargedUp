@@ -22,7 +22,7 @@ public final class Constants {
 
 	public static final String CANIvore = "509CANIvore";
 
-	public static final int revBlinkinPort = 0;
+	public static final int revBlinkinPort = 9;
 	public static final int ledPixelCount = 25;
 
 	// Vision-related constants.
