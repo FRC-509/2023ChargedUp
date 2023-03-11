@@ -15,7 +15,7 @@ import frc.robot.util.controllers.LogitechController;
 import frc.robot.util.controllers.JoystickController.StickButton;
 import frc.robot.util.controllers.LogitechController.LogiButton;
 import frc.robot.vision.*;
-
+import frc.robot.subsystems.Led;
 import java.io.IOException;
 
 import com.ctre.phoenix.sensors.Pigeon2;
@@ -127,6 +127,12 @@ public class RobotContainer {
 				() -> controller.isPressed(LogiButton.B)));
 
 		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
+		controller.isPressedBind(LogiButton.X,
+				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_VIOLET)));
+		controller.isPressedBind(LogiButton.Y,
+				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_ORANGE)));
+		controller.isPressedBind(LogiButton.B,
+				new InstantCommand(() -> Led.setMode((Led.BlinkinLedMode.SOLID_DARK_RED))));
 
 		/*
 		 * controller.isPressedBind(LogiButton.X, new InstantCommand(() ->
