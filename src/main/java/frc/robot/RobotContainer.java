@@ -67,7 +67,7 @@ public class RobotContainer {
 
 	public RobotContainer() {
 		UsbCamera cam = CameraServer.startAutomaticCapture();
-		cam.setFPS(5);
+		cam.setFPS(15);
 		cam.setResolution(10, 10);
 		// CameraServer.startAutomaticCapture(null, 0)
 		// usbCamera.setFPS(10);s
@@ -138,15 +138,13 @@ public class RobotContainer {
 						* -Constants.armPivotOperatorCoefficient,
 				() -> MathUtil.applyDeadband(controller.getRightStickY(), Constants.stickDeadband)
 						* -Constants.armExtensionOperatorCoefficient,
-				() -> controller.isPressed(LogiButton.Start)));
+				() -> controller.isPressed(LogiButton.B)));
 
 		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
 		controller.isPressedBind(LogiButton.X,
 				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_VIOLET)));
 		controller.isPressedBind(LogiButton.Y,
 				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_ORANGE)));
-		controller.isPressedBind(LogiButton.B,
-				new InstantCommand(() -> Led.setMode((Led.BlinkinLedMode.SOLID_DARK_RED))));
 
 		/*
 		 * controller.isPressedBind(LogiButton.X, new InstantCommand(() ->
@@ -157,8 +155,10 @@ public class RobotContainer {
 		 * Led.set(PatternID.VIOLET)));
 		 */
 		controller.isPressedBind(LogiButton.LBTrigger, new InstantCommand(() -> armSubsystem.setPivotDegrees(98)));
-		controller.isPressedBind(LogiButton.RBTrigger, new InstantCommand(() -> armSubsystem.setPivotDegrees(0)));
-		controller.isPressedBind(LogiButton.B, new InstantCommand(() -> armSubsystem.setExtensionPosition(100)));
+		// controller.isPressedBind(LogiButton.RBTrigger, new InstantCommand(() ->
+		// armSubsystem.setPivotDegrees(0)));
+		// controller.isPressedBind(LogiButton.B, new InstantCommand(() ->
+		// armSubsystem.setExtensionPosition(100)));
 	}
 
 	private void addAutonomousRoutines() {

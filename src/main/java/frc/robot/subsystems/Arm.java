@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMax.SoftLimitDirection;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -37,9 +38,11 @@ public class Arm extends SubsystemBase {
 	 * extension of 0.
 	 */
 	public Arm() {
+
 		extensionTarget = new PositionTarget(0, 520, 170);
 		extensionPID = new PIDController(0.1, 0.0, 0.0);
-
+		extensionMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+		extensionMotor.setSoftLimit(SoftLimitDirection.kReverse, 0);
 		extensionMotor.setSmartCurrentLimit(20);
 		extensionMotor.setIdleMode(IdleMode.kBrake);
 		extensionMotor.setSensorPosition(0);
@@ -113,11 +116,11 @@ public class Arm extends SubsystemBase {
 	 */
 
 	public void setExtensionPosition(double targetPos) {
-		SmartDashboard.putNumber("targPos", targetPos);
+		SmartDashboard.putNumber("targt", targetPos);
 		double position = extensionTarget.update(targetPos);
-		SmartDashboard.putNumber("new pos", position);
+		SmartDashboard.putNumber("pos", position);
 		double output = extensionPID.calculate(extensionMotor.getSensorPosition(), position);
-		SmartDashboard.putNumber(("output"), output);
+		SmartDashboard.putNumber("output", output);
 		extensionMotor.set(output);
 	}
 
