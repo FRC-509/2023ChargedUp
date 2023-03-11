@@ -3,7 +3,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-//import frc.robot.subsystems.Led;
+import frc.robot.subsystems.Led;
+import frc.robot.subsystems.Led.BlinkinLedMode;
 import frc.robot.util.Utils;
 import frc.robot.util.telemetry.Thunderstorm;
 
@@ -29,6 +30,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotInit() {
 		Utils.flushShuffleboard();
+		// /Led.setMode(BlinkinLedMode.SOLID_DARK_RED);
 		// Instantiate our RobotContainer. This will perform all our button bindings,
 		// and put our
 		// autonomous chooser on the dashboard.
@@ -62,15 +64,20 @@ public class Robot extends TimedRobot {
 	/** This function is called once each time the robot enters Disabled mode. */
 	@Override
 	public void disabledInit() {
+		// Led.setMode(BlinkinLedMode.FIXED_WAVES_RAINBOW);
 	}
 
 	@Override
 	public void disabledPeriodic() {
+
+		Led.setMode(BlinkinLedMode.SOLID_DARK_RED);
+
 	}
 
 	/** This function is called periodically during autonomous. */
 	@Override
 	public void autonomousInit() {
+		Led.setMode(BlinkinLedMode.SOLID_DARK_RED);
 		this.autonomousCommand = this.robotContainer.getAutonomousCommand();
 		if (autonomousCommand != null) {
 			this.autonomousCommand.schedule();

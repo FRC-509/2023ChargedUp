@@ -18,7 +18,7 @@ public class OneCone extends SequentialCommandGroup {
 						},
 						() -> false, arm).withTimeout(3),
 				new FunctionalCommand(() -> {
-				}, () -> arm.setExtensionPosition(509),
+				}, () -> arm.setExtensionPosition(510),
 						(end) -> {
 						},
 						() -> false, arm).withTimeout(4),
