@@ -8,6 +8,7 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 //import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Swerve;
+import edu.wpi.first.cameraserver.*;
 import frc.robot.subsystems.TimeStamp;
 //import frc.robot.subsystems.Led.PatternID;
 import frc.robot.util.controllers.JoystickController;
@@ -21,12 +22,15 @@ import java.io.IOException;
 import com.ctre.phoenix.sensors.Pigeon2;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.cscore.CameraServerJNI;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.cameraserver.*;
+import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -55,15 +59,25 @@ public class RobotContainer {
 	public final Swerve swerveSubsystem;
 	public final Arm armSubsystem;
 	public final Claw clawSubsystem;
-	public final UsbCamera usbCamera;
+	public final UsbCamera usbCamera = new UsbCamera("509cam", 1);
+
 	// public final Spark led;
 	private final SendableChooser<Command> chooser = new SendableChooser<Command>();
 	private final SendableChooser<String> loopTypeForExtension = new SendableChooser<String>();
 
 	public RobotContainer() {
+		UsbCamera cam = CameraServer.startAutomaticCapture();
+		cam.setFPS(5);
+		cam.setResolution(10, 10);
+		// CameraServer.startAutomaticCapture(null, 0)
+		// usbCamera.setFPS(10);s
+		// usbCamera.setResolution(720, 480);
+		// CameraServer.startAutomaticCapture();
 		// led = new Spark(5);
+		// 0)
+		// CameraServer.addServer("camera");
 
-		usbCamera = new UsbCamera("camera", 0);
+		// SmartDashboard.putData(usbCamera.get);
 		// Initialize and configure the gyroscope.
 		this.pigeon2.configFactoryDefault();
 
@@ -150,7 +164,7 @@ public class RobotContainer {
 				1.0,
 				0,
 				0, true).withTimeout(0.7));
-		chooser.addOption("one cone", new OneCone(armSubsystem, clawSubsystem));
+		chooser.addOption("one cone", new OneCone(armSubsystem, clawSubsystem, swerveSubsystem));
 		chooser.addOption("None", null);
 
 		SmartDashboard.putData("Auto Chooser", chooser);
