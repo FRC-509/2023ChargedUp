@@ -15,7 +15,7 @@ public class OneCone extends SequentialCommandGroup {
 		addCommands(
 				new InstantCommand(() -> claw.toggleClaw(), claw),
 				new FunctionalCommand(() -> {
-				}, () -> arm.setPivotDegrees(98),
+				}, () -> arm.setPivotDegrees(100),
 						(end) -> {
 							arm.setPivotOutput(0);
 						},
@@ -39,6 +39,6 @@ public class OneCone extends SequentialCommandGroup {
 							arm.setPivotOutput(0);
 						},
 						() -> false, arm).withTimeout(2),
-				new DriveCommand(swerve, -1, 0, 0, false).withTimeout(.8));
+				new DriveCommand(swerve, -0.5, 0, 0, false).withTimeout(2));
 	}
 }

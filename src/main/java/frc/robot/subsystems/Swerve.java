@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import java.time.Duration;
 import java.util.Optional;
 
 import com.ctre.phoenix.sensors.Pigeon2;
@@ -208,10 +207,14 @@ public class Swerve extends SubsystemBase {
 
 		field2d.setRobotPose(getPose());
 
-		SmartDashboard.putNumber("theta", getYaw().getDegrees());
+		SmartDashboard.putNumber("yaw", getYaw().getDegrees());
+		SmartDashboard.putNumber("pitch", pigeon.getPitch());
+		SmartDashboard.putNumber("roll", pigeon.getRoll());
 		SmartDashboard.putNumber("odometry-x", this.swerveDrivePoseEstimator.getEstimatedPosition().getX());
 		SmartDashboard.putNumber("odometry-y", this.swerveDrivePoseEstimator.getEstimatedPosition().getY());
 
+		// pointing up is -negative Pitch
+		// down is +positive Pitch
 		// for (SwerveModule module : this.swerveModules) {
 		// module.debug();
 		// }

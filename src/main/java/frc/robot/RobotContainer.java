@@ -2,6 +2,7 @@ package frc.robot;
 
 import frc.robot.autonomous.OneCone;
 import frc.robot.commands.ArmCommand;
+import frc.robot.commands.ChargeStation;
 import frc.robot.commands.ClawIntakeCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.Arm;
@@ -22,15 +23,11 @@ import java.io.IOException;
 import com.ctre.phoenix.sensors.Pigeon2;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.cscore.CameraServerJNI;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
-import edu.wpi.first.cameraserver.*;
-import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -69,13 +66,6 @@ public class RobotContainer {
 		UsbCamera cam = CameraServer.startAutomaticCapture();
 		cam.setFPS(15);
 		cam.setResolution(10, 10);
-		// CameraServer.startAutomaticCapture(null, 0)
-		// usbCamera.setFPS(10);s
-		// usbCamera.setResolution(720, 480);
-		// CameraServer.startAutomaticCapture();
-		// led = new Spark(5);
-		// 0)
-		// CameraServer.addServer("camera");
 
 		// SmartDashboard.putData(usbCamera.get);
 		// Initialize and configure the gyroscope.
@@ -130,8 +120,8 @@ public class RobotContainer {
 		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
 				clawSubsystem,
 				() -> controller.isPressed(LogiButton.A),
-				() -> controller.isDown(LogiButton.RTrigger),
-				() -> controller.isDown(LogiButton.LTrigger)));
+				() -> controller.isDown(LogiButton.LTrigger),
+				() -> controller.isDown(LogiButton.RTrigger)));
 
 		armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem,
 				() -> MathUtil.applyDeadband(controller.getLeftStickY(), Constants.stickDeadband)
@@ -154,19 +144,14 @@ public class RobotContainer {
 		 * controller.isPressedBind(LogiButton.B, new InstantCommand(() ->
 		 * Led.set(PatternID.VIOLET)));
 		 */
-		controller.isPressedBind(LogiButton.LBTrigger, new InstantCommand(() -> armSubsystem.setPivotDegrees(98)));
+		controller.isPressedBind(LogiButton.LBTrigger, new InstantCommand(() -> armSubsystem.setPivotDegrees(100)));
 		// controller.isPressedBind(LogiButton.RBTrigger, new InstantCommand(() ->
 		// armSubsystem.setPivotDegrees(0)));
 		controller.isPressedBind(LogiButton.Back, new InstantCommand(() -> armSubsystem.setExtensionPosition(0)));
 	}
 
 	private void addAutonomousRoutines() {
-		chooser.setDefaultOption("WeekZeroTaxi", new DriveCommand(
-				swerveSubsystem,
-				1.0,
-				0,
-				0, true).withTimeout(0.7));
-		chooser.addOption("one cone", new OneCone(armSubsystem, clawSubsystem, swerveSubsystem));
+		chooser.setDefaultOption("one cone", new OneCone(armSubsystem, clawSubsystem, swerveSubsystem));
 		chooser.addOption("None", null);
 
 		SmartDashboard.putData("Auto Chooser", chooser);
@@ -184,6 +169,7 @@ public class RobotContainer {
 
 	public Command getAutonomousCommand() {
 		return chooser.getSelected();
+		// return new ChargeStation(swerveSubsystem, pigeon2);
 	}
 
 	public void onTeleopInit() {

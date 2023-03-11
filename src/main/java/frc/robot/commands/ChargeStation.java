@@ -6,58 +6,37 @@ import frc.robot.subsystems.Swerve;
 
 import com.ctre.phoenix.sensors.Pigeon2;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-// Charge Station Command
 public class ChargeStation extends CommandBase {
 
-	// Finished flag
-	private boolean finished;
+	private PIDController pid = new PIDController(0.01, 0, 0);
 
 	// Pitch buffer
 	private double pitchBuffer;
-
-	// Move increment
-	private double moveIncrement;
-
-	// Swerve drive reference
 	private Swerve swerve;
-
-	// Gyro reference
 	private Pigeon2 gyro;
 
-	// Odometry reference
-	// private OdometryDeprecated odometry;
-
 	// Constructor
-	public ChargeStation(double pitchBuffer_, double moveIncrement_, Swerve swerve_, Pigeon2 gyro_) {
-
-		finished = false;
-		this.pitchBuffer = pitchBuffer_;
-		this.moveIncrement = moveIncrement_;
-
-		// Get reference to swerve
-		this.swerve = swerve_;
+	public ChargeStation(Swerve swerve, Pigeon2 gyro) {
+		this.swerve = swerve;
+		this.gyro = gyro;
+		pitchBuffer = 5;
 		addRequirements(this.swerve);
-
-		// Get reference to gyro
-		this.gyro = gyro_;
 	}
 
-	// Initialize
 	@Override
 	public void initialize() {
 
-		// Makes robot parallel to charge station before driving
-		double robotRotationDegrees = swerve.getPose().getRotation().getDegrees();
-		double difference = 90 - robotRotationDegrees;
-		swerve.drive(new Translation2d(), difference, true);
+		pid.setSetpoint(0);
 
-		// Start driving onto charge station
-		double distance = moveIncrement / 2;
-		Translation2d driveTranslation = new Translation2d(distance, 0).times(Constants.maxSpeed);
+		Translation2d driveTranslation = new Translation2d(0.5, 0).times(Constants.maxSpeed);
 		swerve.drive(driveTranslation, 0, true);
+		Timer.delay(1.0);
+		swerve.drive(new Translation2d(), 0, false);
 	}
 
 	// Execute
@@ -65,30 +44,15 @@ public class ChargeStation extends CommandBase {
 	public void execute() {
 
 		// Get gyro pitch change from last frame
-		double pitch = gyro.getPitch();
-
-		// Move on charge station
-		if (pitch <= pitchBuffer || pitch >= -pitchBuffer) {
-
-			// Count as stable if within pitch buffer
-			finished = true;
-
-		} else {
-
-			// Move robot to center of charge station
-			// Use move increment and pitch to find correct distance
-			double distance = moveIncrement * pitch;
-			Translation2d driveTranslation = new Translation2d(distance, 0).times(Constants.maxSpeed);
-			swerve.drive(driveTranslation, 0, true);
-		}
+		double increment = pid.calculate(gyro.getPitch());
+		Translation2d driveTranslation = new Translation2d(increment, 0);
+		swerve.drive(driveTranslation, 0, true);
 	}
 
 	// Is Finished
 	@Override
 	public boolean isFinished() {
-
-		// Return finished
-		return finished;
+		return Math.abs(gyro.getPitch()) <= pitchBuffer;
 	}
 
 	@Override
