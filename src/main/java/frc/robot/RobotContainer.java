@@ -157,8 +157,7 @@ public class RobotContainer {
 		controller.isPressedBind(LogiButton.LBTrigger, new InstantCommand(() -> armSubsystem.setPivotDegrees(98)));
 		// controller.isPressedBind(LogiButton.RBTrigger, new InstantCommand(() ->
 		// armSubsystem.setPivotDegrees(0)));
-		// controller.isPressedBind(LogiButton.B, new InstantCommand(() ->
-		// armSubsystem.setExtensionPosition(100)));
+		controller.isPressedBind(LogiButton.Back, new InstantCommand(() -> armSubsystem.setExtensionPosition(0)));
 	}
 
 	private void addAutonomousRoutines() {

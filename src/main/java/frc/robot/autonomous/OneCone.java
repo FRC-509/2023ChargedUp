@@ -21,25 +21,24 @@ public class OneCone extends SequentialCommandGroup {
 						},
 						() -> false, arm).withTimeout(2),
 				new FunctionalCommand(() -> {
-				}, () -> arm.setExtensionPosition(510),
+				}, () -> arm.setExtensionPosition(505),
 						(end) -> {
+							arm.stopExtensionMotor();
 						},
 						() -> false, arm).withTimeout(4),
-				new InstantCommand(() -> claw.toggleClaw(), claw).withTimeout(1));
-
-		// new DriveCommand(swerve, -1, 0, 0, false));
-		// new InstantCommand(() -> (2)),
-		// new DriveCommand(swerve, -1.0, 0, 0, true).withTimeout(1));
-		// addCommands(
-		// new InstantCommand(() -> claw.toggleClaw(), claw),
-		// new FunctionalCommand(
-		// () -> {
-		// ;
-		// },
-		// () -> arm.setPivotOutput(0.4),
-		// () -> false,
-		// arm).withTimeout(2),
-		// new InstantCommand(() -> claw.toggleClaw(), claw));
-		// addRequirements(arm, claw);
+				new InstantCommand(() -> claw.toggleClaw(), claw).withTimeout(1.5),
+				new FunctionalCommand(() -> {
+				}, () -> arm.setExtensionPosition(-455),
+						(end) -> {
+							arm.stopExtensionMotor();
+						},
+						() -> false, arm).withTimeout(4),
+				new FunctionalCommand(() -> {
+				}, () -> arm.setPivotDegrees(0),
+						(end) -> {
+							arm.setPivotOutput(0);
+						},
+						() -> false, arm).withTimeout(2),
+				new DriveCommand(swerve, -1, 0, 0, false).withTimeout(.8));
 	}
 }

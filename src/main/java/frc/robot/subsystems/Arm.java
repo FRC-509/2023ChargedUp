@@ -33,16 +33,19 @@ public class Arm extends SubsystemBase {
 
 	private final NEOSparkMax extensionMotor = new NEOSparkMax(12);
 
+	private double targetExtension;
+
 	/*
 	 * Arm MUST start in a downward rotation, and completely retracted with an
 	 * extension of 0.
 	 */
 	public Arm() {
 
+		targetExtension = 0;
 		extensionTarget = new PositionTarget(0, 520, 170);
 		extensionPID = new PIDController(0.1, 0.0, 0.0);
-		extensionMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
-		extensionMotor.setSoftLimit(SoftLimitDirection.kReverse, 0);
+		// extensionMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+		// extensionMotor.setSoftLimit(SoftLimitDirection.kReverse, 0);
 		extensionMotor.setSmartCurrentLimit(20);
 		extensionMotor.setIdleMode(IdleMode.kBrake);
 		extensionMotor.setSensorPosition(0);
@@ -116,22 +119,29 @@ public class Arm extends SubsystemBase {
 	 */
 
 	public void setExtensionPosition(double targetPos) {
-		SmartDashboard.putNumber("targt", targetPos);
-		double position = extensionTarget.update(targetPos);
-		SmartDashboard.putNumber("pos", position);
-		double output = extensionPID.calculate(extensionMotor.getSensorPosition(), position);
-		SmartDashboard.putNumber("output", output);
-		extensionMotor.set(output);
+		targetExtension = targetPos;
 	}
 
 	public void setExtensionRaw(double percentOutput) {
-		System.out.println("do" + percentOutput);
 		extensionMotor.set(percentOutput);
+	}
+
+	public void stopExtensionMotor() {
+		setExtensionRaw(0);
 	}
 
 	@Override
 	public void periodic() {
 		// tunePID();
+
+		// if (Constants.isExtensionClosedLoop) {
+		SmartDashboard.putNumber("Raw Target Extension", targetExtension);
+		double position = extensionTarget.update(targetExtension);
+		SmartDashboard.putNumber("Rate-limited Target Extension", position);
+		double output = extensionPID.calculate(extensionMotor.getSensorPosition(), position);
+		SmartDashboard.putNumber("Raw PID Output %", output);
+		extensionMotor.set(output);
+		// }
 		SmartDashboard.putNumber("Arm pviot current", getPivotDegrees());
 		SmartDashboard.putNumber("Arm extension current", extensionMotor.getOutputCurrent());
 		SmartDashboard.putNumber("Arm extension position", extensionMotor.getSensorPosition());
