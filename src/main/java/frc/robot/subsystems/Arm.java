@@ -37,7 +37,7 @@ public class Arm extends SubsystemBase {
 	 * extension of 0.
 	 */
 	public Arm() {
-		extensionTarget = new PositionTarget(0, 500, 170);
+		extensionTarget = new PositionTarget(0, 520, 170);
 		extensionPID = new PIDController(0.1, 0.0, 0.0);
 
 		extensionMotor.setSmartCurrentLimit(20);
@@ -106,13 +106,18 @@ public class Arm extends SubsystemBase {
 		return Utils.falconToDegrees(pivotMotor1.getSelectedSensorPosition(), Constants.pivotGearRatio);
 	}
 
-	public void resetExtensionSensorPosition() {
-		extensionMotor.setSensorPosition(0);
-	}
+	/*
+	 * public void resetExtensionSensorPosition() {
+	 * extensionMotor.setSensorPosition(0);
+	 * }
+	 */
 
 	public void setExtensionPosition(double targetPos) {
+		SmartDashboard.putNumber("targPos", targetPos);
 		double position = extensionTarget.update(targetPos);
+		SmartDashboard.putNumber("new pos", position);
 		double output = extensionPID.calculate(extensionMotor.getSensorPosition(), position);
+		SmartDashboard.putNumber(("output"), output);
 		extensionMotor.set(output);
 	}
 

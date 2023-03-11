@@ -29,9 +29,11 @@ public class ArmCommand extends CommandBase {
 	@Override
 	public void execute() {
 
-		if (resetExtension.getAsBoolean()) {
-			s_Arm.resetExtensionSensorPosition();
-		}
+		/*
+		 * if (resetExtension.getAsBoolean()) {
+		 * s_Arm.resetExtensionSensorPosition();
+		 * }
+		 */
 
 		s_Arm.setPivotOutput(rotationSup.getAsDouble());
 

@@ -138,7 +138,7 @@ public class RobotContainer {
 						* -Constants.armPivotOperatorCoefficient,
 				() -> MathUtil.applyDeadband(controller.getRightStickY(), Constants.stickDeadband)
 						* -Constants.armExtensionOperatorCoefficient,
-				() -> controller.isPressed(LogiButton.B)));
+				() -> controller.isPressed(LogiButton.Start)));
 
 		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
 		controller.isPressedBind(LogiButton.X,
@@ -156,6 +156,9 @@ public class RobotContainer {
 		 * controller.isPressedBind(LogiButton.B, new InstantCommand(() ->
 		 * Led.set(PatternID.VIOLET)));
 		 */
+		controller.isPressedBind(LogiButton.LBTrigger, new InstantCommand(() -> armSubsystem.setPivotDegrees(98)));
+		controller.isPressedBind(LogiButton.RBTrigger, new InstantCommand(() -> armSubsystem.setPivotDegrees(0)));
+		controller.isPressedBind(LogiButton.B, new InstantCommand(() -> armSubsystem.setExtensionPosition(100)));
 	}
 
 	private void addAutonomousRoutines() {
