@@ -16,13 +16,15 @@ public class DriveCommand extends CommandBase {
 	private DoubleSupplier strafeSup;
 	private DoubleSupplier rotationSup;
 	private BooleanSupplier robotCentricSup;
+	private BooleanSupplier xStanceSup;
 
 	public DriveCommand(
 			Swerve s_Swerve,
 			DoubleSupplier translationSup,
 			DoubleSupplier strafeSup,
 			DoubleSupplier rotationSup,
-			BooleanSupplier robotCentricSup) {
+			BooleanSupplier robotCentricSup,
+			BooleanSupplier xStanceSup) {
 		this.s_Swerve = s_Swerve;
 		addRequirements(s_Swerve);
 
@@ -30,6 +32,7 @@ public class DriveCommand extends CommandBase {
 		this.strafeSup = strafeSup;
 		this.rotationSup = rotationSup;
 		this.robotCentricSup = robotCentricSup;
+		this.xStanceSup = xStanceSup;
 	}
 
 	public DriveCommand(
@@ -55,9 +58,13 @@ public class DriveCommand extends CommandBase {
 		double rotationVal = MathUtil.applyDeadband(this.rotationSup.getAsDouble(), Constants.stickDeadband);
 
 		/* Drive */
-		this.s_Swerve.drive(
-				new Translation2d(translationVal, strafeVal).times(Constants.maxSpeed),
-				rotationVal * Constants.maxAngularVelocity,
-				!this.robotCentricSup.getAsBoolean(), false);
+		if (xStanceSup.getAsBoolean()) {
+			this.s_Swerve.enterXStance();
+		} else {
+			this.s_Swerve.drive(
+					new Translation2d(translationVal, strafeVal).times(Constants.maxSpeed),
+					rotationVal * Constants.maxAngularVelocity,
+					!this.robotCentricSup.getAsBoolean(), false);
+		}
 	}
 }
