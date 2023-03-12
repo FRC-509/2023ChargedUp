@@ -1,6 +1,7 @@
 package frc.robot;
 
 import frc.robot.autonomous.OneCone;
+import frc.robot.autonomous.OneConeAndChargeStation;
 import frc.robot.commands.ArmCommand;
 import frc.robot.commands.ChargeStation;
 import frc.robot.commands.ClawIntakeCommand;
@@ -28,6 +29,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -70,7 +72,7 @@ public class RobotContainer {
 		// SmartDashboard.putData(usbCamera.get);
 		// Initialize and configure the gyroscope.
 		this.pigeon2.configFactoryDefault();
-
+		this.pigeon2.configMountPoseYaw(180);
 		// Initialize subsystems.
 		this.swerveSubsystem = new Swerve(timeStamp, pigeon2, limelight);
 		this.armSubsystem = new Arm();
@@ -112,9 +114,9 @@ public class RobotContainer {
 
 		swerveSubsystem.setDefaultCommand(new DriveCommand(
 				swerveSubsystem,
-				() -> -leftStick.getY(),
-				() -> -leftStick.getX(),
-				() -> -rightStick.getX(),
+				() -> leftStick.getY(),
+				() -> leftStick.getX(),
+				() -> rightStick.getX(),
 				() -> leftStick.getRawButton(2)));
 
 		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
@@ -152,6 +154,9 @@ public class RobotContainer {
 
 	private void addAutonomousRoutines() {
 		chooser.setDefaultOption("one cone", new OneCone(armSubsystem, clawSubsystem, swerveSubsystem));
+		chooser.setDefaultOption("one cone plus charge station",
+				new OneConeAndChargeStation(armSubsystem, clawSubsystem, swerveSubsystem, pigeon2));
+
 		chooser.addOption("None", null);
 
 		SmartDashboard.putData("Auto Chooser", chooser);
@@ -168,8 +173,8 @@ public class RobotContainer {
 	}
 
 	public Command getAutonomousCommand() {
-		return chooser.getSelected();
-		// return new ChargeStation(swerveSubsystem, pigeon2);
+		// return chooser.getSelected();
+		return new ChargeStation(swerveSubsystem, pigeon2, -1.0);
 	}
 
 	public void onTeleopInit() {

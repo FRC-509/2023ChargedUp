@@ -94,7 +94,7 @@ public class Swerve extends SubsystemBase {
 	}
 
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond,
-			boolean fieldRelative) {
+			boolean fieldRelative, boolean isChargeStation) {
 
 		rotationInterplator.setPoint(rotationRadiansPerSecond);
 		double interpolatedRotation = rotationInterplator.update();
@@ -129,7 +129,7 @@ public class Swerve extends SubsystemBase {
 			moduleStates = Constants.swerveKinematics.toSwerveModuleStates(new ChassisSpeeds(
 					translationMetersPerSecond.getX(),
 					translationMetersPerSecond.getY(),
-					rotationOutput));
+					!isChargeStation ? rotationOutput : rotationRadiansPerSecond));
 		}
 
 		// normalize wheel speeds
@@ -145,7 +145,7 @@ public class Swerve extends SubsystemBase {
 		for (SwerveModule module : swerveModules) {
 			module.setDesiredState(new SwerveModuleState(
 					0.0d,
-					Rotation2d.fromDegrees(45.0d)));
+					Rotation2d.fromDegrees(135.0d)));
 		}
 	}
 
