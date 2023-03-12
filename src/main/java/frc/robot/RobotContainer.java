@@ -2,6 +2,7 @@ package frc.robot;
 
 import frc.robot.autonomous.OneConeAndTaxiStable;
 import frc.robot.autonomous.PickUpCubeFromGround;
+import frc.robot.autonomous.OneCone;
 import frc.robot.autonomous.OneConeAndChargeStation;
 import frc.robot.autonomous.OneConeAndTaxiPP;
 import frc.robot.commands.ArmCommand;
@@ -163,6 +164,8 @@ public class RobotContainer {
 		chooser.setDefaultOption("One Cone and Charge Station",
 				new OneConeAndChargeStation(armSubsystem, clawSubsystem, swerveSubsystem, pigeon2));
 
+		chooser.addOption("One Cone",
+				new OneCone(armSubsystem, clawSubsystem, swerveSubsystem));
 		chooser.addOption("None", null);
 
 		SmartDashboard.putData("Auto Chooser", chooser);

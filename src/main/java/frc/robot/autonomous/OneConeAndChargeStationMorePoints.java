@@ -15,33 +15,7 @@ import frc.robot.subsystems.Swerve;
 public class OneConeAndChargeStationMorePoints extends SequentialCommandGroup {
 	public OneConeAndChargeStationMorePoints(Arm arm, Claw claw, Swerve swerve, Pigeon2 gyro) {
 		addCommands(
-				new InstantCommand(() -> claw.toggleClaw(), claw),
-				new FunctionalCommand(() -> {
-				}, () -> arm.setPivotDegrees(100),
-						(end) -> {
-							arm.setPivotOutput(0);
-						},
-						() -> false, arm).withTimeout(1.1),
-				new FunctionalCommand(() -> {
-				}, () -> arm.setExtensionPosition(505),
-						(end) -> {
-							arm.stopExtensionMotor();
-						},
-						() -> false, arm).withTimeout(3),
-				new InstantCommand(() -> claw.toggleClaw(), claw),
-				new WaitCommand(0.5),
-				new FunctionalCommand(() -> {
-				}, () -> arm.setExtensionPosition(-455),
-						(end) -> {
-							arm.stopExtensionMotor();
-						},
-						() -> false, arm).withTimeout(3),
-				new FunctionalCommand(() -> {
-				}, () -> arm.setPivotDegrees(0),
-						(end) -> {
-							arm.setPivotOutput(0);
-						},
-						() -> false, arm).withTimeout(1.1),
+				new OneCone(arm, claw, swerve),
 				new DriveCommand(swerve, -0.5, 0, 0, false).withTimeout(2),
 				new ChargeStation(swerve, gyro, 1.0));
 	}
