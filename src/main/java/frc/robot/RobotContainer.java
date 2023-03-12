@@ -173,8 +173,7 @@ public class RobotContainer {
 	}
 
 	public Command getAutonomousCommand() {
-		// return chooser.getSelected();
-		return new ChargeStation(swerveSubsystem, pigeon2, -1.0);
+		return chooser.getSelected();
 	}
 
 	public void onTeleopInit() {
