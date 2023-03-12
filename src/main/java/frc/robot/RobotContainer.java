@@ -1,9 +1,10 @@
 package frc.robot;
 
-import frc.robot.autonomous.OneCone;
+import frc.robot.autonomous.OneConeAndTaxiStable;
+import frc.robot.autonomous.PickUpCubeFromGround;
 import frc.robot.autonomous.OneConeAndChargeStation;
+import frc.robot.autonomous.OneConeAndTaxiPP;
 import frc.robot.commands.ArmCommand;
-import frc.robot.commands.ChargeStation;
 import frc.robot.commands.ClawIntakeCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.Arm;
@@ -29,7 +30,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -116,7 +116,7 @@ public class RobotContainer {
 				swerveSubsystem,
 				() -> leftStick.getY(),
 				() -> leftStick.getX(),
-				() -> rightStick.getX(),
+				() -> -rightStick.getX(),
 				() -> leftStick.getRawButton(2)));
 
 		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
@@ -146,6 +146,8 @@ public class RobotContainer {
 		 * controller.isPressedBind(LogiButton.B, new InstantCommand(() ->
 		 * Led.set(PatternID.VIOLET)));
 		 */
+		// controller.isPressedBind(LogiButton.Start, new
+		// PickUpCubeFromGround(armSubsystem, clawSubsystem));
 		controller.isPressedBind(LogiButton.LBTrigger, new InstantCommand(() -> armSubsystem.setPivotDegrees(100)));
 		// controller.isPressedBind(LogiButton.RBTrigger, new InstantCommand(() ->
 		// armSubsystem.setPivotDegrees(0)));
@@ -153,8 +155,12 @@ public class RobotContainer {
 	}
 
 	private void addAutonomousRoutines() {
-		chooser.setDefaultOption("one cone", new OneCone(armSubsystem, clawSubsystem, swerveSubsystem));
-		chooser.setDefaultOption("one cone plus charge station",
+		chooser.setDefaultOption("One Cone and Taxi (Stable)",
+				new OneConeAndTaxiStable(armSubsystem, clawSubsystem, swerveSubsystem));
+		chooser.setDefaultOption("One Cone and Taxi (Experimental)",
+				new OneConeAndTaxiPP(armSubsystem, clawSubsystem, swerveSubsystem));
+
+		chooser.setDefaultOption("One Cone and Charge Station",
 				new OneConeAndChargeStation(armSubsystem, clawSubsystem, swerveSubsystem, pigeon2));
 
 		chooser.addOption("None", null);

@@ -36,7 +36,7 @@ public class ChargeStation extends CommandBase {
 
 		pid.setSetpoint(0);
 
-		Translation2d driveTranslation = new Translation2d(-0.4, 0).times(Constants.maxSpeed);
+		Translation2d driveTranslation = new Translation2d(invert * 0.4, 0).times(Constants.maxSpeed);
 		swerve.drive(driveTranslation, 0, false, true);
 		Timer.delay(2);
 		swerve.drive(new Translation2d(), 0, false, true);
@@ -46,7 +46,7 @@ public class ChargeStation extends CommandBase {
 	@Override
 	public void execute() {
 		// Get gyro pitch change from last frame
-		double increment = -MathUtil.clamp(pid.calculate(gyro.getPitch()), -0.4, 0.4);
+		double increment = invert * MathUtil.clamp(pid.calculate(gyro.getPitch()), -0.4, 0.4);
 		Translation2d driveTranslation = new Translation2d(increment, 0);
 		System.out.println("Driving at speed: " + increment);
 		swerve.drive(driveTranslation, 0, false, true);
@@ -55,13 +55,10 @@ public class ChargeStation extends CommandBase {
 	// Is Finished
 	@Override
 	public boolean isFinished() {
-		// return Math.abs(gyro.getPitch()) <= pitchBuffer;
 		return false;
 	}
 
 	@Override
 	public void end(boolean wasInterrupted) {
-		// Enter the drivetrain's X-Stance to lock our position on the station.
-		// swerve.enterXStance();
 	}
 }

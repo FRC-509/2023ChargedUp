@@ -17,7 +17,7 @@ import frc.robot.subsystems.Swerve;
 
 public class TrajectoryBuilderWrapper {
 	private static final PathConstraints pathConstraints = new PathConstraints(
-			Constants.maxSpeed, 3.0d);
+			Constants.maxSpeed / 4.0d, 1.5d);
 	private PathPlannerTrajectory trajectory;
 
 	public TrajectoryBuilderWrapper(String pathName) {
@@ -29,10 +29,10 @@ public class TrajectoryBuilderWrapper {
 				swerve::getPose, // Pose2d supplier
 				swerve::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
 				Constants.swerveKinematics, // SwerveDriveKinematics
-				new PIDConstants(0.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X
+				new PIDConstants(3.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X
 													// and Y
 													// PID controllers)
-				new PIDConstants(0.0, 0.0, 0.0), // PID constants to correct for rotation error (used to create the
+				new PIDConstants(1.1, 0.8, 0.05), // PID constants to correct for rotation error (used to create the
 													// rotation
 				// controller)
 				swerve::setModuleStates, // Module states consumer used to output to the drive subsystem
@@ -53,7 +53,7 @@ public class TrajectoryBuilderWrapper {
 	public Command getPathFollowingCommand(Swerve swerve) {
 		CommandBase pathFollowingCommand = getSwerveControllerCommand(swerve);
 		if (pathFollowingCommand == null) {
-			DriverStation.reportError("no autonomous trajectory path", true);
+			DriverStation.reportWarning("no autonomous trajectory path", true);
 		}
 		return pathFollowingCommand;
 	}

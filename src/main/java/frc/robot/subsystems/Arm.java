@@ -155,4 +155,8 @@ public class Arm extends SubsystemBase {
 		pivotMotor1.set(ControlMode.Position, targetPosition);
 		pivotMotor2.set(ControlMode.Position, targetPosition);
 	}
+
+	public double getExtensionPosition() {
+		return extensionMotor.getSensorPosition();
+	}
 }
