@@ -6,6 +6,7 @@ import frc.robot.autonomous.OneCone;
 import frc.robot.autonomous.OneConeAndChargeStation;
 import frc.robot.autonomous.OneConeAndTaxiPP;
 import frc.robot.commands.ArmCommand;
+import frc.robot.commands.ChargeStation;
 import frc.robot.commands.ClawIntakeCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.Arm;
@@ -156,16 +157,17 @@ public class RobotContainer {
 	}
 
 	private void addAutonomousRoutines() {
-		chooser.setDefaultOption("One Cone and Taxi (Stable)",
+		chooser.addOption("One Cone and Taxi (Stable)",
 				new OneConeAndTaxiStable(armSubsystem, clawSubsystem, swerveSubsystem));
-		chooser.setDefaultOption("One Cone and Taxi (Experimental)",
+		chooser.addOption("One Cone and Taxi (Experimental)",
 				new OneConeAndTaxiPP(armSubsystem, clawSubsystem, swerveSubsystem));
-
-		chooser.setDefaultOption("One Cone and Charge Station",
+		chooser.addOption("One Cone and Charge Station",
 				new OneConeAndChargeStation(armSubsystem, clawSubsystem, swerveSubsystem, pigeon2));
-
 		chooser.addOption("One Cone",
 				new OneCone(armSubsystem, clawSubsystem, swerveSubsystem));
+
+		chooser.setDefaultOption("Charge Station",
+				new ChargeStation(swerveSubsystem, pigeon2, -1));
 		chooser.addOption("None", null);
 
 		SmartDashboard.putData("Auto Chooser", chooser);
