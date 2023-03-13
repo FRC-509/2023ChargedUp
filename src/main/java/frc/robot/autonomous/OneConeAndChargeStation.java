@@ -30,7 +30,7 @@ public class OneConeAndChargeStation extends SequentialCommandGroup {
 				new InstantCommand(() -> claw.toggleClaw(), claw),
 				new WaitCommand(0.5),
 				new FunctionalCommand(() -> {
-				}, () -> arm.setExtensionPosition(-455),
+				}, () -> arm.setExtensionPosition(50),
 						(end) -> {
 							arm.stopExtensionMotor();
 						},
