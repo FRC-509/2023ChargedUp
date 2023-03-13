@@ -7,7 +7,7 @@ import frc.robot.autonomous.OneConeAndChargeStation;
 import frc.robot.autonomous.OneConeAndTaxiPP;
 import frc.robot.commands.ArmCommand;
 import frc.robot.commands.ChargeStation;
-import frc.robot.commands.ClawIntakeCommand;
+//import frc.robot.commands.ClawIntakeCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -59,7 +59,7 @@ public class RobotContainer {
 
 	public final Swerve swerveSubsystem;
 	public final Arm armSubsystem;
-	public final Claw clawSubsystem;
+	// public final Claw clawSubsystem;
 	public final UsbCamera usbCamera = new UsbCamera("509cam", 1);
 
 	// public final Spark led;
@@ -78,7 +78,7 @@ public class RobotContainer {
 		// Initialize subsystems.
 		this.swerveSubsystem = new Swerve(timeStamp, pigeon2, limelight);
 		this.armSubsystem = new Arm();
-		this.clawSubsystem = new Claw();
+		// this.clawSubsystem = new Claw();
 
 		// Configure button bindings
 		this.configureButtonBindings();
@@ -119,13 +119,16 @@ public class RobotContainer {
 				() -> leftStick.getY(),
 				() -> leftStick.getX(),
 				() -> -rightStick.getX(),
-				() -> leftStick.getRawButton(2)));
+				() -> leftStick.getRawButton(2),
+				() -> leftStick.isDown(StickButton.Trigger)));
 
-		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
-				clawSubsystem,
-				() -> controller.isPressed(LogiButton.A),
-				() -> controller.isDown(LogiButton.LTrigger),
-				() -> controller.isDown(LogiButton.RTrigger)));
+		/*
+		 * clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
+		 * clawSubsystem,
+		 * () -> controller.isPressed(LogiButton.A),
+		 * () -> controller.isDown(LogiButton.LTrigger),
+		 * () -> controller.isDown(LogiButton.RTrigger)));
+		 */
 
 		armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem,
 				() -> MathUtil.applyDeadband(controller.getLeftStickY(), Constants.stickDeadband)
@@ -157,14 +160,6 @@ public class RobotContainer {
 	}
 
 	private void addAutonomousRoutines() {
-		chooser.addOption("One Cone and Taxi (Stable)",
-				new OneConeAndTaxiStable(armSubsystem, clawSubsystem, swerveSubsystem));
-		chooser.addOption("One Cone and Taxi (Experimental)",
-				new OneConeAndTaxiPP(armSubsystem, clawSubsystem, swerveSubsystem));
-		chooser.addOption("One Cone and Charge Station",
-				new OneConeAndChargeStation(armSubsystem, clawSubsystem, swerveSubsystem, pigeon2));
-		chooser.addOption("One Cone",
-				new OneCone(armSubsystem, clawSubsystem, swerveSubsystem));
 
 		chooser.setDefaultOption("Charge Station",
 				new ChargeStation(swerveSubsystem, pigeon2, -1));

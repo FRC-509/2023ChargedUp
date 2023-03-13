@@ -142,11 +142,10 @@ public class Swerve extends SubsystemBase {
 	}
 
 	public void enterXStance() {
-		for (SwerveModule module : swerveModules) {
-			module.setDesiredState(new SwerveModuleState(
-					0.0d,
-					Rotation2d.fromDegrees(135.0d)));
-		}
+		swerveModules[0].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(45.0d)));
+		swerveModules[1].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(135.0d)));
+		swerveModules[2].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(45.0d)));
+		swerveModules[3].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(135.0d)));
 	}
 
 	/* Used by SwerveControllerCommand in Auto */
