@@ -26,6 +26,9 @@ public class ChargeStation extends CommandBase {
 	public ChargeStation(Swerve swerve, Pigeon2 gyro, double invert) {
 		this.swerve = swerve;
 		this.gyro = gyro;
+		// invert determines what direction the robot will face during the command.
+		// Pass -1.0 if the robot should approach the charge station while facing away from it,
+		// and 1.0 if the robot should approach the charge station while facing it.
 		this.invert = invert;
 		pitchBuffer = 4;
 		addRequirements(this.swerve);
@@ -33,28 +36,30 @@ public class ChargeStation extends CommandBase {
 
 	@Override
 	public void initialize() {
-
+		// Set the target setpoint to zero degrees.
 		pid.setSetpoint(0);
-
+		// Drive forward for two seconds at 40% of the maximum speed, then stop
+		// (gets us onto the edge of the charge station, starting from the edge of the community)
 		Translation2d driveTranslation = new Translation2d(invert * 0.4, 0).times(Constants.maxSpeed);
 		swerve.drive(driveTranslation, 0, false, true);
 		Timer.delay(2);
 		swerve.drive(new Translation2d(), 0, false, true);
 	}
-
-	// Execute
+	
 	@Override
 	public void execute() {
-		// Get gyro pitch change from last frame
+		// Get the gyro pitch, pass it to the PID controller and clamp it to 40% speed
+		// (prevents us from flying off the charge station at first)
 		double increment = invert * MathUtil.clamp(pid.calculate(gyro.getPitch()), -0.4, 0.4);
+		// Drive forward by the calculated increment
 		Translation2d driveTranslation = new Translation2d(increment, 0);
 		System.out.println("Driving at speed: " + increment);
 		swerve.drive(driveTranslation, 0, false, true);
 	}
-
-	// Is Finished
+	
 	@Override
 	public boolean isFinished() {
+		// Ensure that the command is always running
 		return false;
 	}
 
