@@ -19,7 +19,7 @@ public class PickUpCubeFromGround extends SequentialCommandGroup {
 						},
 						() -> false, arm).withTimeout(0.8),
 				new FunctionalCommand(() -> {
-				}, () -> arm.setExtensionPosition(190 - arm.getExtensionPosition()),
+				}, () -> arm.setExtensionPosition(190),
 						(end) -> {
 							arm.stopExtensionMotor();
 						},

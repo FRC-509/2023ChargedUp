@@ -3,27 +3,27 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Arm;
 
-public class RotateArm extends CommandBase {
+public class ExtendArm extends CommandBase {
 	private Arm arm;
-	private double targetAngleDegrees;
+	private double targetPosition;
 
-	public RotateArm(Arm arm, double target) {
+	public ExtendArm(Arm arm, double target) {
 		this.arm = arm;
-		this.targetAngleDegrees = target;
+		this.targetPosition = target;
 	}
 
 	@Override
 	public void initialize() {
-		arm.setPivotDegrees(targetAngleDegrees);
+		arm.setExtensionPosition(targetPosition);
 	}
 
 	@Override
 	public void end(boolean wasInterrupted) {
-		arm.setPivotOutput(0);
+		arm.stopExtensionMotor();
 	}
 
 	@Override
 	public boolean isFinished() {
-		return Math.abs(arm.getPivotDegrees() - targetAngleDegrees) <= 2.5;
+		return Math.abs(arm.getExtensionPosition() - targetPosition) <= 7.5;
 	}
 }
