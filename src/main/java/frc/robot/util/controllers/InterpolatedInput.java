@@ -2,7 +2,7 @@ package frc.robot.util.controllers;
 
 import java.util.function.DoubleSupplier;
 import frc.robot.subsystems.TimeStamp;
-import frc.robot.util.Interpolator;
+import frc.robot.util.math.Interpolator;
 
 public class InterpolatedInput {
 	DoubleSupplier input;

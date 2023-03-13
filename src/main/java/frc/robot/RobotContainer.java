@@ -1,21 +1,14 @@
 package frc.robot;
 
-import frc.robot.autonomous.OneConeAndTaxiStable;
-import frc.robot.autonomous.PickUpCubeFromGround;
-import frc.robot.autonomous.OneCone;
-import frc.robot.autonomous.OneConeAndChargeStation;
-import frc.robot.autonomous.OneConeAndTaxiPP;
 import frc.robot.commands.ArmCommand;
 import frc.robot.commands.ChargeStation;
-//import frc.robot.commands.ClawIntakeCommand;
+import frc.robot.commands.ClawIntakeCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
-//import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Swerve;
 import edu.wpi.first.cameraserver.*;
 import frc.robot.subsystems.TimeStamp;
-//import frc.robot.subsystems.Led.PatternID;
 import frc.robot.util.controllers.JoystickController;
 import frc.robot.util.controllers.LogitechController;
 import frc.robot.util.controllers.JoystickController.StickButton;
@@ -59,7 +52,7 @@ public class RobotContainer {
 
 	public final Swerve swerveSubsystem;
 	public final Arm armSubsystem;
-	// public final Claw clawSubsystem;
+	public final Claw clawSubsystem;
 	public final UsbCamera usbCamera = new UsbCamera("509cam", 1);
 
 	// public final Spark led;
@@ -71,14 +64,13 @@ public class RobotContainer {
 		cam.setFPS(15);
 		cam.setResolution(10, 10);
 
-		// SmartDashboard.putData(usbCamera.get);
 		// Initialize and configure the gyroscope.
 		this.pigeon2.configFactoryDefault();
 		this.pigeon2.configMountPoseYaw(180);
 		// Initialize subsystems.
 		this.swerveSubsystem = new Swerve(timeStamp, pigeon2, limelight);
 		this.armSubsystem = new Arm();
-		// this.clawSubsystem = new Claw();
+		this.clawSubsystem = new Claw();
 
 		// Configure button bindings
 		this.configureButtonBindings();
@@ -122,13 +114,11 @@ public class RobotContainer {
 				() -> leftStick.getRawButton(2),
 				() -> leftStick.isDown(StickButton.Trigger)));
 
-		/*
-		 * clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
-		 * clawSubsystem,
-		 * () -> controller.isPressed(LogiButton.A),
-		 * () -> controller.isDown(LogiButton.LTrigger),
-		 * () -> controller.isDown(LogiButton.RTrigger)));
-		 */
+		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
+				clawSubsystem,
+				() -> controller.isPressed(LogiButton.A),
+				() -> controller.isDown(LogiButton.LTrigger),
+				() -> controller.isDown(LogiButton.RTrigger)));
 
 		armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem,
 				() -> MathUtil.applyDeadband(controller.getLeftStickY(), Constants.stickDeadband)
@@ -142,7 +132,6 @@ public class RobotContainer {
 				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_VIOLET)));
 		controller.isPressedBind(LogiButton.Y,
 				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_ORANGE)));
-
 		/*
 		 * controller.isPressedBind(LogiButton.X, new InstantCommand(() ->
 		 * Led.set(PatternID.OFF)));
@@ -180,9 +169,5 @@ public class RobotContainer {
 
 	public Command getAutonomousCommand() {
 		return chooser.getSelected();
-	}
-
-	public void onTeleopInit() {
-		Constants.isExtensionClosedLoop = loopTypeForExtension.getSelected() == "CL";
 	}
 }

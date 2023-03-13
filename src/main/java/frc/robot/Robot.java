@@ -3,8 +3,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.Led;
-import frc.robot.subsystems.Led.BlinkinLedMode;
 import frc.robot.util.Utils;
 import frc.robot.util.telemetry.Thunderstorm;
 
@@ -64,20 +62,15 @@ public class Robot extends TimedRobot {
 	/** This function is called once each time the robot enters Disabled mode. */
 	@Override
 	public void disabledInit() {
-		// Led.setMode(BlinkinLedMode.FIXED_WAVES_RAINBOW);
 	}
 
 	@Override
 	public void disabledPeriodic() {
-
-		Led.setMode(BlinkinLedMode.SOLID_DARK_RED);
-
 	}
 
 	/** This function is called periodically during autonomous. */
 	@Override
 	public void autonomousInit() {
-		Led.setMode(BlinkinLedMode.SOLID_DARK_RED);
 		this.autonomousCommand = this.robotContainer.getAutonomousCommand();
 		if (autonomousCommand != null) {
 			this.autonomousCommand.schedule();
@@ -98,13 +91,11 @@ public class Robot extends TimedRobot {
 		if (this.autonomousCommand != null) {
 			this.autonomousCommand.cancel();
 		}
-		robotContainer.onTeleopInit();
 	}
 
 	/** This function is called periodically during operator control. */
 	@Override
 	public void teleopPeriodic() {
-		// this.robotContainer.led.set(.91);
 	}
 
 	@Override

@@ -98,7 +98,7 @@ public final class Utils {
 		return meters / (circumference / (gearRatio * 2048.0));
 	}
 
-	private static ArrayList<String> shuffleboardIds = new ArrayList<String>();
+	private static ArrayList<String> serializedIds = new ArrayList<String>();
 
 	/**
 	 * @param key Label on SmartDashboard
@@ -106,7 +106,7 @@ public final class Utils {
 	 * @return Value on SmartDashboard
 	 */
 	public static double serializeNumber(String key, double val) {
-		shuffleboardIds.add(key);
+		serializedIds.add(key);
 		SmartDashboard.setDefaultNumber(key, val);
 		return SmartDashboard.getNumber(key, 0.0);
 	}
@@ -117,13 +117,13 @@ public final class Utils {
 	 * @return Value on SmartDashboard
 	 */
 	public static boolean serializeBoolean(String key, boolean val) {
-		shuffleboardIds.add(key);
+		serializedIds.add(key);
 		SmartDashboard.setDefaultBoolean(key, val);
 		return SmartDashboard.getBoolean(key, false);
 	}
 
 	public static void flushShuffleboard() {
-		for (String key : shuffleboardIds) {
+		for (String key : serializedIds) {
 			SmartDashboard.clearPersistent(key);
 		}
 	}
@@ -140,25 +140,5 @@ public final class Utils {
 		short[] xyz = new short[3];
 		gyro.getBiasedAccelerometer(xyz);
 		return new Translation3d(xyz[0] / 16384d * 9.81d, xyz[1] / 16384d * 9.81d, xyz[2] / 16384d * 9.81d);
-	}
-
-	/**
-	 * @param input      Velocity or voltage input
-	 * @param encoderPos Current sensor position reading
-	 * @param low        Lower bound
-	 * @param high       Higher bound
-	 * @return Velocity or voltage input
-	 */
-	public double softStop(double input, double encoderPos, double low, double high) {
-		if (encoderPos < low) {
-			if (input < 0) {
-				input = 0;
-			}
-		} else if (encoderPos > high) {
-			if (input > 0) {
-				input = 0;
-			}
-		}
-		return input;
 	}
 }

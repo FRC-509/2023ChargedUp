@@ -22,8 +22,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
-import frc.robot.util.Interpolator;
 import frc.robot.util.Utils;
+import frc.robot.util.math.Interpolator;
 import frc.robot.vision.LimelightWrapper;
 
 public class Swerve extends SubsystemBase {
