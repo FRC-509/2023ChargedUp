@@ -1,7 +1,5 @@
 package frc.robot.autonomous;
 
-import com.ctre.phoenix.sensors.Pigeon2;
-
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -10,9 +8,10 @@ import frc.robot.commands.ChargeStation;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Swerve;
+import frc.robot.util.drivers.PigeonWrapper;
 
 public class OneConeAndChargeStation extends SequentialCommandGroup {
-	public OneConeAndChargeStation(Arm arm, Claw claw, Swerve swerve, Pigeon2 gyro) {
+	public OneConeAndChargeStation(Arm arm, Claw claw, Swerve swerve, PigeonWrapper gyro) {
 		addCommands(
 				new InstantCommand(() -> claw.toggleClaw(), claw),
 				new FunctionalCommand(() -> {

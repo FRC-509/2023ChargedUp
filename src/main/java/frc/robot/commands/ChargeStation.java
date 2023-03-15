@@ -3,8 +3,7 @@ package frc.robot.commands;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
-
-import com.ctre.phoenix.sensors.Pigeon2;
+import frc.robot.util.drivers.PigeonWrapper;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -19,11 +18,11 @@ public class ChargeStation extends CommandBase {
 	// Pitch buffer
 	private double pitchBuffer;
 	private Swerve swerve;
-	private Pigeon2 gyro;
+	private PigeonWrapper gyro;
 	private double invert;
 
 	// Constructor
-	public ChargeStation(Swerve swerve, Pigeon2 gyro, double invert) {
+	public ChargeStation(Swerve swerve, PigeonWrapper gyro, double invert) {
 		this.swerve = swerve;
 		this.gyro = gyro;
 		// invert determines what direction the robot will face during the command.

@@ -3,6 +3,7 @@ package frc.robot.util.telemetry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.RobotContainer;
 
 public class Thunderstorm {
@@ -13,11 +14,14 @@ public class Thunderstorm {
 	}
 
 	public void update(RobotContainer container) {
+		double timeStamp = Timer.getFPGATimestamp();
 		SwerveModuleState[] states = container.swerveSubsystem.getModuleStates();
 		for (int number = 0; number < states.length; number++) {
 			table.getEntry("Module" + number + "Velocity").setDouble(states[number].speedMetersPerSecond);
+			table.getEntry("Module" + number + "VelocityTimestamp").setDouble(timeStamp);
 			table.getEntry("Module" + number + "Angle").setDouble(states[number].angle.getDegrees());
 		}
+
 		table.getEntry("ArmPivot").setDouble(container.armSubsystem.getPivotDegrees());
 		table.getEntry("ArmExtension").setDouble(container.armSubsystem.getExtensionPosition());
 	}

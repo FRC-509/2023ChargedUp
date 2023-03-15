@@ -2,8 +2,6 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
-import com.ctre.phoenix.sensors.Pigeon2;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -23,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
 import frc.robot.util.Utils;
+import frc.robot.util.drivers.PigeonWrapper;
 import frc.robot.util.math.Interpolator;
 import frc.robot.vision.LimelightWrapper;
 
@@ -32,7 +31,7 @@ public class Swerve extends SubsystemBase {
 	public SwerveDrivePoseEstimator swerveDrivePoseEstimator;
 	private Field2d field2d;
 	private LimelightWrapper limelight;
-	private Pigeon2 pigeon;
+	private PigeonWrapper pigeon;
 
 	private TimeStamp timeStamp;
 	private Interpolator rotationInterplator;
@@ -43,7 +42,7 @@ public class Swerve extends SubsystemBase {
 	private double rotationTimeout = 0.5;
 	private Timer timer;
 
-	public Swerve(TimeStamp stamp, Pigeon2 pigeon, LimelightWrapper limelight) {
+	public Swerve(TimeStamp stamp, PigeonWrapper pigeon, LimelightWrapper limelight) {
 		this.timer = new Timer();
 		timer.reset();
 		timer.start();
@@ -193,6 +192,12 @@ public class Swerve extends SubsystemBase {
 	public void resetIntegratedToAbsolute() {
 		for (SwerveModule mod : this.swerveModules) {
 			mod.resetAngleToAbsolute();
+		}
+	}
+
+	public void supplyVelocity(double velocityMps) {
+		for (SwerveModule mod : this.swerveModules) {
+			mod.supplyVelocity(velocityMps);
 		}
 	}
 
