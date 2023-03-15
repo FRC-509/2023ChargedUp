@@ -42,8 +42,8 @@ public class Arm extends SubsystemBase {
 		extensionMotor.setIdleMode(IdleMode.kBrake);
 		extensionMotor.setSensorPosition(0);
 		// Zero pivot encoders
-		pivotMotor1.setSelectedSensorPosition(0);
-		pivotMotor2.setSelectedSensorPosition(0);
+		// pivotMotor1.setSelectedSensorPosition(0);
+		// pivotMotor2.setSelectedSensorPosition(0);
 		pivotMotor1.setInverted(false);
 		pivotMotor2.setInverted(true);
 		pivotMotor1.setNeutralMode(NeutralMode.Brake);

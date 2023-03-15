@@ -1,8 +1,6 @@
 package frc.robot.util;
 
 import java.util.ArrayList;
-
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Utils {

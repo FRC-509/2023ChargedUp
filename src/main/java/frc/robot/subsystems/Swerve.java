@@ -78,7 +78,8 @@ public class Swerve extends SubsystemBase {
 	}
 
 	private void serializeRotationPID() {
-		SmartDashboard.putNumber("Yaw: ", pigeon.getYaw());
+		SmartDashboard.putNumber("Relative Yaw: ", pigeon.getRelativeYaw());
+		SmartDashboard.putNumber("Absolute Yaw: ", pigeon.getAbsoluteYaw());
 		SmartDashboard.putNumber("Target Yaw: ", targetHeading);
 		SmartDashboard.putNumber("interpolation: ", rotationInterplator.getPosition());
 		SmartDashboard.putNumber("timer: ", timer.get());
@@ -110,9 +111,9 @@ public class Swerve extends SubsystemBase {
 
 		if (hasRotationInput || timer.get() < rotationTimeout) {
 			rotationOutput = interpolatedRotation;
-			targetHeading = pigeon.getYaw();
+			targetHeading = pigeon.getRelativeYaw();
 		} else {
-			double outputDegrees = Constants.Voltage * rotationPID.calculate(pigeon.getYaw(), targetHeading);
+			double outputDegrees = Constants.Voltage * rotationPID.calculate(pigeon.getRelativeYaw(), targetHeading);
 			rotationOutput = Units.degreesToRadians(outputDegrees);
 		}
 
@@ -186,7 +187,7 @@ public class Swerve extends SubsystemBase {
 	}
 
 	public Rotation2d getYaw() {
-		return Rotation2d.fromDegrees(this.pigeon.getYaw());
+		return Rotation2d.fromDegrees(pigeon.getRelativeYaw());
 	}
 
 	public void resetIntegratedToAbsolute() {
