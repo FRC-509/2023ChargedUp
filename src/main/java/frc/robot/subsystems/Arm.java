@@ -36,7 +36,7 @@ public class Arm extends SubsystemBase {
 		extensionMotor = Device.Motor.extension.build();
 
 		targetExtension = 0;
-		extensionLoopDisabled = false;
+		extensionLoopDisabled = true;
 		extensionPID = new PIDController(0.1, 0.0, 0.0);
 		extensionPID.setTolerance(7.5);
 
@@ -113,7 +113,7 @@ public class Arm extends SubsystemBase {
 
 	public void setExtensionOutput(double percentOutput, boolean disableSoftStop) {
 		extensionLoopDisabled = true;
-		if (extensionMotor.getSensorPosition() >= 0 && extensionMotor.getSensorPosition() <= Constants.maxExtension
+		if (extensionMotor.getSensorPosition() <= Constants.maxExtension
 				|| disableSoftStop) {
 			extensionMotor.set(percentOutput);
 		} else {

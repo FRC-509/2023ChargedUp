@@ -112,9 +112,15 @@ public class Swerve extends SubsystemBase {
 
 		if (hasRotationInput || timer.get() < rotationTimeout) {
 			rotationOutput = interpolatedRotation;
-			targetHeading = pigeon.getRelativeYaw();
+			setTargetHeading(pigeon.getRelativeYaw());
 		} else {
-			double outputDegrees = Constants.Voltage * rotationPID.calculate(pigeon.getRelativeYaw(), targetHeading);
+			double delta = pigeon.getRelativeYaw() - targetHeading;
+
+			if (delta > 180.0d) {
+				delta -= 360;
+			}
+
+			double outputDegrees = Constants.Voltage * rotationPID.calculate(delta);
 			rotationOutput = Units.degreesToRadians(outputDegrees);
 		}
 
@@ -147,6 +153,14 @@ public class Swerve extends SubsystemBase {
 		swerveModules[1].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(135.0d)));
 		swerveModules[2].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(45.0d)));
 		swerveModules[3].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(135.0d)));
+	}
+
+	public void setTargetHeading(double heading) {
+		targetHeading = heading % 360.0d;
+	}
+
+	public void setGyroHeading(double heading) {
+		pigeon.setRelativeYaw(heading);
 	}
 
 	/* Used by SwerveControllerCommand in Auto */
