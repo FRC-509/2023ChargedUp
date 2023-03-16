@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
-import frc.robot.util.Utils;
+import frc.robot.util.Conversions;
 import frc.robot.util.drivers.PigeonWrapper;
 import frc.robot.util.math.Interpolator;
 import frc.robot.vision.LimelightWrapper;
@@ -84,9 +84,9 @@ public class Swerve extends SubsystemBase {
 		SmartDashboard.putNumber("interpolation: ", rotationInterplator.getPosition());
 		SmartDashboard.putNumber("timer: ", timer.get());
 
-		double kP = Utils.serializeNumber("rot P", 0.0);
-		double kI = Utils.serializeNumber("rot I", 0.0);
-		double kD = Utils.serializeNumber("rot D", 0.0);
+		double kP = Conversions.serializeNumber("rot P", 0.0);
+		double kI = Conversions.serializeNumber("rot I", 0.0);
+		double kD = Conversions.serializeNumber("rot D", 0.0);
 
 		rotationPID.setP(kP);
 		rotationPID.setI(kI);
@@ -103,7 +103,7 @@ public class Swerve extends SubsystemBase {
 
 		// if this can be switched to checking the interpolated value, move the
 		// interpolator to the tick input rather than doing it over the fed velocity
-		boolean hasRotationInput = !Utils.withinDeadband(rotationRadiansPerSecond, 0, 0.01);
+		boolean hasRotationInput = !Conversions.withinDeadband(rotationRadiansPerSecond, 0, 0.01);
 
 		if (hasRotationInput) {
 			timer.reset();

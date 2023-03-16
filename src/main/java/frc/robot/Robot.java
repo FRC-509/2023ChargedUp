@@ -3,7 +3,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.util.Utils;
+import frc.robot.util.Conversions;
 import frc.robot.util.telemetry.Thunderstorm;
 
 /**
@@ -27,7 +27,7 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void robotInit() {
-		Utils.flushShuffleboard();
+		Conversions.flushShuffleboard();
 		// /Led.setMode(BlinkinLedMode.SOLID_DARK_RED);
 		// Instantiate our RobotContainer. This will perform all our button bindings,
 		// and put our

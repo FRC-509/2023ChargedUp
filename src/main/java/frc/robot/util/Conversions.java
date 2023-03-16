@@ -3,7 +3,7 @@ package frc.robot.util;
 import java.util.ArrayList;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public final class Utils {
+public final class Conversions {
 	// The following conversion utilites were written by team 364:
 	// https://github.com/Team364/BaseFalconSwerve/blob/main/src/main/java/frc/lib/math/Conversions.java
 	/**

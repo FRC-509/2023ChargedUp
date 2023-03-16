@@ -29,9 +29,9 @@ public class PigeonWrapper extends Pigeon2 {
 	/**
 	 * @return Acceleration vector in m/s^2
 	 */
-	public static Translation3d getAccelerometerData(Pigeon2 gyro) {
+	public Translation3d getAccelerometerData() {
 		short[] xyz = new short[3];
-		gyro.getBiasedAccelerometer(xyz);
+		getBiasedAccelerometer(xyz);
 		return new Translation3d(xyz[0] / 16384d * 9.81d, xyz[1] / 16384d * 9.81d, xyz[2] / 16384d * 9.81d);
 	}
 }

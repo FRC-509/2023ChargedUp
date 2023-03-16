@@ -12,19 +12,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.PIDConstants;
-import frc.robot.util.Utils;
+import frc.robot.util.Conversions;
+import frc.robot.util.Device;
 import frc.robot.util.drivers.LazyTalonFX;
 import frc.robot.util.drivers.NEOSparkMax;
 
 public class Arm extends SubsystemBase {
-	private final LazyTalonFX pivotMotor1 = new LazyTalonFX(20);
-	private final LazyTalonFX pivotMotor2 = new LazyTalonFX(13);
+	private final LazyTalonFX leftPivotMotor;
+	private final LazyTalonFX rightPivotMotor;
 	private PIDController extensionPID;
-	private static final PIDConstants pivotConstants = new PIDConstants(0.03, 0, 0, 0);
 
 	// the percent output needed to maintain a completely horizontal position.
 	private static final double maximumFF = 0;
-	private final NEOSparkMax extensionMotor = new NEOSparkMax(12);
+	private final NEOSparkMax extensionMotor;
 	private double targetExtension;
 	private boolean extensionLoopDisabled;
 
@@ -33,49 +33,42 @@ public class Arm extends SubsystemBase {
 	 * extension of 0.
 	 */
 	public Arm() {
+		leftPivotMotor = Device.Motor.leftPivot.build();
+		rightPivotMotor = Device.Motor.rightPivot.build();
+		extensionMotor = Device.Motor.extension.build();
+
 		targetExtension = 0;
 		extensionLoopDisabled = false;
 		extensionPID = new PIDController(0.1, 0.0, 0.0);
 		extensionPID.setTolerance(7.5);
 
 		extensionMotor.setSmartCurrentLimit(20);
-		extensionMotor.setIdleMode(IdleMode.kBrake);
 		extensionMotor.setSensorPosition(0);
-		// Zero pivot encoders
-		// pivotMotor1.setSelectedSensorPosition(0);
-		// pivotMotor2.setSelectedSensorPosition(0);
-		pivotMotor1.setInverted(false);
-		pivotMotor2.setInverted(true);
-		pivotMotor1.setNeutralMode(NeutralMode.Brake);
-		pivotMotor2.setNeutralMode(NeutralMode.Brake);
-		// Configure PID constants
-		pivotConstants.configureTalonFX(pivotMotor1);
-		pivotConstants.configureTalonFX(pivotMotor2);
 	}
 
 	public void tunePID() {
-		double kP = Utils.serializeNumber("ExkP", 1.0);
-		double kI = Utils.serializeNumber("ExkI", 0.0);
-		double kD = Utils.serializeNumber("ExkD", 0.0);
+		double kP = Conversions.serializeNumber("ExkP", 1.0);
+		double kI = Conversions.serializeNumber("ExkI", 0.0);
+		double kD = Conversions.serializeNumber("ExkD", 0.0);
 
 		SmartDashboard.putNumber("current rotation: ", getPivotDegrees());
 
-		pivotMotor1.config_kP(0, kP);
-		pivotMotor1.config_kI(0, kI);
-		pivotMotor1.config_kD(0, kD);
+		leftPivotMotor.config_kP(0, kP);
+		leftPivotMotor.config_kI(0, kI);
+		leftPivotMotor.config_kD(0, kD);
 
-		pivotMotor2.config_kP(0, kP);
-		pivotMotor2.config_kI(0, kI);
-		pivotMotor2.config_kD(0, kD);
+		rightPivotMotor.config_kP(0, kP);
+		rightPivotMotor.config_kI(0, kI);
+		rightPivotMotor.config_kD(0, kD);
 
-		double target = Utils.serializeNumber("arm rotation: ", 0.0);
+		double target = Conversions.serializeNumber("arm rotation: ", 0.0);
 
-		pivotMotor1.set(ControlMode.Position, Utils.degreesToFalcon(target, Constants.pivotGearRatio));
-		pivotMotor2.set(ControlMode.Position, Utils.degreesToFalcon(target, Constants.pivotGearRatio));
+		leftPivotMotor.set(ControlMode.Position, Conversions.degreesToFalcon(target, Constants.pivotGearRatio));
+		rightPivotMotor.set(ControlMode.Position, Conversions.degreesToFalcon(target, Constants.pivotGearRatio));
 	}
 
 	public double getPivotDegrees() {
-		return Utils.falconToDegrees(pivotMotor1.getSelectedSensorPosition(), Constants.pivotGearRatio);
+		return Conversions.falconToDegrees(leftPivotMotor.getSelectedSensorPosition(), Constants.pivotGearRatio);
 	}
 
 	public double getExtensionPosition() {
@@ -86,26 +79,27 @@ public class Arm extends SubsystemBase {
 		SmartDashboard.putNumber("pivot percent ou", percentOutput);
 		percentOutput = MathUtil.clamp(percentOutput, -1.0d, 1.0d);
 
-		pivotMotor1.set(ControlMode.PercentOutput, percentOutput);
-		pivotMotor2.set(ControlMode.PercentOutput, percentOutput);
+		leftPivotMotor.set(ControlMode.PercentOutput, percentOutput);
+		rightPivotMotor.set(ControlMode.PercentOutput, percentOutput);
 	}
 
 	public void setPivotDegrees(double angle) {
 		// calculate "effective" delta angle and add back to raw encoder value to allow
 		// for continuous control
 		double bounded = getPivotDegrees() % 360.0d;
-		double targetPosition = Utils.degreesToFalcon(getPivotDegrees() + (angle - bounded), Constants.pivotGearRatio);
+		double targetPosition = Conversions.degreesToFalcon(getPivotDegrees() + (angle - bounded),
+				Constants.pivotGearRatio);
 		double feedforward = Math.cos(Math.toRadians(getPivotDegrees())) * maximumFF;
-		pivotMotor1.set(ControlMode.Position, targetPosition, DemandType.ArbitraryFeedForward, feedforward);
-		pivotMotor2.set(ControlMode.Position, targetPosition, DemandType.ArbitraryFeedForward, feedforward);
+		leftPivotMotor.set(ControlMode.Position, targetPosition, DemandType.ArbitraryFeedForward, feedforward);
+		rightPivotMotor.set(ControlMode.Position, targetPosition, DemandType.ArbitraryFeedForward, feedforward);
 	}
 
 	public void moveArmBy(double deltaDegrees) {
 		// calculate "effective" delta angle and add back to raw encoder value to allow
 		// for continuous control
-		double targetPosition = Utils.degreesToFalcon(getPivotDegrees() + deltaDegrees, Constants.pivotGearRatio);
-		pivotMotor1.set(ControlMode.Position, targetPosition);
-		pivotMotor2.set(ControlMode.Position, targetPosition);
+		double targetPosition = Conversions.degreesToFalcon(getPivotDegrees() + deltaDegrees, Constants.pivotGearRatio);
+		leftPivotMotor.set(ControlMode.Position, targetPosition);
+		rightPivotMotor.set(ControlMode.Position, targetPosition);
 	}
 
 	/*

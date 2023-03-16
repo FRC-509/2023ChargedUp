@@ -2,7 +2,7 @@ package frc.robot.util.math;
 
 import frc.robot.subsystems.TimeStamp;
 // import edu.wpi.first.math.interpolation.Interpolatable;
-import frc.robot.util.Utils;
+import frc.robot.util.Conversions;
 
 public class Interpolator {
 	double scale;
@@ -31,7 +31,7 @@ public class Interpolator {
 	public double update() {
 		position += scale * (trailingPoint - position) * timeStamp.deltaTime();
 
-		if (Utils.withinDeadband(position, trailingPoint, 0.1 * scale)) {
+		if (Conversions.withinDeadband(position, trailingPoint, 0.1 * scale)) {
 			trailingPoint = setPoint;
 		}
 

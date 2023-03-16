@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.util.Utils;
+import frc.robot.util.Conversions;
 import frc.robot.util.drivers.LazyTalonFX;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -65,7 +65,8 @@ public class SwerveModule {
 	}
 
 	public void resetAngleToAbsolute() {
-		double falconAngle = Utils.degreesToFalcon(this.angleEncoder.getAbsolutePosition(), Constants.angleGearRatio);
+		double falconAngle = Conversions.degreesToFalcon(this.angleEncoder.getAbsolutePosition(),
+				Constants.angleGearRatio);
 		this.angleMotor.setSelectedSensorPosition(falconAngle);
 	}
 
@@ -83,7 +84,7 @@ public class SwerveModule {
 
 	public SwerveModulePosition getPosition() {
 		return new SwerveModulePosition(
-				Utils.falconToMeters(
+				Conversions.falconToMeters(
 						this.driveMotor.getSelectedSensorPosition(),
 						Constants.wheelCircumference,
 						Constants.driveGearRatio),
@@ -92,7 +93,7 @@ public class SwerveModule {
 
 	public SwerveModuleState getState() {
 		return new SwerveModuleState(
-				Utils.falconToMPS(
+				Conversions.falconToMPS(
 						this.driveMotor.getSelectedSensorVelocity(),
 						Constants.wheelCircumference,
 						Constants.driveGearRatio),
@@ -104,14 +105,14 @@ public class SwerveModule {
 	}
 
 	public void supplyVelocity(double velocity) {
-		double velocityFalcon = Utils.MPSToFalcon(velocity, Constants.wheelCircumference,
+		double velocityFalcon = Conversions.MPSToFalcon(velocity, Constants.wheelCircumference,
 				Constants.driveGearRatio);
 		this.driveMotor.set(ControlMode.Velocity, velocityFalcon);
 	}
 
 	public double getDegrees() {
 		double ticks = this.angleMotor.getSelectedSensorPosition();
-		return Utils.falconToDegrees(ticks, Constants.angleGearRatio);
+		return Conversions.falconToDegrees(ticks, Constants.angleGearRatio);
 	}
 
 	public void setDesiredState(SwerveModuleState desiredState) {
@@ -144,17 +145,17 @@ public class SwerveModule {
 
 		this.lastSteerAngle = optimalTargetAngle;
 
-		double falconTarget = Utils.degreesToFalcon(optimalTargetAngle, Constants.angleGearRatio);
+		double falconTarget = Conversions.degreesToFalcon(optimalTargetAngle, Constants.angleGearRatio);
 		this.angleMotor.set(ControlMode.Position, falconTarget);
 
 		if (Constants.closedLoopDriveVelocity) {
-			double velocity = Utils.MPSToFalcon(
+			double velocity = Conversions.MPSToFalcon(
 					Math.abs(desiredState.speedMetersPerSecond),
 					Constants.wheelCircumference,
 					Constants.driveGearRatio);
 
 			double velocityMps = Math.abs(desiredState.speedMetersPerSecond) * invertSpeed;
-			Utils.MPSToFalcon(velocityMps, Constants.wheelCircumference, Constants.driveGearRatio);
+			Conversions.MPSToFalcon(velocityMps, Constants.wheelCircumference, Constants.driveGearRatio);
 			this.driveMotor.set(ControlMode.Velocity, velocity * invertSpeed, DemandType.ArbitraryFeedForward,
 					feedforward.calculate(velocityMps));
 		} else {

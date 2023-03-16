@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
 import frc.robot.subsystems.Swerve;
-import frc.robot.util.Utils;
+import frc.robot.util.Conversions;
 
 public final class TuningCommandV {
 	static final double step = 0.2;
@@ -108,7 +108,7 @@ public final class TuningCommandV {
 	}
 
 	public void execute() {
-		double suppliedVel = Utils.MPSToFalcon(curSuppliedPercentVelocity * Constants.maxSpeed,
+		double suppliedVel = Conversions.MPSToFalcon(curSuppliedPercentVelocity * Constants.maxSpeed,
 				Constants.wheelCircumference, Constants.driveGearRatio);
 		SmartDashboard.putNumber(module.moduleNumber + " supvel", suppliedVel);
 		for (int i = 0; i < encoderVelPoints.size(); i++) {

@@ -102,9 +102,4 @@ public class LogitechController extends GenericHID {
 	public double getRightStickY() {
 		return super.getRawAxis(LogiAxis.RightStickY.id());
 	}
-	/*
-	 * public double getTriggers() {
-	 * return super.getRawAxis(LogiAxis.Triggers.id());
-	 * }
-	 */
 }
