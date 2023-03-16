@@ -10,6 +10,10 @@ import frc.robot.util.drivers.LazyTalonFX;
 import frc.robot.util.drivers.NEOSparkMax;
 
 public class DeviceBuilder {
+	private interface IDeviceBuilder<T> {
+		public T build();
+	}
+
 	public static class NeoBuilder implements IDeviceBuilder<NEOSparkMax> {
 		final int id;
 		final IdleMode neutralMode;
@@ -30,13 +34,13 @@ public class DeviceBuilder {
 		}
 	}
 
-	public static class SolenoidBuilder implements IDeviceBuilder<DoubleSolenoid> {
+	public static class DoubleSolenoidBuilder implements IDeviceBuilder<DoubleSolenoid> {
 		final int id;
 		final int forwardChannel;
 		final int reverseChannel;
 		final PneumaticsModuleType type;
 
-		public SolenoidBuilder(int id, int forwardChannel, int reverseChannel, PneumaticsModuleType type) {
+		public DoubleSolenoidBuilder(int id, int forwardChannel, int reverseChannel, PneumaticsModuleType type) {
 			this.id = id;
 			this.forwardChannel = forwardChannel;
 			this.reverseChannel = reverseChannel;

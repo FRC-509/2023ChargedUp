@@ -3,19 +3,17 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.util.PIDConstants;
-import frc.robot.util.Conversions;
+import frc.robot.util.Debug;
 import frc.robot.util.Device;
 import frc.robot.util.drivers.LazyTalonFX;
 import frc.robot.util.drivers.NEOSparkMax;
+import frc.robot.util.math.Conversions;
 
 public class Arm extends SubsystemBase {
 	private final LazyTalonFX leftPivotMotor;
@@ -47,9 +45,9 @@ public class Arm extends SubsystemBase {
 	}
 
 	public void tunePID() {
-		double kP = Conversions.serializeNumber("ExkP", 1.0);
-		double kI = Conversions.serializeNumber("ExkI", 0.0);
-		double kD = Conversions.serializeNumber("ExkD", 0.0);
+		double kP = Debug.serializeNumber("ExkP", 1.0);
+		double kI = Debug.serializeNumber("ExkI", 0.0);
+		double kD = Debug.serializeNumber("ExkD", 0.0);
 
 		SmartDashboard.putNumber("current rotation: ", getPivotDegrees());
 
@@ -61,7 +59,7 @@ public class Arm extends SubsystemBase {
 		rightPivotMotor.config_kI(0, kI);
 		rightPivotMotor.config_kD(0, kD);
 
-		double target = Conversions.serializeNumber("arm rotation: ", 0.0);
+		double target = Debug.serializeNumber("arm rotation: ", 0.0);
 
 		leftPivotMotor.set(ControlMode.Position, Conversions.degreesToFalcon(target, Constants.pivotGearRatio));
 		rightPivotMotor.set(ControlMode.Position, Conversions.degreesToFalcon(target, Constants.pivotGearRatio));

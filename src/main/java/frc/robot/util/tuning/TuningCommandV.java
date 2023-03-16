@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
 import frc.robot.subsystems.Swerve;
-import frc.robot.util.Conversions;
+import frc.robot.util.math.Conversions;
 
 public final class TuningCommandV {
 	static final double step = 0.2;

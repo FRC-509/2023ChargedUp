@@ -20,8 +20,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
-import frc.robot.util.Conversions;
+import frc.robot.util.Debug;
 import frc.robot.util.drivers.PigeonWrapper;
+import frc.robot.util.math.Conversions;
 import frc.robot.util.math.Interpolator;
 import frc.robot.vision.LimelightWrapper;
 
@@ -84,9 +85,9 @@ public class Swerve extends SubsystemBase {
 		SmartDashboard.putNumber("interpolation: ", rotationInterplator.getPosition());
 		SmartDashboard.putNumber("timer: ", timer.get());
 
-		double kP = Conversions.serializeNumber("rot P", 0.0);
-		double kI = Conversions.serializeNumber("rot I", 0.0);
-		double kD = Conversions.serializeNumber("rot D", 0.0);
+		double kP = Debug.serializeNumber("rot P", 0.0);
+		double kI = Debug.serializeNumber("rot I", 0.0);
+		double kD = Debug.serializeNumber("rot D", 0.0);
 
 		rotationPID.setP(kP);
 		rotationPID.setI(kI);

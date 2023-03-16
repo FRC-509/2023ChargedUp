@@ -1,8 +1,6 @@
 package frc.robot.util.math;
 
 import frc.robot.subsystems.TimeStamp;
-// import edu.wpi.first.math.interpolation.Interpolatable;
-import frc.robot.util.Conversions;
 
 public class Interpolator {
 	double scale;
