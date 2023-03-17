@@ -2,8 +2,6 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
-import com.ctre.phoenix.sensors.Pigeon2;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -22,7 +20,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
-import frc.robot.util.Utils;
+import frc.robot.util.Debug;
+import frc.robot.util.drivers.PigeonWrapper;
+import frc.robot.util.math.Conversions;
+import frc.robot.util.math.Interpolator;
 import frc.robot.vision.LimelightWrapper;
 
 public class Swerve extends SubsystemBase {
@@ -31,26 +32,26 @@ public class Swerve extends SubsystemBase {
 	public SwerveDrivePoseEstimator swerveDrivePoseEstimator;
 	private Field2d field2d;
 	private LimelightWrapper limelight;
-	private Pigeon2 pigeon;
+	private PigeonWrapper pigeon;
+
+	private TimeStamp timeStamp;
+	private Interpolator rotationInterplator;
 
 	// the angle the robot SHOULD face
 	private double targetHeading;
-	private double timeStamp;
-	private PIDController rotationPID = new PIDController(0.2, 0.0, 0.0);
+	private PIDController rotationPID = new PIDController(1.1, 0.8, 0.05);
+	private double rotationTimeout = 0.5;
+	private Timer timer;
 
-	private void serializeRotationPID() {
-		double kP = Utils.serializeNumber("rot P", 0.0);
-		double kI = Utils.serializeNumber("rot I", 0.0);
-		double kD = Utils.serializeNumber("rot D", 0.0);
+	public Swerve(TimeStamp stamp, PigeonWrapper pigeon, LimelightWrapper limelight) {
+		this.timer = new Timer();
+		timer.reset();
+		timer.start();
 
-		rotationPID.setP(kP);
-		rotationPID.setI(kI);
-		rotationPID.setD(kD);
-	}
-
-	public Swerve(Pigeon2 pigeon, LimelightWrapper limelight) {
 		this.pigeon = pigeon;
 		this.limelight = limelight;
+		this.timeStamp = stamp;
+		this.rotationInterplator = new Interpolator(timeStamp, Constants.maxAngularVelocity);
 
 		swerveModules = new SwerveModule[] {
 				new SwerveModule(Constants.s_frontLeft),
@@ -60,7 +61,6 @@ public class Swerve extends SubsystemBase {
 		};
 
 		targetHeading = 0.0;
-		timeStamp = Timer.getFPGATimestamp();
 
 		// Pause initialization for the pheonix server to start to prevent dropping CAN
 		// frames on init
@@ -78,21 +78,45 @@ public class Swerve extends SubsystemBase {
 		Shuffleboard.getTab("Robot Field Position").add(field2d);
 	}
 
+	private void serializeRotationPID() {
+		SmartDashboard.putNumber("Relative Yaw: ", pigeon.getRelativeYaw());
+		SmartDashboard.putNumber("Absolute Yaw: ", pigeon.getAbsoluteYaw());
+		SmartDashboard.putNumber("Target Yaw: ", targetHeading);
+		SmartDashboard.putNumber("interpolation: ", rotationInterplator.getPosition());
+		SmartDashboard.putNumber("timer: ", timer.get());
+
+		double kP = Debug.serializeNumber("rot P", 0.0);
+		double kI = Debug.serializeNumber("rot I", 0.0);
+		double kD = Debug.serializeNumber("rot D", 0.0);
+
+		rotationPID.setP(kP);
+		rotationPID.setI(kI);
+		rotationPID.setD(kD);
+	}
+
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond,
-			boolean fieldRelative) {
+			boolean fieldRelative, boolean isChargeStation) {
 
-		serializeRotationPID();
+		rotationInterplator.setPoint(rotationRadiansPerSecond);
+		double interpolatedRotation = rotationInterplator.update();
 
-		// amount heading changes in degrees
-		double delta = Units.radiansToDegrees(rotationRadiansPerSecond) * (Timer.getFPGATimestamp() - timeStamp);
-		timeStamp = Timer.getFPGATimestamp();
+		double rotationOutput;
 
-		// update heading
-		targetHeading += delta;
+		// if this can be switched to checking the interpolated value, move the
+		// interpolator to the tick input rather than doing it over the fed velocity
+		boolean hasRotationInput = !Conversions.withinDeadband(rotationRadiansPerSecond, 0, 0.01);
 
-		// compute rotation output in radians
-		double pidfOutput = rotationPID.calculate(pigeon.getYaw(), targetHeading);
-		double rotationInput = Units.degreesToRadians(pidfOutput);
+		if (hasRotationInput) {
+			timer.reset();
+		}
+
+		if (hasRotationInput || timer.get() < rotationTimeout) {
+			rotationOutput = interpolatedRotation;
+			targetHeading = pigeon.getRelativeYaw();
+		} else {
+			double outputDegrees = Constants.Voltage * rotationPID.calculate(pigeon.getRelativeYaw(), targetHeading);
+			rotationOutput = Units.degreesToRadians(outputDegrees);
+		}
 
 		SwerveModuleState[] moduleStates;
 
@@ -100,17 +124,18 @@ public class Swerve extends SubsystemBase {
 			moduleStates = Constants.swerveKinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(
 					translationMetersPerSecond.getX(),
 					translationMetersPerSecond.getY(),
-					rotationInput,
+					rotationOutput,
 					getYaw()));
 		} else {
 			moduleStates = Constants.swerveKinematics.toSwerveModuleStates(new ChassisSpeeds(
 					translationMetersPerSecond.getX(),
 					translationMetersPerSecond.getY(),
-					rotationInput));
+					!isChargeStation ? rotationOutput : rotationRadiansPerSecond));
 		}
 
 		// normalize wheel speeds
-		SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, Constants.maxSpeed);
+		SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates,
+				Constants.maxSpeed);
 
 		for (SwerveModule mod : swerveModules) {
 			mod.setDesiredState(moduleStates[mod.moduleNumber]);
@@ -118,11 +143,10 @@ public class Swerve extends SubsystemBase {
 	}
 
 	public void enterXStance() {
-		for (SwerveModule module : swerveModules) {
-			module.setDesiredState(new SwerveModuleState(
-					0.0d,
-					Rotation2d.fromDegrees(45.0d)));
-		}
+		swerveModules[0].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(45.0d)));
+		swerveModules[1].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(135.0d)));
+		swerveModules[2].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(45.0d)));
+		swerveModules[3].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(135.0d)));
 	}
 
 	/* Used by SwerveControllerCommand in Auto */
@@ -164,12 +188,18 @@ public class Swerve extends SubsystemBase {
 	}
 
 	public Rotation2d getYaw() {
-		return Rotation2d.fromDegrees(this.pigeon.getYaw());
+		return Rotation2d.fromDegrees(pigeon.getRelativeYaw());
 	}
 
 	public void resetIntegratedToAbsolute() {
 		for (SwerveModule mod : this.swerveModules) {
 			mod.resetAngleToAbsolute();
+		}
+	}
+
+	public void supplyVelocity(double velocityMps) {
+		for (SwerveModule mod : this.swerveModules) {
+			mod.supplyVelocity(velocityMps);
 		}
 	}
 
@@ -183,13 +213,19 @@ public class Swerve extends SubsystemBase {
 
 		field2d.setRobotPose(getPose());
 
-		SmartDashboard.putNumber("theta", getYaw().getDegrees());
+		SmartDashboard.putNumber("yaw", getYaw().getDegrees());
+		SmartDashboard.putNumber("pitch", pigeon.getPitch());
+		SmartDashboard.putNumber("roll", pigeon.getRoll());
 		SmartDashboard.putNumber("odometry-x", this.swerveDrivePoseEstimator.getEstimatedPosition().getX());
 		SmartDashboard.putNumber("odometry-y", this.swerveDrivePoseEstimator.getEstimatedPosition().getY());
 
-		for (SwerveModule module : this.swerveModules) {
-			module.debug();
-		}
+		// pointing up is -negative Pitch
+		// down is +positive Pitch
+		// for (SwerveModule module : this.swerveModules) {
+		// module.debug();
+		// }
+
+		timeStamp.update();
 	}
 
 	public void zeroHeading() {

@@ -3,97 +3,68 @@ package frc.robot.commands;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
+import frc.robot.util.drivers.PigeonWrapper;
 
-import com.ctre.phoenix.sensors.Pigeon2;
-
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-// Charge Station Command
 public class ChargeStation extends CommandBase {
 
-	// Finished flag
-	private boolean finished;
+	private PIDController pid = new PIDController(0.03, 0, 0);
 
 	// Pitch buffer
 	private double pitchBuffer;
-
-	// Move increment
-	private double moveIncrement;
-
-	// Swerve drive reference
 	private Swerve swerve;
-
-	// Gyro reference
-	private Pigeon2 gyro;
-
-	// Odometry reference
-	// private OdometryDeprecated odometry;
+	private PigeonWrapper gyro;
+	private double invert;
 
 	// Constructor
-	public ChargeStation(double pitchBuffer_, double moveIncrement_, Swerve swerve_, Pigeon2 gyro_) {
-
-		finished = false;
-		this.pitchBuffer = pitchBuffer_;
-		this.moveIncrement = moveIncrement_;
-
-		// Get reference to swerve
-		this.swerve = swerve_;
+	public ChargeStation(Swerve swerve, PigeonWrapper gyro, double invert) {
+		this.swerve = swerve;
+		this.gyro = gyro;
+		// invert determines what direction the robot will face during the command.
+		// Pass -1.0 if the robot should approach the charge station while facing away
+		// from it, and 1.0 if the robot should approach the charge station while facing
+		// it.
+		this.invert = invert;
+		pitchBuffer = 4;
 		addRequirements(this.swerve);
-
-		// Get reference to gyro
-		this.gyro = gyro_;
 	}
 
-	// Initialize
 	@Override
 	public void initialize() {
-
-		// Makes robot parallel to charge station before driving
-		double robotRotationDegrees = swerve.getPose().getRotation().getDegrees();
-		double difference = 90 - robotRotationDegrees;
-		swerve.drive(new Translation2d(), difference, true);
-
-		// Start driving onto charge station
-		double distance = moveIncrement / 2;
-		Translation2d driveTranslation = new Translation2d(distance, 0).times(Constants.maxSpeed);
-		swerve.drive(driveTranslation, 0, true);
+		// Set the target setpoint to zero degrees.
+		pid.setSetpoint(0);
+		// Drive forward for two seconds at 40% of the maximum speed, then stop
+		// (gets us onto the edge of the charge station, starting from the edge of the
+		// community)
+		Translation2d driveTranslation = new Translation2d(invert * 0.4, 0).times(Constants.maxSpeed);
+		swerve.drive(driveTranslation, 0, false, true);
+		Timer.delay(2);
+		swerve.drive(new Translation2d(), 0, false, true);
 	}
 
-	// Execute
 	@Override
 	public void execute() {
-
-		// Get gyro pitch change from last frame
-		double pitch = gyro.getPitch();
-
-		// Move on charge station
-		if (pitch <= pitchBuffer || pitch >= -pitchBuffer) {
-
-			// Count as stable if within pitch buffer
-			finished = true;
-
-		} else {
-
-			// Move robot to center of charge station
-			// Use move increment and pitch to find correct distance
-			double distance = moveIncrement * pitch;
-			Translation2d driveTranslation = new Translation2d(distance, 0).times(Constants.maxSpeed);
-			swerve.drive(driveTranslation, 0, true);
-		}
+		// Get the gyro pitch, pass it to the PID controller and clamp it to 40% speed
+		// (prevents us from flying off the charge station at first)
+		double increment = invert * MathUtil.clamp(pid.calculate(gyro.getPitch()), -0.4, 0.4);
+		// Drive forward by the calculated increment
+		Translation2d driveTranslation = new Translation2d(increment, 0);
+		System.out.println("Driving at speed: " + increment);
+		swerve.drive(driveTranslation, 0, false, true);
 	}
 
-	// Is Finished
 	@Override
 	public boolean isFinished() {
-
-		// Return finished
-		return finished;
+		// Ensure that the command is always running
+		return false;
 	}
 
 	@Override
 	public void end(boolean wasInterrupted) {
-		// Enter the drivetrain's X-Stance to lock our position on the station.
-		swerve.enterXStance();
 	}
 }

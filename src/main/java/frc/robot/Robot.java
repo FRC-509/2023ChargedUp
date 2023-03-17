@@ -3,7 +3,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.util.Utils;
+import frc.robot.util.Debug;
+import frc.robot.util.telemetry.Thunderstorm;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -17,6 +18,7 @@ import frc.robot.util.Utils;
 public class Robot extends TimedRobot {
 	private Command autonomousCommand;
 	private RobotContainer robotContainer;
+	private Thunderstorm thunderstorm;
 
 	/**
 	 * This function is run when the robot is first started up and should be used
@@ -25,11 +27,12 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void robotInit() {
-		Utils.flushShuffleboard();
+		Debug.flushShuffleboard();
 		// Instantiate our RobotContainer. This will perform all our button bindings,
 		// and put our
 		// autonomous chooser on the dashboard.
 		this.robotContainer = new RobotContainer();
+		this.thunderstorm = new Thunderstorm();
 	}
 
 	/**
@@ -52,6 +55,7 @@ public class Robot extends TimedRobot {
 		// robot's periodic
 		// block in order for anything in the Command-based framework to work.
 		CommandScheduler.getInstance().run();
+		thunderstorm.update(this.robotContainer);
 	}
 
 	/** This function is called once each time the robot enters Disabled mode. */
@@ -86,13 +90,11 @@ public class Robot extends TimedRobot {
 		if (this.autonomousCommand != null) {
 			this.autonomousCommand.cancel();
 		}
-		robotContainer.onTeleopInit();
 	}
 
 	/** This function is called periodically during operator control. */
 	@Override
 	public void teleopPeriodic() {
-
 	}
 
 	@Override

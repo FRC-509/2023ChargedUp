@@ -1,25 +1,30 @@
 package frc.robot;
 
+import frc.robot.autonomous.OneConeAndTaxiStable;
+import frc.robot.autonomous.OneCone;
+import frc.robot.autonomous.OneConeAndChargeStation;
+import frc.robot.autonomous.OneConeAndChargeStationMorePoints;
+import frc.robot.autonomous.OneConeAndTaxiPP;
 import frc.robot.commands.ArmCommand;
-import frc.robot.commands.ClawCommand;
+import frc.robot.commands.ChargeStation;
 import frc.robot.commands.ClawIntakeCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Swerve;
-import frc.robot.subsystems.Led.PatternID;
+import edu.wpi.first.cameraserver.*;
+import frc.robot.subsystems.TimeStamp;
 import frc.robot.util.controllers.JoystickController;
 import frc.robot.util.controllers.LogitechController;
 import frc.robot.util.controllers.JoystickController.StickButton;
 import frc.robot.util.controllers.LogitechController.LogiButton;
+import frc.robot.util.drivers.PigeonWrapper;
 import frc.robot.vision.*;
-
+import frc.robot.subsystems.Led;
 import java.io.IOException;
 
-import com.ctre.phoenix.sensors.Pigeon2;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -27,6 +32,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 /**
@@ -43,23 +49,31 @@ public class RobotContainer {
 	public final JoystickController rightStick = new JoystickController(0);
 	public final LogitechController controller = new LogitechController(2);
 
+	public static TimeStamp timeStamp = new TimeStamp();
+
 	public final LimelightWrapper limelight = new LimelightWrapper(Constants.limelightName);
-	public final Pigeon2 pigeon2 = new Pigeon2(30, Constants.CANIvore);
+	public final PigeonWrapper gyroscope = new PigeonWrapper(30, Constants.CANIvore);
 	public AprilTagFieldLayout fieldLayout;
 
 	public final Swerve swerveSubsystem;
 	public final Arm armSubsystem;
 	public final Claw clawSubsystem;
+	public final UsbCamera usbCamera = new UsbCamera("509cam", 1);
 
+	// public final Spark led;
 	private final SendableChooser<Command> chooser = new SendableChooser<Command>();
 	private final SendableChooser<String> loopTypeForExtension = new SendableChooser<String>();
 
 	public RobotContainer() {
-		// Initialize and configure the gyroscope.
-		this.pigeon2.configFactoryDefault();
+		UsbCamera cam = CameraServer.startAutomaticCapture();
+		cam.setFPS(15);
+		cam.setResolution(10, 10);
 
+		// Initialize and configure the gyroscope.
+		this.gyroscope.configFactoryDefault();
+		this.gyroscope.configMountPoseYaw(180);
 		// Initialize subsystems.
-		this.swerveSubsystem = new Swerve(pigeon2, limelight);
+		this.swerveSubsystem = new Swerve(timeStamp, gyroscope, limelight);
 		this.armSubsystem = new Arm();
 		this.clawSubsystem = new Claw();
 
@@ -86,19 +100,30 @@ public class RobotContainer {
 		}
 	}
 
+	public double deltaTime() {
+		return timeStamp.deltaTime();
+	}
+
 	public void configureButtonBindings() {
+		timeStamp.setDefaultCommand(new InstantCommand(
+				() -> {
+					timeStamp.update();
+				},
+				timeStamp));
+
 		swerveSubsystem.setDefaultCommand(new DriveCommand(
 				swerveSubsystem,
-				() -> -leftStick.getY(),
-				() -> -leftStick.getX(),
+				() -> leftStick.getY(),
+				() -> leftStick.getX(),
 				() -> -rightStick.getX(),
-				() -> leftStick.getRawButton(2)));
+				() -> leftStick.getRawButton(2),
+				() -> leftStick.isDown(StickButton.Trigger)));
 
 		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
 				clawSubsystem,
 				() -> controller.isPressed(LogiButton.A),
-				() -> controller.isDown(LogiButton.RTrigger),
-				() -> controller.isDown(LogiButton.LTrigger)));
+				() -> controller.isDown(LogiButton.LTrigger),
+				() -> controller.isDown(LogiButton.RTrigger)));
 
 		armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem,
 				() -> MathUtil.applyDeadband(controller.getLeftStickY(), Constants.stickDeadband)
@@ -108,26 +133,47 @@ public class RobotContainer {
 				() -> controller.isPressed(LogiButton.B)));
 
 		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
-
-		controller.isPressedBind(LogiButton.X, new InstantCommand(() -> Led.set(PatternID.OFF)));
-		controller.isPressedBind(LogiButton.Y, new InstantCommand(() -> Led.set(PatternID.YELLOW)));
-		controller.isPressedBind(LogiButton.B, new InstantCommand(() -> Led.set(PatternID.VIOLET)));
+		controller.isPressedBind(LogiButton.X,
+				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_VIOLET)));
+		controller.isPressedBind(LogiButton.Y,
+				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_ORANGE)));
+		/*
+		 * controller.isPressedBind(LogiButton.X, new InstantCommand(() ->
+		 * Led.set(PatternID.OFF)));
+		 * controller.isPressedBind(LogiButton.Y, new InstantCommand(() ->
+		 * Led.set(PatternID.YELLOW)));
+		 * controller.isPressedBind(LogiButton.B, new InstantCommand(() ->
+		 * Led.set(PatternID.VIOLET)));
+		 */
+		// controller.isPressedBind(LogiButton.Start, new
+		// PickUpCubeFromGround(armSubsystem, clawSubsystem));
+		controller.isPressedBind(LogiButton.LBTrigger, new InstantCommand(() -> armSubsystem.setPivotDegrees(100)));
+		// controller.isPressedBind(LogiButton.RBTrigger, new InstantCommand(() ->
+		// armSubsystem.setPivotDegrees(0)));
+		controller.isPressedBind(LogiButton.Back, new InstantCommand(() -> armSubsystem.setExtensionPosition(0)));
 	}
 
 	private void addAutonomousRoutines() {
-		chooser.setDefaultOption("WeekZeroTaxi", new DriveCommand(
-				swerveSubsystem,
-				1.0,
-				0,
-				0, true).withTimeout(0.7));
-
+		chooser.addOption("One Cone and Taxi (Stable)",
+				new OneConeAndTaxiStable(armSubsystem, clawSubsystem, swerveSubsystem));
+		chooser.addOption("One Cone and Taxi (Experimental)",
+				new OneConeAndTaxiPP(armSubsystem, clawSubsystem, swerveSubsystem));
+		chooser.addOption("One Cone and Charge Station",
+				new OneConeAndChargeStation(armSubsystem, clawSubsystem, swerveSubsystem, gyroscope));
+		chooser.addOption("One Cone",
+				new OneCone(armSubsystem, clawSubsystem, swerveSubsystem));
+		chooser.addOption("test Charge",
+				new OneConeAndChargeStationMorePoints(armSubsystem, clawSubsystem, swerveSubsystem, gyroscope));
+		chooser.setDefaultOption("Charge Station",
+				new ChargeStation(swerveSubsystem, gyroscope, -1));
 		chooser.addOption("None", null);
+
 		SmartDashboard.putData("Auto Chooser", chooser);
 	}
 
 	public void zeroGyro() {
-		pigeon2.setYaw(0);
-		pigeon2.zeroGyroBiasNow();
+		gyroscope.setYaw(0);
+		gyroscope.zeroGyroBiasNow();
 		swerveSubsystem.zeroHeading();
 	}
 
@@ -136,10 +182,13 @@ public class RobotContainer {
 	}
 
 	public Command getAutonomousCommand() {
-		return chooser.getSelected();
-	}
-
-	public void onTeleopInit() {
-		Constants.isExtensionClosedLoop = loopTypeForExtension.getSelected() == "CL";
+		return new FunctionalCommand(
+				() -> swerveSubsystem.supplyVelocity(0),
+				() -> swerveSubsystem.supplyVelocity(0),
+				(end) -> {
+				},
+				() -> false,
+				swerveSubsystem);
+		// return chooser.getSelected();
 	}
 }

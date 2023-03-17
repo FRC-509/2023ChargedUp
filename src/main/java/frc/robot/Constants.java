@@ -18,10 +18,11 @@ import frc.robot.util.PIDConstants;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+	public static final double Voltage = 12.0d;
 
 	public static final String CANIvore = "509CANIvore";
 
-	public static final int revBlinkinPort = 0;
+	public static final int revBlinkinPort = 9;
 	public static final int ledPixelCount = 25;
 
 	// Vision-related constants.
@@ -42,8 +43,7 @@ public final class Constants {
 	// Arm-related constants.
 	public static final double pivotGearRatio = 227.556;
 	public static final double extensionGearRatio = 64.0d;
-	public static final double maxExtension = 500.0;
-	public static boolean isExtensionClosedLoop = true;
+	public static final double maxExtension = 520.0;
 
 	// Drivetrain-related constants.
 	public static final double safetyBuffer = Units.inchesToMeters(40);
@@ -63,7 +63,7 @@ public final class Constants {
 
 	public static final PIDConstants drive = new PIDConstants(0.1, 0, 0, 0);
 	public static final PIDConstants steer = new PIDConstants(0.2, 0, 0, 0);
-	public static final boolean closedLoopDriveVelocity = true;
+	public static final boolean closedLoopDriveVelocity = false;
 
 	/*
 	 * The order of each vector corresponds to the index of the swerve module inside
