@@ -61,14 +61,14 @@ public class Device {
 	public static class Motor {
 		public static FalconBuilder rightPivot = new FalconBuilder(
 				20,
-				Constants.CANIvore,
+				Constants.RoboRio,
 				new PIDConstants(0.03, 0, 0, 0),
 				NeutralMode.Brake,
 				false);
 
 		public static FalconBuilder leftPivot = new FalconBuilder(
 				13,
-				Constants.CANIvore,
+				Constants.RoboRio,
 				new PIDConstants(0.03, 0, 0, 0),
 				NeutralMode.Brake,
 				true);

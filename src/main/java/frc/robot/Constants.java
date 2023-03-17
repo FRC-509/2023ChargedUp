@@ -19,7 +19,7 @@ import frc.robot.util.PIDConstants;
  */
 public final class Constants {
 	public static final double Voltage = 12.0d;
-
+	public static final String RoboRio = "rio";
 	public static final String CANIvore = "509CANIvore";
 
 	public static final int revBlinkinPort = 9;

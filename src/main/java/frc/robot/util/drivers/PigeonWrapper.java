@@ -18,12 +18,20 @@ public class PigeonWrapper extends Pigeon2 {
 
 	/// Returns the robot yaw shifted by the offset
 	public double getRelativeYaw() {
-		return super.getYaw() + yawOffset;
+		return (super.getYaw() + yawOffset) % 360.0d;
 	}
 
 	/// Returns the absolute robot yaw
 	public double getAbsoluteYaw() {
-		return super.getYaw();
+		return super.getYaw() % 360.0d;
+	}
+
+	public void setRelativeYaw(double yaw) {
+		yawOffset = yaw - super.getYaw();
+	}
+
+	public double getAbsoluteZero() {
+		return 0.0d;
 	}
 
 	/**

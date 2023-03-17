@@ -1,10 +1,12 @@
 package frc.robot.commands;
 
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.Swerve;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -17,6 +19,8 @@ public class DriveCommand extends CommandBase {
 	private DoubleSupplier rotationSup;
 	private BooleanSupplier robotCentricSup;
 	private BooleanSupplier xStanceSup;
+	private BooleanSupplier faceForward;
+	private BooleanSupplier faceBackward;
 
 	public DriveCommand(
 			Swerve s_Swerve,
@@ -24,7 +28,9 @@ public class DriveCommand extends CommandBase {
 			DoubleSupplier strafeSup,
 			DoubleSupplier rotationSup,
 			BooleanSupplier robotCentricSup,
-			BooleanSupplier xStanceSup) {
+			BooleanSupplier xStanceSup,
+			BooleanSupplier faceForward,
+			BooleanSupplier faceBackward) {
 		this.s_Swerve = s_Swerve;
 		addRequirements(s_Swerve);
 
@@ -33,6 +39,8 @@ public class DriveCommand extends CommandBase {
 		this.rotationSup = rotationSup;
 		this.robotCentricSup = robotCentricSup;
 		this.xStanceSup = xStanceSup;
+		this.faceForward = faceForward;
+		this.faceBackward = faceBackward;
 	}
 
 	public DriveCommand(
@@ -60,6 +68,18 @@ public class DriveCommand extends CommandBase {
 		/* Drive */
 		if (xStanceSup.getAsBoolean()) {
 			this.s_Swerve.enterXStance();
+		} else if (faceForward.getAsBoolean() || faceBackward.getAsBoolean()) {
+			if (faceBackward.getAsBoolean()) {
+				s_Swerve.setTargetHeading(+0);
+
+			} else {
+				s_Swerve.setTargetHeading(+180);
+			}
+
+			this.s_Swerve.drive(
+					new Translation2d(translationVal, strafeVal).times(0.4 * Constants.maxSpeed),
+					0.0d,
+					!this.robotCentricSup.getAsBoolean(), false);
 		} else {
 			this.s_Swerve.drive(
 					new Translation2d(translationVal, strafeVal).times(Constants.maxSpeed),

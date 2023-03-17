@@ -52,7 +52,7 @@ public class RobotContainer {
 	public static TimeStamp timeStamp = new TimeStamp();
 
 	public final LimelightWrapper limelight = new LimelightWrapper(Constants.limelightName);
-	public final PigeonWrapper gyroscope = new PigeonWrapper(30, Constants.CANIvore);
+	public final PigeonWrapper pigeon = new PigeonWrapper(30, Constants.CANIvore);
 	public AprilTagFieldLayout fieldLayout;
 
 	public final Swerve swerveSubsystem;
@@ -70,10 +70,10 @@ public class RobotContainer {
 		cam.setResolution(10, 10);
 
 		// Initialize and configure the gyroscope.
-		this.gyroscope.configFactoryDefault();
-		this.gyroscope.configMountPoseYaw(180);
+		this.pigeon.configFactoryDefault();
+		this.pigeon.configMountPoseYaw(180);
 		// Initialize subsystems.
-		this.swerveSubsystem = new Swerve(timeStamp, gyroscope, limelight);
+		this.swerveSubsystem = new Swerve(timeStamp, pigeon, limelight);
 		this.armSubsystem = new Arm();
 		this.clawSubsystem = new Claw();
 
@@ -113,10 +113,12 @@ public class RobotContainer {
 
 		swerveSubsystem.setDefaultCommand(new DriveCommand(
 				swerveSubsystem,
-				() -> leftStick.getY(),
-				() -> leftStick.getX(),
+				() -> -leftStick.getY(),
+				() -> -leftStick.getX(),
 				() -> -rightStick.getX(),
 				() -> leftStick.getRawButton(2),
+				() -> leftStick.isDown(StickButton.RightSideMiddleBottom),
+				() -> rightStick.isDown(StickButton.Trigger),
 				() -> leftStick.isDown(StickButton.Trigger)));
 
 		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
@@ -159,22 +161,27 @@ public class RobotContainer {
 		chooser.addOption("One Cone and Taxi (Experimental)",
 				new OneConeAndTaxiPP(armSubsystem, clawSubsystem, swerveSubsystem));
 		chooser.addOption("One Cone and Charge Station",
-				new OneConeAndChargeStation(armSubsystem, clawSubsystem, swerveSubsystem, gyroscope));
+				new OneConeAndChargeStation(armSubsystem, clawSubsystem, swerveSubsystem, pigeon));
 		chooser.addOption("One Cone",
 				new OneCone(armSubsystem, clawSubsystem, swerveSubsystem));
 		chooser.addOption("test Charge",
-				new OneConeAndChargeStationMorePoints(armSubsystem, clawSubsystem, swerveSubsystem, gyroscope));
+				new OneConeAndChargeStationMorePoints(armSubsystem, clawSubsystem, swerveSubsystem, pigeon));
 		chooser.setDefaultOption("Charge Station",
-				new ChargeStation(swerveSubsystem, gyroscope, -1));
+				new ChargeStation(swerveSubsystem, pigeon, -1));
 		chooser.addOption("None", null);
 
 		SmartDashboard.putData("Auto Chooser", chooser);
 	}
 
 	public void zeroGyro() {
-		gyroscope.setYaw(0);
-		gyroscope.zeroGyroBiasNow();
+		pigeon.setYaw(0);
+		pigeon.zeroGyroBiasNow();
 		swerveSubsystem.zeroHeading();
+	}
+
+	public void setGyroHeading(double heading) {
+		pigeon.setYaw(heading);
+		swerveSubsystem.setTargetHeading(heading);
 	}
 
 	public Pose2d getEstimatedPose() {
