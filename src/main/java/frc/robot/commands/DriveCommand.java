@@ -56,6 +56,9 @@ public class DriveCommand extends CommandBase {
 		this.strafeSup = () -> strafe;
 		this.rotationSup = () -> rotation;
 		this.robotCentricSup = () -> robotCentric;
+		this.xStanceSup = () -> false;
+		this.faceForward = () -> false;
+		this.faceBackward = () -> false;
 	}
 
 	@Override

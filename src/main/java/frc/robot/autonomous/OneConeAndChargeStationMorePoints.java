@@ -12,7 +12,7 @@ public class OneConeAndChargeStationMorePoints extends SequentialCommandGroup {
 	public OneConeAndChargeStationMorePoints(Arm arm, Claw claw, Swerve swerve, PigeonWrapper gyro) {
 		addCommands(
 				// new OneCone(arm, claw, swerve),
-				new DriveCommand(swerve, -0.5, 0, 0, false).withTimeout(5),
+				new DriveCommand(swerve, -0.5, 0, 0, false).withTimeout(2),
 				new ChargeStation(swerve, gyro, 1.0));
 	}
 }

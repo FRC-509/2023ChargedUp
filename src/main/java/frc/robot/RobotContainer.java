@@ -189,13 +189,13 @@ public class RobotContainer {
 	}
 
 	public Command getAutonomousCommand() {
-		return new FunctionalCommand(
-				() -> swerveSubsystem.supplyVelocity(0),
-				() -> swerveSubsystem.supplyVelocity(0),
-				(end) -> {
-				},
-				() -> false,
-				swerveSubsystem);
-		// return chooser.getSelected();
+		// return new FunctionalCommand(
+		// () -> swerveSubsystem.supplyVelocity(0),
+		// () -> swerveSubsystem.supplyVelocity(0),
+		// (end) -> {
+		// },
+		// () -> false,
+		// swerveSubsystem);
+		return chooser.getSelected();
 	}
 }
