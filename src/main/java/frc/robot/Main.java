@@ -1,5 +1,10 @@
 package frc.robot;
 
+import java.util.ArrayList;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -11,6 +16,7 @@ import edu.wpi.first.wpilibj.RobotBase;
  */
 public final class Main {
 	private Main() {
+
 	}
 
 	/**
@@ -20,6 +26,8 @@ public final class Main {
 	 * If you change your main robot class, change the parameter type.
 	 */
 	public static void main(String... args) {
+		new ArmTest(ArmState.Autonomous);
+
 		RobotBase.startRobot(Robot::new);
 	}
 }

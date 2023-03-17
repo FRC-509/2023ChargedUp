@@ -13,19 +13,20 @@ public class DeviceBuilder {
 	public static class NeoBuilder implements IDeviceBuilder<NEOSparkMax> {
 		final int id;
 		final IdleMode neutralMode;
-		final boolean isReverse;
+		final boolean inverted;
 
-		public NeoBuilder(int id, IdleMode neutralMode, boolean isReverse) {
+		public NeoBuilder(int id, IdleMode neutralMode, boolean inverted) {
 			this.id = id;
 			this.neutralMode = neutralMode;
-			this.isReverse = isReverse;
+			this.inverted = inverted;
 		}
 
 		@Override
 		public NEOSparkMax build() {
 			NEOSparkMax spark = new NEOSparkMax(id);
 			spark.setIdleMode(neutralMode);
-			spark.setInverted(isReverse);
+			spark.setInverted(inverted);
+
 			return spark;
 		}
 	}
