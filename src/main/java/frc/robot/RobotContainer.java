@@ -51,7 +51,7 @@ public class RobotContainer {
 	public static TimeStamp timeStamp = new TimeStamp();
 
 	public final LimelightWrapper limelight = new LimelightWrapper(Constants.limelightName);
-	public final PigeonWrapper pigeon = new PigeonWrapper(30, Constants.CANIvore, 0);
+	public final PigeonWrapper pigeon = new PigeonWrapper(30, Constants.CANIvore, 180.0d);
 	public AprilTagFieldLayout fieldLayout;
 
 	public final Swerve swerveSubsystem;
@@ -68,7 +68,6 @@ public class RobotContainer {
 
 		// Initialize and configure the gyroscope.
 		this.pigeon.configFactoryDefault();
-		this.pigeon.configMountPoseYaw(180);
 		// Initialize subsystems.
 		this.swerveSubsystem = new Swerve(timeStamp, pigeon, limelight);
 		this.armSubsystem = new Arm();
@@ -121,8 +120,8 @@ public class RobotContainer {
 		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
 				clawSubsystem,
 				() -> controller.isPressed(LogiButton.A),
-				() -> controller.isDown(LogiButton.LTrigger),
-				() -> controller.isDown(LogiButton.RTrigger)));
+				() -> controller.isPressed(LogiButton.LTrigger),
+				() -> controller.isPressed(LogiButton.RTrigger)));
 
 		armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem,
 				() -> MathUtil.applyDeadband(controller.getLeftStickY(), Constants.stickDeadband)

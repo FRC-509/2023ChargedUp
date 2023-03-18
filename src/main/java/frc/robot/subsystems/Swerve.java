@@ -53,6 +53,7 @@ public class Swerve extends SubsystemBase {
 		this.limelight = limelight;
 		this.timeStamp = stamp;
 		this.rotationInterplator = new Interpolator(timeStamp, Constants.maxAngularVelocity);
+		this.targetHeading = pigeon.getAbsoluteZero();
 
 		swerveModules = new SwerveModule[] {
 				new SwerveModule(Constants.s_frontLeft),
@@ -60,8 +61,6 @@ public class Swerve extends SubsystemBase {
 				new SwerveModule(Constants.s_backRight),
 				new SwerveModule(Constants.s_frontRight),
 		};
-
-		targetHeading = 0.0;
 
 		// Pause initialization for the pheonix server to start to prevent dropping CAN
 		// frames on init
@@ -241,7 +240,7 @@ public class Swerve extends SubsystemBase {
 	}
 
 	public void zeroHeading() {
-		targetHeading = 0.0d;
+		targetHeading = pigeon.getAbsoluteZero();
 	}
 
 	public void zeroHeadingReversed() {
