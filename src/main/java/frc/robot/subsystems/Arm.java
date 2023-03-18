@@ -1,11 +1,8 @@
 
 package frc.robot.subsystems;
 
-import java.util.concurrent.PriorityBlockingQueue;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
-import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
@@ -14,7 +11,6 @@ import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -62,11 +58,14 @@ public class Arm extends SubsystemBase {
 
 		Timer.delay(1.0);
 
-		double falcone = Conversions.degreesToFalcon(pivotEncoder.getAbsolutePosition(), Constants.pivotGearRatio);
-		leftPivotMotor.setSelectedSensorPosition(falcone);
-		rightPivotMotor.setSelectedSensorPosition(falcone);
+		double initialRot = Conversions.degreesToFalcon(pivotEncoder.getAbsolutePosition(), Constants.pivotGearRatio);
+		leftPivotMotor.setSelectedSensorPosition(initialRot);
+		rightPivotMotor.setSelectedSensorPosition(initialRot);
 
 		extensionSRXDummy.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
+
+		double initialExt = (extensionSRXDummy.getSelectedSensorPosition() / 4096) * 28.06685;
+		extensionMotor.setSensorPosition(initialExt);
 	}
 
 	public void tunePID() {
@@ -169,7 +168,7 @@ public class Arm extends SubsystemBase {
 		// extensionEncoder.getAbsolutePosition());\
 
 		SmartDashboard.putNumber("Arm Extension (dummy talon srx)",
-				extensionSRXDummy.getSelectedSensorPosition() / 4096);
+				extensionSRXDummy.getSelectedSensorPosition() / 4096 * 28.06685);
 		SmartDashboard.putNumber("Arm Pivot CANCODER", pivotEncoder.getAbsolutePosition());
 
 	}

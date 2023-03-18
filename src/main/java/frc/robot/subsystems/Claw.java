@@ -15,6 +15,7 @@ public class Claw extends SubsystemBase {
 	public Claw() {
 		solenoid = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 5, 7);
 		intakeMotor = new CANSparkMax(14, MotorType.kBrushed);
+		intakeMotor.setSmartCurrentLimit(20);
 	}
 
 	public boolean isClosed() {
@@ -53,5 +54,10 @@ public class Claw extends SubsystemBase {
 
 	public void stopIntake() {
 		intakeMotor.set(0);
+	}
+
+	@Override
+	public void periodic() {
+		intakeMotor.set(10);
 	}
 }

@@ -28,7 +28,6 @@ public class ClawIntakeCommand extends CommandBase {
 			clawSubsystem.spinIntake(false);
 		} else {
 			clawSubsystem.stopIntake();
-			;
 		}
 
 		if (toggleClose.getAsBoolean()) {
