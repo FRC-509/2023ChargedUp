@@ -39,7 +39,8 @@ public class Swerve extends SubsystemBase {
 
 	// the angle the robot SHOULD face
 	private double targetHeading;
-	private PIDController rotationPID = new PIDController(1.1, 0.8, 0.05);
+	// private PIDController rotationPID = new PIDController(1.1, 0.8, 0.05);
+	private PIDController rotationPID = new PIDController(1.2, 0.3, 0.1);
 	private double rotationTimeout = 0.5;
 	private Timer timer;
 

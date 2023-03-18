@@ -1,12 +1,10 @@
 package frc.robot.commands;
 
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.Swerve;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;

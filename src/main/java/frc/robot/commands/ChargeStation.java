@@ -41,9 +41,9 @@ public class ChargeStation extends CommandBase {
 		// Drive forward for two seconds at 40% of the maximum speed, then stop
 		// (gets us onto the edge of the charge station, starting from the edge of the
 		// community)
-		Translation2d driveTranslation = new Translation2d(invert * 0.4, 0).times(Constants.maxSpeed);
+		Translation2d driveTranslation = new Translation2d(invert * 0.3, 0).times(Constants.maxSpeed);
 		swerve.drive(driveTranslation, 0, false, true);
-		Timer.delay(2);
+		Timer.delay(1.5);
 		swerve.drive(new Translation2d(), 0, false, true);
 	}
 

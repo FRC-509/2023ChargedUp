@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.revrobotics.CANSparkMax.IdleMode;
 
@@ -52,6 +53,11 @@ public class Device {
 		public static int intake = 14;
 	}
 
+	public static class EncoderId {
+		public static int pivot = 2;
+		public static int extension = 3;
+	}
+
 	public static class SolenoidId {
 		public static int claw = 0;
 		public static int clawForward = 0;
@@ -62,16 +68,16 @@ public class Device {
 		public static FalconBuilder rightPivot = new FalconBuilder(
 				20,
 				Constants.RoboRio,
-				new PIDConstants(0.03, 0, 0, 0),
+				new PIDConstants(0.05, 0, 0.0005, 0),
 				NeutralMode.Brake,
-				false);
+				false, FeedbackDevice.IntegratedSensor);
 
 		public static FalconBuilder leftPivot = new FalconBuilder(
 				13,
 				Constants.RoboRio,
-				new PIDConstants(0.03, 0, 0, 0),
+				new PIDConstants(0.05, 0, 0.0005, 0),
 				NeutralMode.Brake,
-				true);
+				true, FeedbackDevice.IntegratedSensor);
 
 		public static NeoBuilder extension = new NeoBuilder(
 				12,

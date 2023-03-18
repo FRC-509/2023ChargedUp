@@ -32,7 +32,6 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 /**
@@ -59,8 +58,6 @@ public class RobotContainer {
 	public final Arm armSubsystem;
 	public final Claw clawSubsystem;
 	public final UsbCamera usbCamera = new UsbCamera("509cam", 1);
-
-	// public final Spark led;
 	private final SendableChooser<Command> chooser = new SendableChooser<Command>();
 	private final SendableChooser<String> loopTypeForExtension = new SendableChooser<String>();
 
@@ -149,10 +146,12 @@ public class RobotContainer {
 		 */
 		// controller.isPressedBind(LogiButton.Start, new
 		// PickUpCubeFromGround(armSubsystem, clawSubsystem));
-		controller.isPressedBind(LogiButton.LBTrigger, new InstantCommand(() -> armSubsystem.setPivotDegrees(100)));
+		// controller.isPressedBind(LogiButton.LBTrigger, new InstantCommand(() ->
+		// armSubsystem.setPivotDegrees(100)));
 		// controller.isPressedBind(LogiButton.RBTrigger, new InstantCommand(() ->
 		// armSubsystem.setPivotDegrees(0)));
-		controller.isPressedBind(LogiButton.Back, new InstantCommand(() -> armSubsystem.setExtensionPosition(0)));
+		// controller.isPressedBind(LogiButton.Back, new InstantCommand(() ->
+		// armSubsystem.setExtensionPosition(0)));
 	}
 
 	private void addAutonomousRoutines() {

@@ -1,13 +1,17 @@
 package frc.robot.util;
 
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
+import com.revrobotics.REVLibError;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import frc.robot.util.drivers.LazyTalonFX;
 import frc.robot.util.drivers.NEOSparkMax;
+import pabeles.concurrency.GrowArray;
 
 public class DeviceBuilder {
 	private interface IDeviceBuilder<T> {
@@ -28,7 +32,9 @@ public class DeviceBuilder {
 		@Override
 		public NEOSparkMax build() {
 			NEOSparkMax spark = new NEOSparkMax(id);
-			spark.setIdleMode(neutralMode);
+			if (spark.setIdleMode(neutralMode) != REVLibError.kOk) {
+				DriverStation.reportError("failed to set neutral mod", false);
+			}
 			spark.setInverted(isReverse);
 			return spark;
 		}
@@ -56,23 +62,38 @@ public class DeviceBuilder {
 
 	public static class FalconBuilder implements IDeviceBuilder<LazyTalonFX> {
 		final int id;
-		final String canbus;
+		final String canBus;
 		final PIDConstants constants;
 		final NeutralMode neutralMode;
 		final boolean isReverse;
+		final FeedbackDevice feedbackDevice;
+		final double gearRatio;
 
 		public FalconBuilder(int id, String canbus, PIDConstants constants, NeutralMode neutralMode,
-				boolean isReverse) {
+				boolean isReverse, FeedbackDevice feedbackDevice) {
 			this.id = id;
-			this.canbus = canbus;
+			this.canBus = canbus;
 			this.constants = constants;
 			this.neutralMode = neutralMode;
 			this.isReverse = isReverse;
+			this.feedbackDevice = feedbackDevice;
+			this.gearRatio = 1.0;
+		}
+
+		public FalconBuilder(int id, String canbus, PIDConstants constants, NeutralMode neutralMode,
+				boolean isReverse, FeedbackDevice feedbackDevice, double gearRatio) {
+			this.id = id;
+			this.canBus = canbus;
+			this.constants = constants;
+			this.neutralMode = neutralMode;
+			this.isReverse = isReverse;
+			this.feedbackDevice = feedbackDevice;
+			this.gearRatio = gearRatio;
 		}
 
 		@Override
 		public LazyTalonFX build() {
-			LazyTalonFX falcon = new LazyTalonFX(id, canbus);
+			LazyTalonFX falcon = new LazyTalonFX(id, canBus, gearRatio);
 			falcon.setNeutralMode(neutralMode);
 			falcon.config_kP(0, constants.kP);
 			falcon.config_kI(0, constants.kI);
@@ -80,6 +101,7 @@ public class DeviceBuilder {
 			falcon.config_kF(0, constants.kF);
 			falcon.setInverted(isReverse);
 			falcon.configIntegratedSensorAbsoluteRange(AbsoluteSensorRange.Unsigned_0_to_360);
+			falcon.configSelectedFeedbackSensor(feedbackDevice);
 
 			return falcon;
 		}

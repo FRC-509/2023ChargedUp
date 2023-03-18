@@ -1,11 +1,21 @@
 
 package frc.robot.subsystems;
 
+import java.util.concurrent.PriorityBlockingQueue;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
+import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -18,7 +28,9 @@ import frc.robot.util.math.Conversions;
 public class Arm extends SubsystemBase {
 	private final LazyTalonFX leftPivotMotor;
 	private final LazyTalonFX rightPivotMotor;
-	private PIDController extensionPID;
+	private CANCoder pivotEncoder;
+	private PIDController extensionPositionPID;
+	private TalonSRX extensionSRXDummy;
 
 	// the percent output needed to maintain a completely horizontal position.
 	private static final double maximumFF = 0;
@@ -37,11 +49,24 @@ public class Arm extends SubsystemBase {
 
 		targetExtension = 0;
 		extensionLoopDisabled = true;
-		extensionPID = new PIDController(0.1, 0.0, 0.0);
-		extensionPID.setTolerance(7.5);
+		extensionPositionPID = new PIDController(0.1, 0.0, 0.0);
+		extensionPositionPID.setTolerance(7.5);
 
 		extensionMotor.setSmartCurrentLimit(20);
 		extensionMotor.setSensorPosition(0);
+		extensionSRXDummy = new TalonSRX(50);
+		pivotEncoder = new CANCoder(40, "rio");
+		pivotEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
+		pivotEncoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
+		pivotEncoder.configMagnetOffset(-346.12d);
+
+		Timer.delay(1.0);
+
+		double falcone = Conversions.degreesToFalcon(pivotEncoder.getAbsolutePosition(), Constants.pivotGearRatio);
+		leftPivotMotor.setSelectedSensorPosition(falcone);
+		rightPivotMotor.setSelectedSensorPosition(falcone);
+
+		extensionSRXDummy.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
 	}
 
 	public void tunePID() {
@@ -59,10 +84,10 @@ public class Arm extends SubsystemBase {
 		rightPivotMotor.config_kI(0, kI);
 		rightPivotMotor.config_kD(0, kD);
 
-		double target = Debug.serializeNumber("arm rotation: ", 0.0);
+		double target = Debug.serializeNumber("arm target velocity: ", 0.0);
 
-		leftPivotMotor.set(ControlMode.Position, Conversions.degreesToFalcon(target, Constants.pivotGearRatio));
-		rightPivotMotor.set(ControlMode.Position, Conversions.degreesToFalcon(target, Constants.pivotGearRatio));
+		leftPivotMotor.set(ControlMode.Velocity, Conversions.degreesToFalcon(target, Constants.pivotGearRatio));
+		rightPivotMotor.set(ControlMode.Velocity, Conversions.degreesToFalcon(target, Constants.pivotGearRatio));
 	}
 
 	public double getPivotDegrees() {
@@ -74,7 +99,6 @@ public class Arm extends SubsystemBase {
 	}
 
 	public void setPivotOutput(double percentOutput) {
-		SmartDashboard.putNumber("pivot percent ou", percentOutput);
 		percentOutput = MathUtil.clamp(percentOutput, -1.0d, 1.0d);
 
 		leftPivotMotor.set(ControlMode.PercentOutput, percentOutput);
@@ -127,16 +151,25 @@ public class Arm extends SubsystemBase {
 
 	@Override
 	public void periodic() {
+		// tunePID();
 
 		// We put our extension PID loop logic in a periodic() method so that its always
 		// running.
 		if (!extensionLoopDisabled) {
-			double output = extensionPID.calculate(extensionMotor.getSensorPosition(), targetExtension);
+			double output = extensionPositionPID.calculate(extensionMotor.getSensorPosition(), targetExtension);
 			extensionMotor.set(output);
 		}
 
-		SmartDashboard.putNumber("Arm Pviot (Degrees)", getPivotDegrees());
-		SmartDashboard.putNumber("Arm Extension Current (Amps)", extensionMotor.getOutputCurrent());
-		SmartDashboard.putNumber("Arm Extension Position", extensionMotor.getSensorPosition());
+		SmartDashboard.putNumber("Arm Pivot (Degrees)", getPivotDegrees());
+		// SmartDashboard.putNumber("Arm Pivot (abs)",
+		// pivotEncoder.getAbsolutePosition());
+		// SmartDashboard.putBoolean("is connected", pivotEncoder.isConnected());
+		// SmartDashboard.putNumber("Arm (Int) Extension Position",
+		// extensionMotor.getSensorPosition());
+		// SmartDashboard.putNumber("Arm (Abs) Extension Position",
+		// extensionEncoder.getAbsolutePosition());
+		SmartDashboard.putNumber("Arm Extension (dummy talon srx)", extensionSRXDummy.getSelectedSensorPosition());
+		SmartDashboard.putNumber("Arm Pivot CANCODER", pivotEncoder.getAbsolutePosition());
+
 	}
 }

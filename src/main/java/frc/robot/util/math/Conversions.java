@@ -13,6 +13,14 @@ public final class Conversions {
 	}
 
 	/**
+	 * @param positionCounts CTRE SRX Magnetic Encoder Position Counts
+	 * @return Degrees of Rotation
+	 */
+	public static double srxMagToDegrees(double positionCounts) {
+		return positionCounts * (360.0 / 4096.0);
+	}
+
+	/**
 	 * @param degrees   Degrees of rotation of Mechanism
 	 * @param gearRatio Gear Ratio between Falcon and Mechanism
 	 * @return Falcon Position Counts
