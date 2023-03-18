@@ -3,6 +3,8 @@ package frc.robot.util;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
+import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.revrobotics.REVLibError;
 import com.revrobotics.CANSparkMax.IdleMode;
 
@@ -60,6 +62,27 @@ public class DeviceBuilder {
 
 	}
 
+	public static class CANCoderBuilder implements IDeviceBuilder<CANCoder> {
+		final int id;
+		final String canBus;
+		final double magnetOffset;
+
+		public CANCoderBuilder(int id, String canBus, double magnetOffset) {
+			this.id = id;
+			this.canBus = canBus;
+			this.magnetOffset = magnetOffset;
+		}
+
+		@Override
+		public CANCoder build() {
+			CANCoder CANcoder = new CANCoder(id, canBus);
+			CANcoder.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
+			CANcoder.configMagnetOffset(magnetOffset);
+
+			return CANcoder;
+		}
+	}
+
 	public static class FalconBuilder implements IDeviceBuilder<LazyTalonFX> {
 		final int id;
 		final String canBus;
@@ -100,6 +123,7 @@ public class DeviceBuilder {
 			falcon.config_kD(0, constants.kD);
 			falcon.config_kF(0, constants.kF);
 			falcon.setInverted(isReverse);
+			falcon.configIntegratedSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
 			falcon.configIntegratedSensorAbsoluteRange(AbsoluteSensorRange.Unsigned_0_to_360);
 			falcon.configSelectedFeedbackSensor(feedbackDevice);
 

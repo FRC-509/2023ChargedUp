@@ -5,33 +5,35 @@ import com.ctre.phoenix.sensors.Pigeon2;
 import edu.wpi.first.math.geometry.Translation3d;
 
 public class PigeonWrapper extends Pigeon2 {
+	private final double initialOffset;
 	private double yawOffset = 0.0d;
 
-	public PigeonWrapper(int deviceNumber, String canbus) {
+	public PigeonWrapper(int deviceNumber, String canbus, double initialOffset) {
 		super(deviceNumber, canbus);
+		this.initialOffset = initialOffset;
 	}
 
 	/// Sets the offset to the negated current yaw
 	public void resetYaw() {
-		yawOffset = -super.getYaw();
+		yawOffset = -(super.getYaw() + initialOffset);
 	}
 
 	/// Returns the robot yaw shifted by the offset
 	public double getRelativeYaw() {
-		return (super.getYaw() + yawOffset) % 360.0d;
+		return (super.getYaw() + yawOffset + initialOffset) % 360.0d;
 	}
 
 	/// Returns the absolute robot yaw
 	public double getAbsoluteYaw() {
-		return super.getYaw() % 360.0d;
+		return (super.getYaw() + initialOffset) % 360.0d;
 	}
 
 	public void setRelativeYaw(double yaw) {
-		yawOffset = yaw - super.getYaw();
+		yawOffset = yaw - (super.getYaw() + initialOffset);
 	}
 
 	public double getAbsoluteZero() {
-		return 0.0d;
+		return initialOffset;
 	}
 
 	/**

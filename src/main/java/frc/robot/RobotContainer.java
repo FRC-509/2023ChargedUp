@@ -51,7 +51,7 @@ public class RobotContainer {
 	public static TimeStamp timeStamp = new TimeStamp();
 
 	public final LimelightWrapper limelight = new LimelightWrapper(Constants.limelightName);
-	public final PigeonWrapper pigeon = new PigeonWrapper(30, Constants.CANIvore);
+	public final PigeonWrapper pigeon = new PigeonWrapper(30, Constants.CANIvore, 0);
 	public AprilTagFieldLayout fieldLayout;
 
 	public final Swerve swerveSubsystem;
@@ -176,6 +176,12 @@ public class RobotContainer {
 		pigeon.setYaw(0);
 		pigeon.zeroGyroBiasNow();
 		swerveSubsystem.zeroHeading();
+	}
+
+	public void zeroGyroReversed() {
+		pigeon.setYaw(180);
+		pigeon.zeroGyroBiasNow();
+		swerveSubsystem.zeroHeadingReversed();
 	}
 
 	public void setGyroHeading(double heading) {

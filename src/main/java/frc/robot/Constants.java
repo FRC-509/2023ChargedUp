@@ -1,9 +1,12 @@
 package frc.robot;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import frc.robot.util.PIDConstants;
+import frc.robot.util.controllers.JoystickController;
+import frc.robot.util.controllers.LogitechController;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -18,8 +21,20 @@ import frc.robot.util.PIDConstants;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-	public static final double Voltage = 12.0d;
+	public static class PID {
+		public static final PIDController extension = new PIDController(0.1, 0.0, 0.0);
+	}
+
+	public static class Controller {
+		public static final JoystickController leftStick = new JoystickController(1);
+		public static final JoystickController rightStick = new JoystickController(0);
+		public static final LogitechController controller = new LogitechController(2);
+	}
+
 	public static final String RoboRio = "rio";
+
+	public static final double Voltage = 12.0d;
+
 	public static final String CANIvore = "509CANIvore";
 
 	public static final int revBlinkinPort = 9;

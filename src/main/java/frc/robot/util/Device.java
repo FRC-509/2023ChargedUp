@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import frc.robot.Constants;
+import frc.robot.util.DeviceBuilder.CANCoderBuilder;
 import frc.robot.util.DeviceBuilder.FalconBuilder;
 import frc.robot.util.DeviceBuilder.NeoBuilder;
 
@@ -54,14 +55,21 @@ public class Device {
 	}
 
 	public static class EncoderId {
-		public static int pivot = 2;
-		public static int extension = 3;
+		public static int pivot = 40;
+		public static int extension = 50;
 	}
 
 	public static class SolenoidId {
 		public static int claw = 0;
 		public static int clawForward = 0;
 		public static int clawReverse = 0;
+	}
+
+	public static class Encoder {
+		public static CANCoderBuilder pivot = new CANCoderBuilder(
+				EncoderId.pivot,
+				Constants.RoboRio,
+				-346.12);
 	}
 
 	public static class Motor {

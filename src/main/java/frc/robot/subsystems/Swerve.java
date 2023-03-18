@@ -39,8 +39,8 @@ public class Swerve extends SubsystemBase {
 
 	// the angle the robot SHOULD face
 	private double targetHeading;
-	// private PIDController rotationPID = new PIDController(1.1, 0.8, 0.05);
-	private PIDController rotationPID = new PIDController(1.2, 0.3, 0.1);
+	private PIDController rotationPassivePID = new PIDController(1.1, 0.8, 0.05);
+	private PIDController rotationAggressivePID = new PIDController(1.2, 0.3, 0.1);
 	private double rotationTimeout = 0.5;
 	private Timer timer;
 
@@ -90,21 +90,18 @@ public class Swerve extends SubsystemBase {
 		double kI = Debug.serializeNumber("rot I", 0.0);
 		double kD = Debug.serializeNumber("rot D", 0.0);
 
-		rotationPID.setP(kP);
-		rotationPID.setI(kI);
-		rotationPID.setD(kD);
+		rotationAggressivePID.setP(kP);
+		rotationAggressivePID.setI(kI);
+		rotationAggressivePID.setD(kD);
 	}
 
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond,
 			boolean fieldRelative, boolean isChargeStation) {
 
 		rotationInterplator.setPoint(rotationRadiansPerSecond);
-		double interpolatedRotation = rotationInterplator.update();
 
 		double rotationOutput;
-
-		// if this can be switched to checking the interpolated value, move the
-		// interpolator to the tick input rather than doing it over the fed velocity
+		double interpolatedRotation = rotationInterplator.update();
 		boolean hasRotationInput = !Conversions.withinDeadband(rotationRadiansPerSecond, 0, 0.01);
 
 		if (hasRotationInput) {
@@ -112,16 +109,17 @@ public class Swerve extends SubsystemBase {
 		}
 
 		if (hasRotationInput || timer.get() < rotationTimeout) {
-			rotationOutput = interpolatedRotation;
 			setTargetHeading(pigeon.getRelativeYaw());
+			rotationOutput = interpolatedRotation;
 		} else {
 			double delta = pigeon.getRelativeYaw() - targetHeading;
-
 			if (delta > 180.0d) {
 				delta -= 360;
 			}
+			double outputDegrees = Math.abs(delta) > 15.0d
+					? Constants.Voltage * rotationAggressivePID.calculate(delta)
+					: Constants.Voltage * rotationPassivePID.calculate(delta);
 
-			double outputDegrees = Constants.Voltage * rotationPID.calculate(delta);
 			rotationOutput = Units.degreesToRadians(outputDegrees);
 		}
 
@@ -140,7 +138,6 @@ public class Swerve extends SubsystemBase {
 					!isChargeStation ? rotationOutput : rotationRadiansPerSecond));
 		}
 
-		// normalize wheel speeds
 		SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates,
 				Constants.maxSpeed);
 
@@ -245,5 +242,9 @@ public class Swerve extends SubsystemBase {
 
 	public void zeroHeading() {
 		targetHeading = 0.0d;
+	}
+
+	public void zeroHeadingReversed() {
+		targetHeading = 180.0d;
 	}
 }

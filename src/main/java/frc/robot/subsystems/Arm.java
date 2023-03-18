@@ -164,11 +164,12 @@ public class Arm extends SubsystemBase {
 		// SmartDashboard.putNumber("Arm Pivot (abs)",
 		// pivotEncoder.getAbsolutePosition());
 		// SmartDashboard.putBoolean("is connected", pivotEncoder.isConnected());
-		// SmartDashboard.putNumber("Arm (Int) Extension Position",
-		// extensionMotor.getSensorPosition());
+		SmartDashboard.putNumber("Arm (Int) Extension Position", extensionMotor.getSensorPosition());
 		// SmartDashboard.putNumber("Arm (Abs) Extension Position",
-		// extensionEncoder.getAbsolutePosition());
-		SmartDashboard.putNumber("Arm Extension (dummy talon srx)", extensionSRXDummy.getSelectedSensorPosition());
+		// extensionEncoder.getAbsolutePosition());\
+
+		SmartDashboard.putNumber("Arm Extension (dummy talon srx)",
+				extensionSRXDummy.getSelectedSensorPosition() / 4096);
 		SmartDashboard.putNumber("Arm Pivot CANCODER", pivotEncoder.getAbsolutePosition());
 
 	}
