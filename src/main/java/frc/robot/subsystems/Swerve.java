@@ -115,7 +115,7 @@ public class Swerve extends SubsystemBase {
 			if (delta > 180.0d) {
 				delta -= 360;
 			}
-			double outputDegrees = Math.abs(delta) > 15.0d
+			double outputDegrees = Math.abs(delta) > 5.0d
 					? Constants.Voltage * rotationAggressivePID.calculate(delta)
 					: Constants.Voltage * rotationPassivePID.calculate(delta);
 

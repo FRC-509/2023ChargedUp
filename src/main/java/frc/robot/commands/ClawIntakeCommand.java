@@ -34,9 +34,4 @@ public class ClawIntakeCommand extends CommandBase {
 			clawSubsystem.toggleClaw();
 		}
 	}
-
-	@Override
-	public void end(boolean interrupted) {
-		clawSubsystem.stopIntake();
-	}
 }

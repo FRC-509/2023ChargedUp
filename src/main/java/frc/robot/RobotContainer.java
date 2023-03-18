@@ -22,17 +22,26 @@ import frc.robot.util.drivers.PigeonWrapper;
 import frc.robot.vision.*;
 import frc.robot.subsystems.Led;
 import java.io.IOException;
+import java.util.Map;
+
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -117,11 +126,11 @@ public class RobotContainer {
 				() -> rightStick.isDown(StickButton.Trigger),
 				() -> leftStick.isDown(StickButton.Trigger)));
 
-		// clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
-		// clawSubsystem,
-		// () -> controller.isPressed(LogiButton.A),
-		// () -> controller.isDown(LogiButton.LTrigger),
-		// () -> controller.isDown(LogiButton.RTrigger)));
+		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
+				clawSubsystem,
+				() -> controller.isPressed(LogiButton.A),
+				() -> controller.isDown(LogiButton.LTrigger),
+				() -> controller.isDown(LogiButton.RTrigger)));
 
 		armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem,
 				() -> MathUtil.applyDeadband(controller.getLeftStickY(), Constants.stickDeadband)
@@ -167,6 +176,16 @@ public class RobotContainer {
 		chooser.setDefaultOption("Charge Station",
 				new ChargeStation(swerveSubsystem, pigeon, -1));
 		chooser.addOption("None", null);
+		PathPlannerTrajectory trajectory = PathPlanner.loadPath("twometer", new PathConstraints(3.0, 1.0));
+		SwerveAutoBuilder builder = new SwerveAutoBuilder(swerveSubsystem::getPose,
+				swerveSubsystem::resetOdometry,
+				Constants.swerveKinematics,
+				new PIDConstants(3, 0, 0),
+				new PIDConstants(3, 0, 0),
+				swerveSubsystem::setModuleStates,
+				Map.of(),
+				swerveSubsystem);
+		chooser.addOption("PATHPLANNER??!?!", builder.followPath(trajectory));
 
 		SmartDashboard.putData("Auto Chooser", chooser);
 	}

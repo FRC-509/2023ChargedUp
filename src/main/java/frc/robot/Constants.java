@@ -58,7 +58,7 @@ public final class Constants {
 	// Arm-related constants.
 	public static final double pivotGearRatio = 227.556;
 	public static final double extensionGearRatio = 64.0d;
-	public static final double maxExtension = 520.0;
+	public static final double maxExtension = 245.0;
 
 	// Drivetrain-related constants.
 	public static final double safetyBuffer = Units.inchesToMeters(40);

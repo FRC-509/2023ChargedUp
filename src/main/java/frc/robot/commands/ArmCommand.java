@@ -11,6 +11,10 @@ public class ArmCommand extends CommandBase {
 	private final DoubleSupplier rotationSup;
 	private final DoubleSupplier extensionSup;
 	private final BooleanSupplier disableSoftStops;
+	private double maintainPosition;
+	private boolean toggler;
+
+	private boolean hasInput = false;
 
 	public ArmCommand(
 			Arm s_Arm,
@@ -28,6 +32,17 @@ public class ArmCommand extends CommandBase {
 	@Override
 	public void execute() {
 		s_Arm.setPivotOutput(rotationSup.getAsDouble());
-		s_Arm.setExtensionOutput(extensionSup.getAsDouble(), disableSoftStops.getAsBoolean());
+
+		if (extensionSup.getAsDouble() == 0) {
+			if (hasInput) {
+				maintainPosition = s_Arm.getExtensionPosition();
+				s_Arm.setExtensionPosition(maintainPosition);
+			}
+
+			hasInput = false;
+		} else {
+			hasInput = true;
+			s_Arm.setExtensionOutput(extensionSup.getAsDouble(), disableSoftStops.getAsBoolean());
+		}
 	}
 }

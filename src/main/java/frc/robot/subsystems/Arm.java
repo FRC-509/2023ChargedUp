@@ -20,6 +20,7 @@ import frc.robot.util.Device;
 import frc.robot.util.drivers.LazyTalonFX;
 import frc.robot.util.drivers.NEOSparkMax;
 import frc.robot.util.math.Conversions;
+import frc.robot.util.math.PositionTarget;
 
 public class Arm extends SubsystemBase {
 	private final LazyTalonFX leftPivotMotor;
@@ -33,6 +34,7 @@ public class Arm extends SubsystemBase {
 	private final NEOSparkMax extensionMotor;
 	private double targetExtension;
 	private boolean extensionLoopDisabled;
+	private PositionTarget extensiontarget;
 
 	/*
 	 * Arm MUST start in a downward rotation, and completely retracted with an
@@ -47,6 +49,8 @@ public class Arm extends SubsystemBase {
 		extensionLoopDisabled = true;
 		extensionPositionPID = new PIDController(0.1, 0.0, 0.0);
 		extensionPositionPID.setTolerance(7.5);
+
+		extensiontarget = new PositionTarget(1, 250, 5);
 
 		extensionMotor.setSmartCurrentLimit(20);
 		extensionMotor.setSensorPosition(0);
@@ -64,7 +68,7 @@ public class Arm extends SubsystemBase {
 
 		extensionSRXDummy.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
 
-		double initialExt = (extensionSRXDummy.getSelectedSensorPosition() / 4096) * 28.06685;
+		double initialExt = (extensionSRXDummy.getSelectedSensorPosition() / 4096) * 28.06685 + 240;
 		extensionMotor.setSensorPosition(initialExt);
 	}
 
@@ -136,16 +140,20 @@ public class Arm extends SubsystemBase {
 
 	public void setExtensionOutput(double percentOutput, boolean disableSoftStop) {
 		extensionLoopDisabled = true;
-		if (extensionMotor.getSensorPosition() <= Constants.maxExtension
-				|| disableSoftStop) {
-			extensionMotor.set(percentOutput);
-		} else {
+
+		if (percentOutput > 0 && extensionMotor.getSensorPosition() >= Constants.maxExtension) {
 			extensionMotor.set(0);
+		} else {
+			extensionMotor.set(percentOutput);
 		}
 	}
 
 	public void stopExtensionMotor() {
 		setExtensionOutput(0, false);
+	}
+
+	public void extensionAtSetpoint() {
+		extensionPositionPID.atSetpoint();
 	}
 
 	@Override
@@ -168,7 +176,7 @@ public class Arm extends SubsystemBase {
 		// extensionEncoder.getAbsolutePosition());\
 
 		SmartDashboard.putNumber("Arm Extension (dummy talon srx)",
-				extensionSRXDummy.getSelectedSensorPosition() / 4096 * 28.06685);
+				extensionSRXDummy.getSelectedSensorPosition() / 4096 * 28.06685 + 240);
 		SmartDashboard.putNumber("Arm Pivot CANCODER", pivotEncoder.getAbsolutePosition());
 
 	}
