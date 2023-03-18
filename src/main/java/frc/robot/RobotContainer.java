@@ -34,14 +34,15 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -71,9 +72,11 @@ public class RobotContainer {
 	private final SendableChooser<String> loopTypeForExtension = new SendableChooser<String>();
 
 	public RobotContainer() {
-		UsbCamera cam = CameraServer.startAutomaticCapture();
-		cam.setFPS(15);
-		cam.setResolution(10, 10);
+		if (RobotBase.isReal()) {
+			UsbCamera cam = CameraServer.startAutomaticCapture();
+			cam.setFPS(15);
+			cam.setResolution(10, 10);
+		}
 
 		// Initialize and configure the gyroscope.
 		this.pigeon.configFactoryDefault();
@@ -115,16 +118,28 @@ public class RobotContainer {
 					timeStamp.update();
 				},
 				timeStamp));
-
-		swerveSubsystem.setDefaultCommand(new DriveCommand(
-				swerveSubsystem,
-				() -> -leftStick.getY(),
-				() -> -leftStick.getX(),
-				() -> -rightStick.getX(),
-				() -> leftStick.getRawButton(2),
-				() -> leftStick.isDown(StickButton.RightSideMiddleBottom),
-				() -> rightStick.isDown(StickButton.Trigger),
-				() -> leftStick.isDown(StickButton.Trigger)));
+		if (RobotBase.isReal()) {
+			// The thrustmaster joysticks on the Driver Station.
+			swerveSubsystem.setDefaultCommand(new DriveCommand(
+					swerveSubsystem,
+					() -> -leftStick.getY(),
+					() -> -leftStick.getX(),
+					() -> -rightStick.getX(),
+					() -> leftStick.isDown(StickButton.Bottom),
+					() -> leftStick.isDown(StickButton.RightSideMiddleBottom),
+					() -> rightStick.isDown(StickButton.Trigger),
+					() -> leftStick.isDown(StickButton.Trigger)));
+		} else {
+			swerveSubsystem.setDefaultCommand(new DriveCommand(
+					swerveSubsystem,
+					() -> -controller.getLeftStickY(),
+					() -> -controller.getLeftStickX(),
+					() -> -controller.getRightStickX(),
+					() -> controller.isDown(LogiButton.Y),
+					() -> controller.isDown(LogiButton.X),
+					() -> controller.isDown(LogiButton.RTrigger),
+					() -> controller.isDown(LogiButton.LTrigger)));
+		}
 
 		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
 				clawSubsystem,
@@ -185,7 +200,11 @@ public class RobotContainer {
 				swerveSubsystem::setModuleStates,
 				Map.of(),
 				swerveSubsystem);
-		chooser.addOption("PATHPLANNER??!?!", builder.followPath(trajectory));
+		SequentialCommandGroup group = new SequentialCommandGroup(
+				new InstantCommand(() -> swerveSubsystem.resetOdometry(trajectory.getInitialPose()), swerveSubsystem),
+				builder.followPath(trajectory),
+				new InstantCommand(() -> swerveSubsystem.drive(new Translation2d(), 0, false, false), swerveSubsystem));
+		chooser.addOption("PATHPLANNER??!?!", group);
 
 		SmartDashboard.putData("Auto Chooser", chooser);
 	}
