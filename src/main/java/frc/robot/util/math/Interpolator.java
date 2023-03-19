@@ -29,7 +29,7 @@ public class Interpolator {
 	public double update() {
 		position += scale * (trailingPoint - position) * timeStamp.deltaTime();
 
-		if (Conversions.withinDeadband(position, trailingPoint, 0.1 * scale)) {
+		if (Utils.withinDeadband(position, trailingPoint, 0.1 * scale)) {
 			trailingPoint = setPoint;
 		}
 

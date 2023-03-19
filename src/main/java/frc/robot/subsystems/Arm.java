@@ -141,12 +141,6 @@ public class Arm extends SubsystemBase implements IDebuggable {
 
 	// Pivot Control
 
-	public void moveArmByDegrees(double deltaDegrees) {
-		double targetPosition = Conversions.degreesToFalcon(getPivotDegrees() + deltaDegrees, Constants.pivotGearRatio);
-		leftPivotMotor.set(ControlMode.Position, targetPosition);
-		rightPivotMotor.set(ControlMode.Position, targetPosition);
-	}
-
 	public void setPivotOutput(double percentOutput) {
 		percentOutput = MathUtil.clamp(percentOutput, -1.0d, 1.0d);
 

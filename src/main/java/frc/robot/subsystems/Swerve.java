@@ -24,6 +24,7 @@ import frc.robot.util.Debug;
 import frc.robot.util.drivers.PigeonWrapper;
 import frc.robot.util.math.Conversions;
 import frc.robot.util.math.Interpolator;
+import frc.robot.util.math.Utils;
 import frc.robot.vision.LimelightWrapper;
 
 public class Swerve extends SubsystemBase {
@@ -101,7 +102,7 @@ public class Swerve extends SubsystemBase {
 
 		double rotationOutput;
 		double interpolatedRotation = rotationInterplator.update();
-		boolean hasRotationInput = !Conversions.withinDeadband(rotationRadiansPerSecond, 0, 0.01);
+		boolean hasRotationInput = !Utils.withinDeadband(rotationRadiansPerSecond, 0, 0.01);
 
 		if (hasRotationInput) {
 			timer.reset();
