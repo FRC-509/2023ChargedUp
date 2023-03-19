@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Chassis;
-import frc.robot.Constants.ArmDimensions;
 import frc.robot.util.Debug;
 import frc.robot.util.Device;
 import frc.robot.util.drivers.LazyTalonFX;
@@ -32,6 +31,8 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	private CANCoder pivotEncoder;
 	private PIDController extensionPositionPID;
 	private TalonSRX extensionSRXEncoder;
+	private PositionTarget extensionTarget;
+	private PositionTarget pivotTarget;
 
 	// the percent output needed to maintain a completely horizontal position.
 	private final NEOSparkMax extensionMotor;
@@ -62,6 +63,13 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		extensionSRXEncoder.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
 		double initialExtension = (extensionSRXEncoder.getSelectedSensorPosition() / 4096) * 28.06685 + 240;
 		extensionMotor.setSensorPosition(initialExtension);
+
+		this.extensionTarget = new PositionTarget(
+				Constants.Arm.maxExtensionSpeed,
+				getExtensionPosition(),
+				0.0d,
+				Constants.Arm.maxExtension);
+		this.pivotTarget = new PositionTarget(Constants.Arm.maxPivotSpeed, getPivotDegrees(), 0, 150);
 	}
 
 	public double getPivotDegrees() {
@@ -131,7 +139,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 				? Chassis.height
 				: 0.1;
 
-		return (minHeight / cos) - ArmDimensions.base;
+		return (minHeight / cos) - Constants.Arm.baseLength;
 	}
 
 	public void setExtensionLength(double meters) {
@@ -141,11 +149,16 @@ public class Arm extends SubsystemBase implements IDebuggable {
 
 	// Pivot Control
 
-	public void setPivotOutput(double percentOutput) {
-		percentOutput = MathUtil.clamp(percentOutput, -1.0d, 1.0d);
+	public void setPivotOutput(double percent) {
+		double target = pivotTarget.update(percent);
 
-		leftPivotMotor.set(ControlMode.PercentOutput, percentOutput);
-		rightPivotMotor.set(ControlMode.PercentOutput, percentOutput);
+		leftPivotMotor.set(ControlMode.Position, target);
+		rightPivotMotor.set(ControlMode.Position, target);
+	}
+
+	public void setExtensionOutput(double percent) {
+		double target = extensionTarget.update(percent);
+		setExtensionPosition(target);
 	}
 
 	// Extension Control
@@ -154,30 +167,17 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		return extensionMotor.getSensorPosition();
 	}
 
-	/// Returns the extension of the arm, converting sensor ticks to extended meters
-	/// Derived through data collection and regression
-
 	public double getArmLength() {
-		return ArmDimensions.base + getExtensionLength();
+		return Constants.Arm.baseLength + getExtensionLength();
 	}
 
-	public void setExtensionOutput(double percentOutput, boolean disableSoftStop) {
-		extensionLoopDisabled = true;
-
-		if (percentOutput > 0 && extensionMotor.getSensorPosition() >= Constants.maxExtension) {
-			extensionMotor.set(0);
-		} else {
-			extensionMotor.set(percentOutput);
-		}
-	}
-
-	public void setExtensionPosition(double targetPos) {
+	public void setExtensionPosition(double target) {
 		extensionLoopDisabled = false;
-		targetExtension = MathUtil.clamp(targetPos, 0, Constants.maxExtension);
+		targetExtension = target;
 	}
 
 	public void stopExtensionMotor() {
-		setExtensionOutput(0, false);
+		setExtensionOutput(0);
 	}
 
 	public void extensionAtSetpoint() {

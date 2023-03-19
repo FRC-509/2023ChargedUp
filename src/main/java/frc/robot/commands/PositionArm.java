@@ -2,7 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.ArmDimensions;
+import frc.robot.Constants;
 import frc.robot.subsystems.Arm;
 import frc.robot.util.math.Utils;
 
@@ -42,7 +42,7 @@ public class PositionArm extends CommandBase {
 			// then immediately rotate the arm out as fast as possible while optimizing the
 			// extension length to the maximum value possible given the instantaneous pivot
 			double maxExtension = arm.maxPossibleHeight() / Math.cos(Math.toRadians(arm.getPivotDegrees()))
-					- ArmDimensions.base;
+					- Constants.Arm.baseLength;
 
 			arm.setExtensionLength(maxExtension);
 			arm.setPivotDegrees(targetPivot);

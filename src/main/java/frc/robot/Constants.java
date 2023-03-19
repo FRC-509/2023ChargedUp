@@ -36,17 +36,22 @@ public final class Constants {
 	}
 
 	// TODO: populate with real data!!!
-	public static class ArmDimensions {
+	public static class Arm {
 		/// The length of the base of the arm in meters
-		public static double base = -1.0d;
+		public static double baseLength = -1.0d;
+		/// Maximum speed the arm can extend in sensor ticks / second
+		public static double maxExtensionSpeed = -1.0d;
+		/// maximum speed the arm SHOULD pivot in degrees / second
+		public static double maxPivotSpeed = -1.0d;
 
+		public static final double maxExtension = 245.0;
 	}
 
 	public static class Chassis {
 		public static final double length = Units.inchesToMeters(28);
 		public static final double width = Units.inchesToMeters(28);
 
-		// TODO: FIXME!
+		// TODO: populate with real data!!!
 		public static final double height = -1;
 	}
 
@@ -66,7 +71,6 @@ public final class Constants {
 	// Arm-related constants.
 	public static final double pivotGearRatio = 227.556;
 	public static final double extensionGearRatio = 64.0d;
-	public static final double maxExtension = 245.0;
 
 	// Drivetrain-related constants.
 

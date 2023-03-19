@@ -15,9 +15,10 @@ public class PositionTarget {
 		previousTimeStamp = Timer.getFPGATimestamp();
 	}
 
-	public PositionTarget(double min, double max, double weight) {
+	public PositionTarget(double rate, double start, double min, double max) {
 		previousTimeStamp = Timer.getFPGATimestamp();
-		this.rate = weight;
+		this.rate = rate;
+		this.target = start;
 		this.min = min;
 		this.max = max;
 	}
