@@ -4,12 +4,15 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.revrobotics.CANSparkMax.IdleMode;
 
-import frc.robot.Constants;
 import frc.robot.util.DeviceBuilder.CANCoderBuilder;
 import frc.robot.util.DeviceBuilder.FalconBuilder;
 import frc.robot.util.DeviceBuilder.NeoBuilder;
 
 public class Device {
+	public static final String CanBus = "509CANIvore";
+	public static final String RioBus = "rio";
+	public static final String limelightName = "limelight";
+
 	public static class Swerve {
 		public static class Module {
 			public static int frontLeft = 0;
@@ -68,21 +71,21 @@ public class Device {
 	public static class Encoder {
 		public static CANCoderBuilder pivot = new CANCoderBuilder(
 				EncoderId.pivot,
-				Constants.RoboRio,
+				RioBus,
 				-346.12);
 	}
 
 	public static class Motor {
 		public static FalconBuilder rightPivot = new FalconBuilder(
 				20,
-				Constants.RoboRio,
+				RioBus,
 				new PIDConstants(0.05, 0, 0.0005, 0),
 				NeutralMode.Brake,
 				false, FeedbackDevice.IntegratedSensor);
 
 		public static FalconBuilder leftPivot = new FalconBuilder(
 				13,
-				Constants.RoboRio,
+				RioBus,
 				new PIDConstants(0.05, 0, 0.0005, 0),
 				NeutralMode.Brake,
 				true, FeedbackDevice.IntegratedSensor);

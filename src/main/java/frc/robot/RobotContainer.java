@@ -14,6 +14,7 @@ import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Swerve;
 import edu.wpi.first.cameraserver.*;
 import frc.robot.subsystems.TimeStamp;
+import frc.robot.util.Device;
 import frc.robot.util.controllers.JoystickController;
 import frc.robot.util.controllers.LogitechController;
 import frc.robot.util.controllers.JoystickController.StickButton;
@@ -44,15 +45,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
-/**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in
- * the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of
- * the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
- */
 public class RobotContainer {
 	public final JoystickController leftStick = new JoystickController(1);
 	public final JoystickController rightStick = new JoystickController(0);
@@ -60,8 +52,8 @@ public class RobotContainer {
 
 	public static TimeStamp timeStamp = new TimeStamp();
 
-	public final LimelightWrapper limelight = new LimelightWrapper(Constants.limelightName);
-	public final PigeonWrapper pigeon = new PigeonWrapper(30, Constants.CANIvore, 180.0d);
+	public final LimelightWrapper limelight = new LimelightWrapper(Device.limelightName);
+	public final PigeonWrapper pigeon = new PigeonWrapper(30, Device.CanBus, 180.0d);
 	public AprilTagFieldLayout fieldLayout;
 
 	public final Swerve swerveSubsystem;
@@ -114,10 +106,9 @@ public class RobotContainer {
 
 	public void configureButtonBindings() {
 		timeStamp.setDefaultCommand(new InstantCommand(
-				() -> {
-					timeStamp.update();
-				},
+				() -> timeStamp.update(),
 				timeStamp));
+
 		if (RobotBase.isReal()) {
 			// The thrustmaster joysticks on the Driver Station.
 			swerveSubsystem.setDefaultCommand(new DriveCommand(

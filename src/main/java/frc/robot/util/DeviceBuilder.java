@@ -5,20 +5,15 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
-import com.revrobotics.REVLibError;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import frc.robot.util.drivers.LazyTalonFX;
 import frc.robot.util.drivers.NEOSparkMax;
+import frc.robot.util.interfaces.IDeviceBuilder;
 
 public class DeviceBuilder {
-	private interface IDeviceBuilder<T> {
-		public T build();
-	}
-
 	public static class NeoBuilder implements IDeviceBuilder<NEOSparkMax> {
 		final int id;
 		final IdleMode neutralMode;
@@ -33,9 +28,7 @@ public class DeviceBuilder {
 		@Override
 		public NEOSparkMax build() {
 			NEOSparkMax spark = new NEOSparkMax(id);
-			if (spark.setIdleMode(neutralMode) != REVLibError.kOk) {
-				DriverStation.reportError("failed to set neutral mod", false);
-			}
+			spark.setIdleMode(neutralMode);
 			spark.setInverted(isReverse);
 			return spark;
 		}
@@ -117,10 +110,7 @@ public class DeviceBuilder {
 		public LazyTalonFX build() {
 			LazyTalonFX falcon = new LazyTalonFX(id, canBus, gearRatio);
 			falcon.setNeutralMode(neutralMode);
-			falcon.config_kP(0, constants.kP);
-			falcon.config_kI(0, constants.kI);
-			falcon.config_kD(0, constants.kD);
-			falcon.config_kF(0, constants.kF);
+			falcon.setConstants(constants);
 			falcon.setInverted(isReverse);
 			falcon.configIntegratedSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
 			falcon.configIntegratedSensorAbsoluteRange(AbsoluteSensorRange.Unsigned_0_to_360);

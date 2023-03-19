@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.util.Device;
 import frc.robot.util.drivers.LazyTalonFX;
 import frc.robot.util.math.Conversions;
 
@@ -38,11 +39,11 @@ public class SwerveModule {
 		canCoderConfiguration.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
 		canCoderConfiguration.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
 		canCoderConfiguration.magnetOffsetDegrees = configs.angleEncoderOffset;
-		this.angleEncoder = new CANCoder(configs.angleEncoderId, Constants.CANIvore);
+		this.angleEncoder = new CANCoder(configs.angleEncoderId, Device.CanBus);
 		this.angleEncoder.configAllSettings(canCoderConfiguration);
 
 		// Angle Motor Config
-		this.angleMotor = new LazyTalonFX(configs.angleMotorId, Constants.CANIvore);
+		this.angleMotor = new LazyTalonFX(configs.angleMotorId, Device.CanBus);
 		this.angleMotor.setNeutralMode(NeutralMode.Coast);
 		this.angleMotor.config_kP(0, configs.steerPID.kP);
 		this.angleMotor.config_kI(0, configs.steerPID.kI);
@@ -50,7 +51,7 @@ public class SwerveModule {
 		this.angleMotor.config_kF(0, configs.steerPID.kF);
 
 		// Drive Motor Config
-		this.driveMotor = new LazyTalonFX(configs.driveMotorId, Constants.CANIvore);
+		this.driveMotor = new LazyTalonFX(configs.driveMotorId, Device.CanBus);
 		this.driveMotor.setNeutralMode(NeutralMode.Brake);
 		this.driveMotor.setSelectedSensorPosition(0);
 		this.driveMotor.config_kP(0, configs.drivePID.kP);

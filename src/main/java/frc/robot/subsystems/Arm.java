@@ -11,94 +11,140 @@ import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.Chassis;
+import frc.robot.Constants.ArmDimensions;
 import frc.robot.util.Debug;
 import frc.robot.util.Device;
 import frc.robot.util.drivers.LazyTalonFX;
 import frc.robot.util.drivers.NEOSparkMax;
+import frc.robot.util.interfaces.IDebuggable;
 import frc.robot.util.math.Conversions;
 import frc.robot.util.math.PositionTarget;
 
-public class Arm extends SubsystemBase {
+public class Arm extends SubsystemBase implements IDebuggable {
 	private final LazyTalonFX leftPivotMotor;
 	private final LazyTalonFX rightPivotMotor;
 	private CANCoder pivotEncoder;
 	private PIDController extensionPositionPID;
-	private TalonSRX extensionSRXDummy;
+	private TalonSRX extensionSRXEncoder;
 
 	// the percent output needed to maintain a completely horizontal position.
-	private static final double maximumFF = 0;
 	private final NEOSparkMax extensionMotor;
 	private double targetExtension;
 	private boolean extensionLoopDisabled;
-	private PositionTarget extensiontarget;
+	private double pivotFeedForward = 0.0;
 
-	/*
-	 * Arm MUST start in a downward rotation, and completely retracted with an
-	 * extension of 0.
-	 */
 	public Arm() {
-		leftPivotMotor = Device.Motor.leftPivot.build();
-		rightPivotMotor = Device.Motor.rightPivot.build();
-		extensionMotor = Device.Motor.extension.build();
-
-		targetExtension = 0;
-		extensionLoopDisabled = true;
-		extensionPositionPID = new PIDController(0.1, 0.0, 0.0);
-		extensionPositionPID.setTolerance(7.5);
-
-		extensiontarget = new PositionTarget(1, 250, 5);
+		this.leftPivotMotor = Device.Motor.leftPivot.build();
+		this.rightPivotMotor = Device.Motor.rightPivot.build();
+		this.extensionMotor = Device.Motor.extension.build();
+		this.pivotEncoder = Device.Encoder.pivot.build();
 
 		extensionMotor.setSmartCurrentLimit(20);
 		extensionMotor.setSensorPosition(0);
-		extensionSRXDummy = new TalonSRX(50);
-		pivotEncoder = new CANCoder(40, "rio");
-		pivotEncoder.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
-		pivotEncoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
-		pivotEncoder.configMagnetOffset(-346.12d);
+		extensionSRXEncoder = new TalonSRX(Device.EncoderId.extension);
+		extensionPositionPID = Constants.PID.extension_P;
+
+		targetExtension = 0;
+		extensionLoopDisabled = true;
 
 		Timer.delay(1.0);
 
-		double initialRot = Conversions.degreesToFalcon(pivotEncoder.getAbsolutePosition(), Constants.pivotGearRatio);
-		leftPivotMotor.setSelectedSensorPosition(initialRot);
-		rightPivotMotor.setSelectedSensorPosition(initialRot);
+		double initialPivot = Conversions.degreesToFalcon(pivotEncoder.getAbsolutePosition(), Constants.pivotGearRatio);
+		leftPivotMotor.setSelectedSensorPosition(initialPivot);
+		rightPivotMotor.setSelectedSensorPosition(initialPivot);
 
-		extensionSRXDummy.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
-
-		double initialExt = (extensionSRXDummy.getSelectedSensorPosition() / 4096) * 28.06685 + 240;
-		extensionMotor.setSensorPosition(initialExt);
-	}
-
-	public void tunePID() {
-		double kP = Debug.serializeNumber("ExkP", 1.0);
-		double kI = Debug.serializeNumber("ExkI", 0.0);
-		double kD = Debug.serializeNumber("ExkD", 0.0);
-
-		SmartDashboard.putNumber("current rotation: ", getPivotDegrees());
-
-		leftPivotMotor.config_kP(0, kP);
-		leftPivotMotor.config_kI(0, kI);
-		leftPivotMotor.config_kD(0, kD);
-
-		rightPivotMotor.config_kP(0, kP);
-		rightPivotMotor.config_kI(0, kI);
-		rightPivotMotor.config_kD(0, kD);
-
-		double target = Debug.serializeNumber("arm target velocity: ", 0.0);
-
-		leftPivotMotor.set(ControlMode.Velocity, Conversions.degreesToFalcon(target, Constants.pivotGearRatio));
-		rightPivotMotor.set(ControlMode.Velocity, Conversions.degreesToFalcon(target, Constants.pivotGearRatio));
+		extensionSRXEncoder.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
+		double initialExtension = (extensionSRXEncoder.getSelectedSensorPosition() / 4096) * 28.06685 + 240;
+		extensionMotor.setSensorPosition(initialExtension);
 	}
 
 	public double getPivotDegrees() {
 		return Conversions.falconToDegrees(leftPivotMotor.getSelectedSensorPosition(), Constants.pivotGearRatio);
 	}
 
-	public double getExtensionPosition() {
-		return extensionMotor.getSensorPosition();
+	public void setPivotDegrees(double degrees) {
+		double delta = (degrees - getPivotDegrees()) % 360;
+		if (delta > 180.0d) {
+			delta -= 360.0d;
+		} else if (delta < -180.0d) {
+			delta += 360.0d;
+		}
+
+		double target = getPivotDegrees() + delta;
+		double targetDegrees = Conversions.degreesToFalcon(target, Constants.pivotGearRatio);
+		leftPivotMotor.set(ControlMode.Position, targetDegrees);
+		rightPivotMotor.set(ControlMode.Position, targetDegrees);
+	}
+
+	/// Derived equation for extension ticks to length using regression
+	public double extensionTicksToLength(double x) {
+		return 5.03 + 0.25 * x + 1.9 * Math.sin(Math.toRadians(0.0191 * x) - 0.775);
+	}
+
+	/// Derived equation for extension length to ticks using regression
+	public double extensionLengthToTicks(double y) {
+		return -21.454 + 3.995 * y + 7.794 * Math.sin(Math.toRadians(0.0736 * y) + 1.89);
+	}
+
+	public double getExtensionLength() {
+		return extensionTicksToLength(getExtensionPosition());
+	}
+
+	public double maxPossibleHeightAt(double degrees) {
+		double base = getArmLength() * Math.sin(Math.toRadians(degrees));
+
+		if (base < Chassis.width / 2.0d) {
+			return Chassis.height;
+		} else {
+			return 0.1d;
+		}
+	}
+
+	// TODO: FIXME! - measure from top to ground, not from ground!!!
+	public double maxPossibleHeight() {
+		return maxPossibleHeightAt(getPivotDegrees());
+	}
+
+	/// returns whether a given (pivot, extension) is possible within the
+	/// dimensional constraints of the robot
+	/// NOTE: pivot should be within [0, 180] degrees
+	public boolean isPossible(double pivot, double extension) {
+		pivot = MathUtil.clamp(pivot, 0, 180);
+		double height = getArmLength() * Math.cos(Math.toRadians(pivot));
+
+		return height > maxPossibleHeight();
+	}
+
+	/// Returns the maximum possible extension given the
+	/// current pivot heading of the arm
+	public double getMaximumExtension() {
+		double sin = Math.sin(Math.toRadians(getPivotDegrees()));
+		double cos = Math.cos(Math.toRadians(getPivotDegrees()));
+
+		double minHeight = getArmLength() * sin <= Chassis.width / 2
+				? Chassis.height
+				: 0.1;
+
+		return (minHeight / cos) - ArmDimensions.base;
+	}
+
+	public void setExtensionLength(double meters) {
+		double ticks = extensionLengthToTicks(meters);
+		setExtensionPosition(ticks);
+	}
+
+	// Pivot Control
+
+	public void moveArmByDegrees(double deltaDegrees) {
+		double targetPosition = Conversions.degreesToFalcon(getPivotDegrees() + deltaDegrees, Constants.pivotGearRatio);
+		leftPivotMotor.set(ControlMode.Position, targetPosition);
+		rightPivotMotor.set(ControlMode.Position, targetPosition);
 	}
 
 	public void setPivotOutput(double percentOutput) {
@@ -108,34 +154,17 @@ public class Arm extends SubsystemBase {
 		rightPivotMotor.set(ControlMode.PercentOutput, percentOutput);
 	}
 
-	public void setPivotDegrees(double angle) {
-		// calculate "effective" delta angle and add back to raw encoder value to allow
-		// for continuous control
-		double bounded = getPivotDegrees() % 360.0d;
-		double targetPosition = Conversions.degreesToFalcon(getPivotDegrees() + (angle - bounded),
-				Constants.pivotGearRatio);
-		double feedforward = Math.cos(Math.toRadians(getPivotDegrees())) * maximumFF;
-		leftPivotMotor.set(ControlMode.Position, targetPosition, DemandType.ArbitraryFeedForward, feedforward);
-		rightPivotMotor.set(ControlMode.Position, targetPosition, DemandType.ArbitraryFeedForward, feedforward);
+	// Extension Control
+
+	public double getExtensionPosition() {
+		return extensionMotor.getSensorPosition();
 	}
 
-	public void moveArmBy(double deltaDegrees) {
-		// calculate "effective" delta angle and add back to raw encoder value to allow
-		// for continuous control
-		double targetPosition = Conversions.degreesToFalcon(getPivotDegrees() + deltaDegrees, Constants.pivotGearRatio);
-		leftPivotMotor.set(ControlMode.Position, targetPosition);
-		rightPivotMotor.set(ControlMode.Position, targetPosition);
-	}
+	/// Returns the extension of the arm, converting sensor ticks to extended meters
+	/// Derived through data collection and regression
 
-	/*
-	 * public void resetExtensionSensorPosition() {
-	 * extensionMotor.setSensorPosition(0);
-	 * }
-	 */
-
-	public void setExtensionPosition(double targetPos) {
-		extensionLoopDisabled = false;
-		targetExtension = MathUtil.clamp(targetPos, 0, Constants.maxExtension);
+	public double getArmLength() {
+		return ArmDimensions.base + getExtensionLength();
 	}
 
 	public void setExtensionOutput(double percentOutput, boolean disableSoftStop) {
@@ -148,6 +177,11 @@ public class Arm extends SubsystemBase {
 		}
 	}
 
+	public void setExtensionPosition(double targetPos) {
+		extensionLoopDisabled = false;
+		targetExtension = MathUtil.clamp(targetPos, 0, Constants.maxExtension);
+	}
+
 	public void stopExtensionMotor() {
 		setExtensionOutput(0, false);
 	}
@@ -158,26 +192,33 @@ public class Arm extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		// tunePID();
-
-		// We put our extension PID loop logic in a periodic() method so that its always
-		// running.
 		if (!extensionLoopDisabled) {
 			double output = extensionPositionPID.calculate(extensionMotor.getSensorPosition(), targetExtension);
 			extensionMotor.set(output);
 		}
 
+		show("s_arm");
+		// debug("s_arm")
+	}
+
+	@Override
+	public void show(String key) {
 		SmartDashboard.putNumber("Arm Pivot (Degrees)", getPivotDegrees());
-		// SmartDashboard.putNumber("Arm Pivot (abs)",
-		// pivotEncoder.getAbsolutePosition());
-		// SmartDashboard.putBoolean("is connected", pivotEncoder.isConnected());
 		SmartDashboard.putNumber("Arm (Int) Extension Position", extensionMotor.getSensorPosition());
-		// SmartDashboard.putNumber("Arm (Abs) Extension Position",
-		// extensionEncoder.getAbsolutePosition());\
-
 		SmartDashboard.putNumber("Arm Extension (dummy talon srx)",
-				extensionSRXDummy.getSelectedSensorPosition() / 4096 * 28.06685 + 240);
+				extensionSRXEncoder.getSelectedSensorPosition() / 4096 * 28.06685 + 240);
 		SmartDashboard.putNumber("Arm Pivot CANCODER", pivotEncoder.getAbsolutePosition());
+	}
 
+	@Override
+	public void debug(String key) {
+		leftPivotMotor.getConstants().debug("pivot");
+		rightPivotMotor.setConstants(leftPivotMotor.getConstants());
+
+		SmartDashboard.putNumber("current rotation: ", getPivotDegrees());
+		double target = Debug.debugNumber("arm target velocity: ", 0.0);
+
+		leftPivotMotor.set(ControlMode.Velocity, Conversions.degreesToFalcon(target, Constants.pivotGearRatio));
+		rightPivotMotor.set(ControlMode.Velocity, Conversions.degreesToFalcon(target, Constants.pivotGearRatio));
 	}
 }

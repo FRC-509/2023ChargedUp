@@ -85,9 +85,9 @@ public class Swerve extends SubsystemBase {
 		SmartDashboard.putNumber("interpolation: ", rotationInterplator.getPosition());
 		SmartDashboard.putNumber("timer: ", timer.get());
 
-		double kP = Debug.serializeNumber("rot P", 0.0);
-		double kI = Debug.serializeNumber("rot I", 0.0);
-		double kD = Debug.serializeNumber("rot D", 0.0);
+		double kP = Debug.debugNumber("rot P", 0.0);
+		double kI = Debug.debugNumber("rot I", 0.0);
+		double kD = Debug.debugNumber("rot D", 0.0);
 
 		rotationAggressivePID.setP(kP);
 		rotationAggressivePID.setI(kI);
