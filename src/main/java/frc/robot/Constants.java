@@ -35,16 +35,17 @@ public final class Constants {
 		}
 	}
 
-	// TODO: populate with real data!!!
 	public static class Arm {
-		/// The length of the base of the arm in meters
-		public static double baseLength = -1.0d;
-		/// Maximum speed the arm can extend in sensor ticks / second
-		public static double maxExtensionSpeed = -1.0d;
-		/// maximum speed the arm SHOULD pivot in degrees / second
-		public static double maxPivotSpeed = -1.0d;
-
 		public static final double maxExtension = 245.0;
+
+		// TODO: populate with real data!!!
+		public static final double maxExtensionLength = -1.0d;
+		public static double baseLength = -1.0d;
+		public static double maxExtensionSpeed = -1.0d;
+		public static double maxPivotSpeed = -1.0d;
+		public static final double minHeight = -1.0;
+		public static final double pivotHeight = -1.0;
+		public static final double offsetToBase = -1.0;
 	}
 
 	public static class Chassis {

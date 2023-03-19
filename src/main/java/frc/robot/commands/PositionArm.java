@@ -19,34 +19,39 @@ public class PositionArm extends CommandBase {
 
 	@Override
 	public void execute() {
+		// if the pivot is constrained by the length
 		if (!arm.isPossible(targetPivot, arm.getArmLength())) {
 			// if the desired arm position is impossible given the current arm extension
 			// then immediately draw the arm back as fast as possible while optimizing the
 			// pivot heading to the minimum value possible given the instantaneous extension
-			double maxHeight = arm.maxPossibleHeight();
-			double pivot = Math.toDegrees(Math.acos(maxHeight / arm.getExtensionLength()));
+			double maxHeight = arm.getHeightLimit();
+			double pivot = Math.toDegrees(Math.acos(maxHeight / arm.getArmLength()));
 
 			// since the placing the arm inside the robot requires a different height
 			// then having it off the ground, ensure that minimizing the pivot angle
 			// won't crash into the chassis, and if it does, re-optimize the pivot
 			// given the chassis's height
-			double endMaxHeight = arm.maxPossibleHeightAt(pivot);
-			if (endMaxHeight != maxHeight) {
-				pivot = Math.toDegrees(Math.acos(endMaxHeight / arm.getExtensionLength()));
+			double finalMaxHeight = arm.getHeightLimitAt(pivot);
+			if (finalMaxHeight != maxHeight) {
+				pivot = Math.toDegrees(Math.acos(finalMaxHeight / arm.getArmLength()));
 			}
 
 			arm.setPivotDegrees(pivot);
 			arm.setExtensionLength(targetExtension);
-		} else if (!arm.isPossible(arm.getPivotDegrees(), targetExtension)) {
-			// if the desired arm position is impossible given the current picot heading
+		}
+		// if the length is constrained by the pivot
+		else if (!arm.isPossible(arm.getPivotDegrees(), targetExtension)) {
+			// if the desired arm position is impossible given the current pivot heading
 			// then immediately rotate the arm out as fast as possible while optimizing the
 			// extension length to the maximum value possible given the instantaneous pivot
-			double maxExtension = arm.maxPossibleHeight() / Math.cos(Math.toRadians(arm.getPivotDegrees()))
+			double maxExtension = arm.getHeightLimit() / Math.cos(Math.toRadians(arm.getPivotDegrees()))
 					- Constants.Arm.baseLength;
 
 			arm.setExtensionLength(maxExtension);
 			arm.setPivotDegrees(targetPivot);
-		} else {
+		}
+		// if neither mechanism is constrained
+		else {
 			arm.setExtensionLength(targetExtension);
 			arm.setPivotDegrees(targetPivot);
 		}

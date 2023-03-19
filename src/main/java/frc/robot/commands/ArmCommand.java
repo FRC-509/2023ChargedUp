@@ -42,7 +42,7 @@ public class ArmCommand extends CommandBase {
 			hasInput = false;
 		} else {
 			hasInput = true;
-			s_Arm.setExtensionOutput(extensionSup.getAsDouble(), disableSoftStops.getAsBoolean());
+			s_Arm.setExtensionOutput(extensionSup.getAsDouble());
 		}
 	}
 }

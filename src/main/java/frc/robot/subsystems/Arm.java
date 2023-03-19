@@ -2,21 +2,15 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
-import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.Chassis;
 import frc.robot.util.Debug;
 import frc.robot.util.Device;
 import frc.robot.util.drivers.LazyTalonFX;
@@ -69,11 +63,108 @@ public class Arm extends SubsystemBase implements IDebuggable {
 				getExtensionPosition(),
 				0.0d,
 				Constants.Arm.maxExtension);
-		this.pivotTarget = new PositionTarget(Constants.Arm.maxPivotSpeed, getPivotDegrees(), 0, 150);
+		this.pivotTarget = new PositionTarget(
+				Constants.Arm.maxPivotSpeed,
+				getPivotDegrees(),
+				0,
+				150);
 	}
 
+	/**
+	 * @return the current extension of the arm in sensor ticks
+	 */
+	public double getExtensionPosition() {
+		return extensionMotor.getSensorPosition();
+	}
+
+	/**
+	 * @return the current pivot of the arm in degrees
+	 */
 	public double getPivotDegrees() {
 		return Conversions.falconToDegrees(leftPivotMotor.getSelectedSensorPosition(), Constants.pivotGearRatio);
+	}
+
+	/**
+	 * @return the current length of the arm extension
+	 */
+	public double getExtensionLength() {
+		return extensionTicksToLength(getExtensionPosition());
+	}
+
+	/**
+	 * @return the current length of the arm base + extension
+	 */
+	public double getArmLength() {
+		return Constants.Arm.baseLength + getExtensionLength();
+	}
+
+	/**
+	 * @return the maximum possible length of the arm base + extension
+	 */
+	public double getMaxArmLength() {
+		return Constants.Arm.maxExtensionLength + Constants.Arm.baseLength;
+	}
+
+	/**
+	 * @param degrees the pivot of the arm in degrees
+	 * @return the maximum arm length allowed given the pivot degrees
+	 *         <p>
+	 *         If the arm can intersect the chassis base at the given rotation
+	 *         the maximum height relates to the chassis height, otherwise it
+	 *         relates to the minimum allowed height of the arm
+	 */
+	public double getHeightLimitAt(double degrees) {
+		if (degrees > 90.0d && degrees < 270.0d) {
+			return Double.NEGATIVE_INFINITY;
+		}
+
+		double cos = getArmLength() * Math.sin(Math.toRadians(getPivotDegrees()));
+
+		if (cos < Constants.Arm.offsetToBase) {
+			return Constants.Arm.pivotHeight - Constants.Chassis.height;
+		} else {
+			return Constants.Arm.pivotHeight - Constants.Arm.minHeight;
+		}
+	}
+
+	/**
+	 * @return the current maximum arm length allowed
+	 */
+	public double getHeightLimit() {
+		return getHeightLimitAt(getPivotDegrees());
+	}
+
+	/**
+	 * @param pivot     an arm pivot in degrees
+	 * @param extension an extension length in meters
+	 * @return whether the provided state is allowed given the
+	 *         dimensions of the robot
+	 */
+	public boolean isPossible(double pivot, double extension) {
+		double height = getArmLength() * Math.cos(Math.toRadians(pivot));
+		return height < getHeightLimit();
+	}
+
+	/**
+	 * @param x the extension motor ticks
+	 * @return the ticks converted into extension length
+	 *         <p>
+	 *         The equation for extension ticks to length was derived using
+	 *         regression
+	 */
+	public double extensionTicksToLength(double x) {
+		return 5.03 + 0.25 * x + 1.9 * Math.sin(Math.toRadians(0.0191 * x) - 0.775);
+	}
+
+	/**
+	 * @param y the extension length in meters
+	 * @return the length converted into extension ticks
+	 *         <p>
+	 *         The equation for extension length to ticks was derived using
+	 *         regression
+	 */
+	public double extensionLengthToTicks(double y) {
+		return -21.454 + 3.995 * y + 7.794 * Math.sin(Math.toRadians(0.0736 * y) + 1.89);
 	}
 
 	public void setPivotDegrees(double degrees) {
@@ -90,64 +181,10 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		rightPivotMotor.set(ControlMode.Position, targetDegrees);
 	}
 
-	/// Derived equation for extension ticks to length using regression
-	public double extensionTicksToLength(double x) {
-		return 5.03 + 0.25 * x + 1.9 * Math.sin(Math.toRadians(0.0191 * x) - 0.775);
-	}
-
-	/// Derived equation for extension length to ticks using regression
-	public double extensionLengthToTicks(double y) {
-		return -21.454 + 3.995 * y + 7.794 * Math.sin(Math.toRadians(0.0736 * y) + 1.89);
-	}
-
-	public double getExtensionLength() {
-		return extensionTicksToLength(getExtensionPosition());
-	}
-
-	public double maxPossibleHeightAt(double degrees) {
-		double base = getArmLength() * Math.sin(Math.toRadians(degrees));
-
-		if (base < Chassis.width / 2.0d) {
-			return Chassis.height;
-		} else {
-			return 0.1d;
-		}
-	}
-
-	// TODO: FIXME! - measure from top to ground, not from ground!!!
-	public double maxPossibleHeight() {
-		return maxPossibleHeightAt(getPivotDegrees());
-	}
-
-	/// returns whether a given (pivot, extension) is possible within the
-	/// dimensional constraints of the robot
-	/// NOTE: pivot should be within [0, 180] degrees
-	public boolean isPossible(double pivot, double extension) {
-		pivot = MathUtil.clamp(pivot, 0, 180);
-		double height = getArmLength() * Math.cos(Math.toRadians(pivot));
-
-		return height > maxPossibleHeight();
-	}
-
-	/// Returns the maximum possible extension given the
-	/// current pivot heading of the arm
-	public double getMaximumExtension() {
-		double sin = Math.sin(Math.toRadians(getPivotDegrees()));
-		double cos = Math.cos(Math.toRadians(getPivotDegrees()));
-
-		double minHeight = getArmLength() * sin <= Chassis.width / 2
-				? Chassis.height
-				: 0.1;
-
-		return (minHeight / cos) - Constants.Arm.baseLength;
-	}
-
 	public void setExtensionLength(double meters) {
 		double ticks = extensionLengthToTicks(meters);
 		setExtensionPosition(ticks);
 	}
-
-	// Pivot Control
 
 	public void setPivotOutput(double percent) {
 		double target = pivotTarget.update(percent);
@@ -157,37 +194,25 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	}
 
 	public void setExtensionOutput(double percent) {
-		double target = extensionTarget.update(percent);
-		setExtensionPosition(target);
+		extensionTarget.update(percent);
 	}
 
 	// Extension Control
 
-	public double getExtensionPosition() {
-		return extensionMotor.getSensorPosition();
-	}
-
-	public double getArmLength() {
-		return Constants.Arm.baseLength + getExtensionLength();
-	}
-
 	public void setExtensionPosition(double target) {
 		extensionLoopDisabled = false;
-		targetExtension = target;
+		extensionTarget.setPosition(target);
 	}
 
 	public void stopExtensionMotor() {
 		setExtensionOutput(0);
 	}
 
-	public void extensionAtSetpoint() {
-		extensionPositionPID.atSetpoint();
-	}
-
 	@Override
 	public void periodic() {
 		if (!extensionLoopDisabled) {
-			double output = extensionPositionPID.calculate(extensionMotor.getSensorPosition(), targetExtension);
+			double output = extensionPositionPID.calculate(extensionMotor.getSensorPosition(),
+					extensionTarget.getTarget());
 			extensionMotor.set(output);
 		}
 
