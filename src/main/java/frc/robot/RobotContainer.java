@@ -183,12 +183,12 @@ public class RobotContainer {
 				new ChargeStation(swerveSubsystem, pigeon, -1));
 		chooser.addOption("None", null);
 		PathPlannerTrajectory trajectory = PathPlanner.loadPath("inTheShop",
-				new PathConstraints(Constants.maxSpeed, 3.0));
+				new PathConstraints(Constants.maxSpeed, 3.2));
 		SwerveAutoBuilder builder = new SwerveAutoBuilder(swerveSubsystem::getPose,
 				swerveSubsystem::resetOdometry,
 				Constants.swerveKinematics,
 				new PIDConstants(3.5, 0, 0),
-				new PIDConstants(1.8, 0.3, 0.1),
+				new PIDConstants(1.6, 0.3, 0.1),
 				swerveSubsystem::setModuleStates,
 				Map.of(),
 				swerveSubsystem);
