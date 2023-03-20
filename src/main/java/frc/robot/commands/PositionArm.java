@@ -20,7 +20,7 @@ public class PositionArm extends CommandBase {
 	@Override
 	public void execute() {
 		// if the pivot is constrained by the length
-		if (!arm.isPossible(targetPivot, arm.getArmLength())) {
+		if (!arm.isValidState(targetPivot, arm.getArmLength())) {
 			// if the desired arm position is impossible given the current arm extension
 			// then immediately draw the arm back as fast as possible while optimizing the
 			// pivot heading to the minimum value possible given the instantaneous extension
@@ -40,7 +40,7 @@ public class PositionArm extends CommandBase {
 			arm.setExtensionLength(targetExtension);
 		}
 		// if the length is constrained by the pivot
-		else if (!arm.isPossible(arm.getPivotDegrees(), targetExtension)) {
+		else if (!arm.isValidState(arm.getPivotDegrees(), targetExtension)) {
 			// if the desired arm position is impossible given the current pivot heading
 			// then immediately rotate the arm out as fast as possible while optimizing the
 			// extension length to the maximum value possible given the instantaneous pivot
@@ -59,7 +59,7 @@ public class PositionArm extends CommandBase {
 
 	@Override
 	public void initialize() {
-		if (!arm.isPossible(targetPivot, targetExtension)) {
+		if (!arm.isValidState(targetPivot, targetExtension)) {
 			DriverStation.reportError("arm position isn't allowed!", null);
 			end(true);
 		}

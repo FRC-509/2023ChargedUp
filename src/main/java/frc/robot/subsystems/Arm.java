@@ -59,12 +59,10 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		extensionMotor.setSensorPosition(initialExtension);
 
 		this.extensionTarget = new PositionTarget(
-				Constants.Arm.maxExtensionSpeed,
 				getExtensionPosition(),
 				0.0d,
 				Constants.Arm.maxExtension);
 		this.pivotTarget = new PositionTarget(
-				Constants.Arm.maxPivotSpeed,
 				getPivotDegrees(),
 				0,
 				150);
@@ -106,6 +104,13 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	}
 
 	/**
+	 * @return the maximum possible length of the arm base + extension
+	 */
+	public double getMinArmLength() {
+		return Constants.Arm.minExtensionLength + Constants.Arm.baseLength;
+	}
+
+	/**
 	 * @param degrees the pivot of the arm in degrees
 	 * @return the maximum arm length allowed given the pivot degrees
 	 *         <p>
@@ -118,9 +123,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 			return Double.NEGATIVE_INFINITY;
 		}
 
-		double cos = getArmLength() * Math.sin(Math.toRadians(getPivotDegrees()));
-
-		if (cos < Constants.Arm.offsetToBase) {
+		if (isInChassis()) {
 			return Constants.Arm.pivotHeight - Constants.Chassis.height;
 		} else {
 			return Constants.Arm.pivotHeight - Constants.Arm.minHeight;
@@ -135,14 +138,29 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	}
 
 	/**
+	 * @return the height of the arm, or l * sin(theta)
+	 */
+	public double getHeight() {
+		return getArmLength() * Math.cos(Math.toRadians(getPivotDegrees()));
+	}
+
+	/**
 	 * @param pivot     an arm pivot in degrees
 	 * @param extension an extension length in meters
-	 * @return whether the provided state is allowed given the
-	 *         dimensions of the robot
+	 * @return whether the provided state is allowed given the dimensions of the
+	 *         robot
 	 */
-	public boolean isPossible(double pivot, double extension) {
+	public boolean isValidState(double pivot, double extension) {
 		double height = getArmLength() * Math.cos(Math.toRadians(pivot));
 		return height < getHeightLimit();
+	}
+
+	/**
+	 * @return whether the arm is currently residing within the chassis bounds
+	 */
+	public boolean isInChassis() {
+		double sin = getArmLength() * Math.sin(Math.toRadians(getPivotDegrees()));
+		return sin < Constants.Arm.offsetToBase;
 	}
 
 	/**
@@ -187,14 +205,15 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	}
 
 	public void setPivotOutput(double percent) {
-		double target = pivotTarget.update(percent);
+		double target = pivotTarget.update(percent, Constants.Arm.maxPivotSpeed);
 
 		leftPivotMotor.set(ControlMode.Position, target);
 		rightPivotMotor.set(ControlMode.Position, target);
 	}
 
 	public void setExtensionOutput(double percent) {
-		extensionTarget.update(percent);
+		// TODO: meters / second or units / second?
+		extensionTarget.update(percent, Constants.Arm.maxExtensionSpeed);
 	}
 
 	// Extension Control
