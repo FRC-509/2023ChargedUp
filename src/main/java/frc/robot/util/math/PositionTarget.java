@@ -29,7 +29,7 @@ public class PositionTarget {
 		this.max = max;
 	}
 
-	public double setPosition(double position) {
+	public double setTarget(double position) {
 		target = MathUtil.clamp(position, min, max);
 		return target;
 	}

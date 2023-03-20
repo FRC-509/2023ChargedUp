@@ -2,6 +2,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.CANCoder;
@@ -34,12 +35,13 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	private boolean extensionLoopDisabled;
 	private double pivotFeedForward = 0.0;
 
+	private boolean out = true;
+
 	public Arm() {
 		this.leftPivotMotor = Device.Motor.leftPivot.build();
 		this.rightPivotMotor = Device.Motor.rightPivot.build();
 		this.extensionMotor = Device.Motor.extension.build();
 		this.pivotEncoder = Device.Encoder.pivot.build();
-
 		extensionMotor.setSmartCurrentLimit(20);
 		extensionMotor.setSensorPosition(0);
 		extensionSRXEncoder = new TalonSRX(Device.EncoderId.extension);
@@ -55,7 +57,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		rightPivotMotor.setSelectedSensorPosition(initialPivot);
 
 		extensionSRXEncoder.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
-		double initialExtension = (extensionSRXEncoder.getSelectedSensorPosition() / 4096) * 28.06685 - 23.5;
+		double initialExtension = SRXToNEOUnits(extensionSRXEncoder.getSelectedSensorPosition() / 4096.0d);
 		extensionMotor.setSensorPosition(initialExtension);
 
 		this.extensionTarget = new PositionTarget(
@@ -72,7 +74,8 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	 * @return the current extension of the arm in sensor ticks
 	 */
 	public double getExtensionPosition() {
-		return extensionMotor.getSensorPosition();
+		return extensionSRXEncoder.getSelectedSensorPosition() / 4096 * 28.06685 - 23.5;
+		// return extensionMotor.getSensorPosition();
 	}
 
 	/**
@@ -171,7 +174,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	 *         regression
 	 */
 	public double extensionTicksToLength(double x) {
-		return 5.03 + 0.25 * x + 1.9 * Math.sin(Math.toRadians(0.0191 * x) - 0.775);
+		return 0.266 * x;
 	}
 
 	/**
@@ -182,7 +185,15 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	 *         regression
 	 */
 	public double extensionLengthToTicks(double y) {
-		return -21.454 + 3.995 * y + 7.794 * Math.sin(Math.toRadians(0.0736 * y) + 1.89);
+		return y / 0.266;
+	}
+
+	public double NEOToSRXUnits(double units) {
+		return units * 0.0364971 + 0.898447;
+	}
+
+	public double SRXToNEOUnits(double units) {
+		return (units - 0.898447) / 0.0364971;
 	}
 
 	public void setPivotDegrees(double degrees) {
@@ -193,10 +204,14 @@ public class Arm extends SubsystemBase implements IDebuggable {
 			delta += 360.0d;
 		}
 
-		double target = getPivotDegrees() + delta;
-		double targetDegrees = Conversions.degreesToFalcon(target, Constants.pivotGearRatio);
-		leftPivotMotor.set(ControlMode.Position, targetDegrees);
-		rightPivotMotor.set(ControlMode.Position, targetDegrees);
+		double error = 0.0d; // pivotEncoder.getAbsolutePosition() - getPivotDegrees();
+		double target = getPivotDegrees() + delta - error;
+		double ticks = Conversions.degreesToFalcon(target, Constants.pivotGearRatio);
+
+		leftPivotMotor.set(ControlMode.Position, ticks);
+		rightPivotMotor.set(ControlMode.Position, ticks);
+
+		pivotTarget.setTarget(target);
 	}
 
 	public void setExtensionLength(double meters) {
@@ -213,14 +228,17 @@ public class Arm extends SubsystemBase implements IDebuggable {
 
 	public void setExtensionOutput(double percent) {
 		// TODO: meters / second or units / second?
-		extensionTarget.update(percent, Constants.Arm.maxExtensionSpeed);
+		// extensionTarget.update(percent, Constants.Arm.maxExtensionSpeed);
+		extensionMotor.set(percent);
 	}
 
 	// Extension Control
 
 	public void setExtensionPosition(double target) {
-		extensionLoopDisabled = false;
-		extensionTarget.setPosition(target);
+		extensionTarget.setTarget(target);
+		double output = extensionPositionPID.calculate(extensionMotor.getSensorPosition(),
+				extensionTarget.getTarget());
+		extensionMotor.set(out ? 0.1 : -0.1);
 	}
 
 	public void stopExtensionMotor() {
@@ -229,11 +247,12 @@ public class Arm extends SubsystemBase implements IDebuggable {
 
 	@Override
 	public void periodic() {
-		if (!extensionLoopDisabled) {
-			double output = extensionPositionPID.calculate(extensionMotor.getSensorPosition(),
-					extensionTarget.getTarget());
-			extensionMotor.set(output);
-		}
+		// if (!extensionLoopDisabled) {
+		// double output =
+		// extensionPositionPID.calculate(extensionMotor.getSensorPosition(),
+		// extensionTarget.getTarget());
+		// extensionMotor.set(output);
+		// }
 
 		show("s_arm");
 		// debug("s_arm")
@@ -241,11 +260,20 @@ public class Arm extends SubsystemBase implements IDebuggable {
 
 	@Override
 	public void show(String key) {
-		SmartDashboard.putNumber("Arm Pivot (Degrees)", getPivotDegrees());
+		// SmartDashboard.putNumber("Arm Pivot (Degrees)", getPivotDegrees());
+		// SmartDashboard.putNumber("Arm Pivot CANCODER",
+		// pivotEncoder.getAbsolutePosition());
 		SmartDashboard.putNumber("Arm (Int) Extension Position", extensionMotor.getSensorPosition());
-		SmartDashboard.putNumber("Arm Extension (dummy talon srx)",
-				extensionSRXEncoder.getSelectedSensorPosition() / 4096 * 28.06685 - 23.5);
-		SmartDashboard.putNumber("Arm Pivot CANCODER", pivotEncoder.getAbsolutePosition());
+
+		SmartDashboard.putNumber("predicted extension length (meters): ", getExtensionLength());
+
+		out = Debug.debugBool("go out: ", true);
+
+		double target = Debug.debugNumber("target arm pivot (degrees): ", 0.0);
+		setPivotDegrees(target);
+
+		double extension = Debug.debugNumber("target extension length (cm): ", 0.0);
+		// setExtensionLength(extension / 100.0d);
 	}
 
 	@Override

@@ -31,18 +31,20 @@ public class ArmCommand extends CommandBase {
 
 	@Override
 	public void execute() {
-		s_Arm.setPivotOutput(rotationSup.getAsDouble());
+		// s_Arm.setPivotOutput(rotationSup.getAsDouble());
 
-		if (extensionSup.getAsDouble() == 0) {
-			if (hasInput) {
-				maintainPosition = s_Arm.getExtensionPosition();
-				s_Arm.setExtensionPosition(maintainPosition);
-			}
+		// if (extensionSup.getAsDouble() == 0) {
+		// if (hasInput) {
+		// maintainPosition = s_Arm.getExtensionPosition();
+		// s_Arm.setExtensionPosition(maintainPosition);
+		// }
 
-			hasInput = false;
-		} else {
-			hasInput = true;
-			s_Arm.setExtensionOutput(extensionSup.getAsDouble());
-		}
+		// hasInput = false;
+		// } else {
+		// hasInput = true;
+		// s_Arm.setExtensionOutput(extensionSup.getAsDouble());
+		// }
+
+		s_Arm.setExtensionOutput(extensionSup.getAsDouble());
 	}
 }
