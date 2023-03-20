@@ -10,6 +10,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.vision.VisionTypes.GamePiece;
+import frc.robot.vision.VisionTypes.PipelineState;
 
 // Limelight Wrapper
 public class LimelightWrapper {
@@ -22,15 +24,15 @@ public class LimelightWrapper {
 	public LimelightWrapper(String name) {
 		this.limelightName = name;
 		setLEDState(false);
-		setPipeline(0);
+		setPipeline(PipelineState.AprilTags);
 	}
 
-	public void setPipeline(int pipeline) {
+	public void setPipeline(PipelineState pipeline) {
 		NetworkTableInstance
 				.getDefault()
 				.getTable(limelightName)
 				.getEntry("pipeline")
-				.setNumber(pipeline);
+				.setNumber(pipeline.getValue());
 	}
 
 	// Set LED state to on (true) or off (false)
@@ -40,6 +42,14 @@ public class LimelightWrapper {
 				.getTable(this.limelightName)
 				.getEntry("ledMode")
 				.setNumber(state ? 1 : 0);
+	}
+
+	public PipelineState getPipeline() {
+		return PipelineState.values()[NetworkTableInstance
+				.getDefault()
+				.getTable(limelightName)
+				.getEntry("pipeline")
+				.getNumber(0).intValue()];
 	}
 
 	// Get offset funcs
@@ -79,13 +89,25 @@ public class LimelightWrapper {
 
 	// Gets best april tag ID
 	public int getBestAprilTagID() {
-		Double rawTagID = NetworkTableInstance
+		double rawTagID = NetworkTableInstance
 				.getDefault()
 				.getTable(this.limelightName)
 				.getEntry("tid")
 				.getDouble(0);
 
-		return rawTagID.intValue();
+		return (int) rawTagID;
+	}
+
+	public GamePiece getBestGamePiece() {
+		PipelineState oldState = getPipeline();
+		setPipeline(PipelineState.MLGamePieces);
+		double tclass = NetworkTableInstance
+				.getDefault()
+				.getTable(this.limelightName)
+				.getEntry("tclass")
+				.getDouble(0);
+		setPipeline(oldState);
+		return GamePiece.values()[(int) tclass];
 	}
 
 	// Gets pose of best reflective tape target
