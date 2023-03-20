@@ -55,7 +55,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		rightPivotMotor.setSelectedSensorPosition(initialPivot);
 
 		extensionSRXEncoder.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
-		double initialExtension = (extensionSRXEncoder.getSelectedSensorPosition() / 4096) * 28.06685 + 240;
+		double initialExtension = (extensionSRXEncoder.getSelectedSensorPosition() / 4096) * 28.06685 - 23.5;
 		extensionMotor.setSensorPosition(initialExtension);
 
 		this.extensionTarget = new PositionTarget(
@@ -244,7 +244,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		SmartDashboard.putNumber("Arm Pivot (Degrees)", getPivotDegrees());
 		SmartDashboard.putNumber("Arm (Int) Extension Position", extensionMotor.getSensorPosition());
 		SmartDashboard.putNumber("Arm Extension (dummy talon srx)",
-				extensionSRXEncoder.getSelectedSensorPosition() / 4096 * 28.06685 + 240);
+				extensionSRXEncoder.getSelectedSensorPosition() / 4096 * 28.06685 - 23.5);
 		SmartDashboard.putNumber("Arm Pivot CANCODER", pivotEncoder.getAbsolutePosition());
 	}
 

@@ -96,7 +96,7 @@ public class Swerve extends SubsystemBase {
 	}
 
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond,
-			boolean fieldRelative, boolean isChargeStation) {
+			boolean fieldRelative, boolean omitRotationCorrection) {
 
 		rotationInterplator.setPoint(rotationRadiansPerSecond);
 
@@ -108,7 +108,7 @@ public class Swerve extends SubsystemBase {
 			timer.reset();
 		}
 
-		if (hasRotationInput || timer.get() < rotationTimeout) {
+		if (omitRotationCorrection || hasRotationInput || timer.get() < rotationTimeout) {
 			setTargetHeading(pigeon.getRelativeYaw());
 			rotationOutput = interpolatedRotation;
 		} else {
@@ -135,7 +135,7 @@ public class Swerve extends SubsystemBase {
 			moduleStates = Constants.swerveKinematics.toSwerveModuleStates(new ChassisSpeeds(
 					translationMetersPerSecond.getX(),
 					translationMetersPerSecond.getY(),
-					!isChargeStation ? rotationOutput : rotationRadiansPerSecond));
+					rotationOutput));
 		}
 
 		SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates,

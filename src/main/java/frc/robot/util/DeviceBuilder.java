@@ -69,6 +69,7 @@ public class DeviceBuilder {
 		public CANCoder build() {
 			CANCoder CANcoder = new CANCoder(id, canBus);
 			CANcoder.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
+			CANcoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
 			CANcoder.configMagnetOffset(magnetOffset);
 
 			return CANcoder;
