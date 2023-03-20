@@ -39,19 +39,19 @@ public final class Constants {
 		public static final double maxExtension = 245.0;
 
 		// TODO: populate with real data!!!
-		public static final double maxExtensionLength = -1.0d;
-		public static final double minExtensionLength = -1.0d;
 		public static double baseLength = -1.0d;
 
 		// units per second
-		public static double maxExtensionSpeed = -1.0d;
+		public static double maxExtensionSpeed = 1.0d;
 		// meters per second
-		public static double maxMPSExtensionSpeed = -1.0d;
+		public static double maxMPSExtensionSpeed = 1.0d;
 		// degrees per second
 		public static double maxPivotSpeed = -1.0d;
-		public static final double minHeight = -1.0;
-		public static final double pivotHeight = -1.0;
-		public static final double offsetToBase = -1.0;
+		public static final double maxExtensionLength = -1.0d;
+		public static final double minExtensionLength = -1.0d;
+		public static final double minHeight = 0.02;
+		public static final double pivotHeight = 1.20;
+		public static final double offsetToBase = 0.57;
 	}
 
 	public static class Chassis {
