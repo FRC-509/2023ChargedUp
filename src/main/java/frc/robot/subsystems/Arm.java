@@ -237,7 +237,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		extensionTarget.setTarget(target);
 		double output = extensionPositionPID.calculate(extensionMotor.getSensorPosition(),
 				extensionTarget.getTarget());
-		extensionMotor.set(out ? 0.1 : -0.1);
+		extensionMotor.set(output);
 	}
 
 	public void stopExtensionMotor() {
@@ -272,7 +272,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		setPivotDegrees(target);
 
 		double extension = Debug.debugNumber("target extension length (cm): ", 0.0);
-		// setExtensionLength(extension / 100.0d);
+		setExtensionLength(extension / 100.0d);
 	}
 
 	@Override
