@@ -65,6 +65,11 @@ public class Robot extends TimedRobot {
 	public void disabledPeriodic() {
 	}
 
+	@Override
+	public void disabledExit() {
+		robotContainer.swerveSubsystem.setHeadingToGyro();
+	}
+
 	/** This function is called periodically during autonomous. */
 	@Override
 	public void autonomousInit() {

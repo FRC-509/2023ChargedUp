@@ -244,7 +244,7 @@ public class Swerve extends SubsystemBase {
 		targetHeading = pigeon.getAbsoluteZero();
 	}
 
-	public void zeroHeadingReversed() {
-		targetHeading = 180.0d;
+	public void setHeadingToGyro() {
+		targetHeading = pigeon.getRelativeYaw();
 	}
 }

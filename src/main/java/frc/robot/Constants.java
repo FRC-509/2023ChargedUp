@@ -8,7 +8,7 @@ import frc.robot.util.PIDConstants;
 
 public final class Constants {
 	public static class PID {
-		public static final PIDController extension_P = new PIDController(0.1, 0.0, 0.0);
+		public static final PIDController extension_P = new PIDController(.1, 0.0, 0.0);
 	}
 
 	public static class FieldData {

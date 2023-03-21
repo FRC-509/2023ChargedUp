@@ -55,8 +55,10 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		leftPivotMotor.setSelectedSensorPosition(initialPivot);
 		rightPivotMotor.setSelectedSensorPosition(initialPivot);
 
-		extensionSRXEncoder.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
 		double initialExtension = SRXToNEOUnits(extensionSRXEncoder.getSelectedSensorPosition() / 4096.0d);
+		extensionSRXEncoder.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
+		SmartDashboard.putNumber("initial pos: ", initialExtension);
+		SmartDashboard.putNumber("initial pos (SRX): ", extensionSRXEncoder.getSelectedSensorPosition());
 		extensionMotor.setSensorPosition(initialExtension);
 
 		this.extensionTarget = new PositionTarget(
@@ -73,7 +75,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	 * @return the current extension of the arm in sensor ticks
 	 */
 	public double getExtensionPosition() {
-		return extensionSRXEncoder.getSelectedSensorPosition() / 4096 * 28.06685 - 23.5;
+		return extensionMotor.getSensorPosition();
 		// return extensionMotor.getSensorPosition();
 	}
 
@@ -235,9 +237,6 @@ public class Arm extends SubsystemBase implements IDebuggable {
 
 	public void setExtensionPosition(double target) {
 		extensionTarget.setTarget(target);
-		double output = extensionPositionPID.calculate(extensionMotor.getSensorPosition(),
-				extensionTarget.getTarget());
-		extensionMotor.set(output);
 	}
 
 	public void stopExtensionMotor() {
@@ -246,12 +245,11 @@ public class Arm extends SubsystemBase implements IDebuggable {
 
 	@Override
 	public void periodic() {
-		// if (!extensionLoopDisabled) {
-		// double output =
-		// extensionPositionPID.calculate(extensionMotor.getSensorPosition(),
-		// extensionTarget.getTarget());
-		// extensionMotor.set(output);
-		// }
+		double output = extensionPositionPID.calculate(extensionMotor.getSensorPosition(),
+				extensionTarget.getTarget());
+
+		SmartDashboard.putNumber("PID output: ", output);
+		extensionMotor.set(output);
 
 		show("s_arm");
 		// debug("s_arm")
@@ -259,10 +257,12 @@ public class Arm extends SubsystemBase implements IDebuggable {
 
 	@Override
 	public void show(String key) {
-		// SmartDashboard.putNumber("Arm Pivot (Degrees)", getPivotDegrees());
+		SmartDashboard.putNumber("Arm Pivot (Degrees)", getPivotDegrees());
 		// SmartDashboard.putNumber("Arm Pivot CANCODER",
 		// pivotEncoder.getAbsolutePosition());
 		SmartDashboard.putNumber("Arm (Int) Extension Position", extensionMotor.getSensorPosition());
+		SmartDashboard.putNumber("Arm (SRX) Extension Position",
+				extensionSRXEncoder.getSelectedSensorPosition() / 4096.0d);
 
 		SmartDashboard.putNumber("predicted extension length (meters): ", getExtensionLength());
 
@@ -272,7 +272,9 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		setPivotDegrees(target);
 
 		double extension = Debug.debugNumber("target extension length (cm): ", 0.0);
-		setExtensionLength(extension / 100.0d);
+		setExtensionLength(extension);
+
+		SmartDashboard.putNumber("actual target extensio: ", extensionTarget.getTarget());
 	}
 
 	@Override

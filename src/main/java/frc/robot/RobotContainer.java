@@ -208,12 +208,6 @@ public class RobotContainer {
 		swerveSubsystem.zeroHeading();
 	}
 
-	public void zeroGyroReversed() {
-		pigeon.setYaw(180);
-		pigeon.zeroGyroBiasNow();
-		swerveSubsystem.zeroHeadingReversed();
-	}
-
 	public void setGyroHeading(double heading) {
 		pigeon.setYaw(heading);
 		swerveSubsystem.setTargetHeading(heading);
