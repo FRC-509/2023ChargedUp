@@ -138,14 +138,14 @@ public class RobotContainer {
 				() -> controller.isDown(LogiButton.LTrigger),
 				() -> controller.isDown(LogiButton.RTrigger)));
 
-		// armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem,
-		// () -> MathUtil.applyDeadband(controller.getLeftStickY(),
-		// Constants.stickDeadband)
-		// * -Constants.armPivotOperatorCoefficient,
-		// () -> MathUtil.applyDeadband(controller.getRightStickY(),
-		// Constants.stickDeadband)
-		// * -Constants.armExtensionOperatorCoefficient,
-		// () -> controller.isPressed(LogiButton.B)));
+		armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem,
+				() -> MathUtil.applyDeadband(controller.getLeftStickY(),
+						Constants.stickDeadband)
+						* -Constants.armPivotOperatorCoefficient,
+				() -> MathUtil.applyDeadband(controller.getRightStickY(),
+						Constants.stickDeadband)
+						* -Constants.armExtensionOperatorCoefficient,
+				() -> controller.isDown(LogiButton.B)));
 
 		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
 		controller.isPressedBind(LogiButton.X,

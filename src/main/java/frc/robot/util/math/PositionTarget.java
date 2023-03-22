@@ -4,7 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Timer;
 
 public class PositionTarget {
-	double target = 0.0d;
+	double target;
 	double min = -Double.MAX_VALUE;
 	double max = +Double.MAX_VALUE;
 
@@ -12,11 +12,12 @@ public class PositionTarget {
 
 	public PositionTarget() {
 		previousTimeStamp = Timer.getFPGATimestamp();
+		setTarget(0.0);
 	}
 
 	public PositionTarget(double start, double min, double max) {
 		previousTimeStamp = Timer.getFPGATimestamp();
-		this.target = start;
+		setTarget(start);
 		this.min = min;
 		this.max = max;
 	}

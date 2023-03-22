@@ -28,6 +28,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	private PIDWrapper extensionPositionPID;
 	private PositionTarget extensionTarget;
 	private PositionTarget pivotTarget;
+	private PositionTarget test;
 
 	// the percent output needed to maintain a completely horizontal position.
 	private final NEOSparkMax extensionMotor;
@@ -55,8 +56,13 @@ public class Arm extends SubsystemBase implements IDebuggable {
 
 		this.pivotTarget = new PositionTarget(
 				getPivotDegrees(),
-				0,
-				150);
+				Constants.Arm.minPivot,
+				Constants.Arm.maxPivot);
+
+		this.test = new PositionTarget(
+				getPivotDegrees(),
+				Constants.Arm.minPivot,
+				Constants.Arm.maxPivot);
 	}
 
 	/**
@@ -64,7 +70,6 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	 */
 	public double getExtensionPosition() {
 		return extensionMotor.getSensorPosition();
-		// return extensionMotor.getSensorPosition();
 	}
 
 	/**
@@ -99,7 +104,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	 * @return the maximum possible length of the arm base + extension
 	 */
 	public double getMinArmLength() {
-		return Constants.Arm.minExtensionLength + Constants.Arm.baseLength;
+		return Constants.Arm.baseLength;
 	}
 
 	/**
@@ -136,6 +141,10 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		return getArmLength() * Math.cos(Math.toRadians(getPivotDegrees()));
 	}
 
+	public double getHeightFromGround() {
+		return Constants.Arm.pivotHeight - getArmLength() * Math.cos(Math.toRadians(getPivotDegrees()));
+	}
+
 	/**
 	 * @param pivot     an arm pivot in degrees
 	 * @param extension an extension length in meters
@@ -144,7 +153,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	 */
 	public boolean isValidState(double pivot, double extension) {
 		double height = getArmLength() * Math.cos(Math.toRadians(pivot));
-		return height < getHeightLimit();
+		return height < getHeightLimitAt(pivot);
 	}
 
 	/**
@@ -197,8 +206,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 			delta += 360.0d;
 		}
 
-		double error = 0.0d; // pivotEncoder.getAbsolutePosition() - getPivotDegrees();
-		double target = getPivotDegrees() + delta - error;
+		double target = getPivotDegrees() + delta;
 		double ticks = Conversions.degreesToFalcon(target, Constants.pivotGearRatio);
 
 		leftPivotMotor.set(ControlMode.Position, ticks);
@@ -208,10 +216,9 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	}
 
 	public void setPivotOutput(double percent) {
-		double target = pivotTarget.update(percent, Constants.Arm.maxPivotSpeed);
-
-		leftPivotMotor.set(ControlMode.Position, target);
-		rightPivotMotor.set(ControlMode.Position, target);
+		percent = MathUtil.clamp(percent, -1.0d, +1.0d);
+		test.update(percent, 100);
+		setPivotDegrees(test.getTarget());
 	}
 
 	public void setExtensionPosition(double target) {
@@ -227,7 +234,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 
 	public void setExtensionOutput(double percent) {
 		percent = MathUtil.clamp(percent, -1.0d, +1.0d);
-		extensionTarget.update(percent, 1.0d);
+		extensionTarget.update(percent, Constants.Arm.maxExtensionSpeed);
 		double output = extensionPositionPID.calculate(extensionMotor.getSensorPosition(), extensionTarget.getTarget());
 		extensionMotor.set(output);
 	}
@@ -252,25 +259,12 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	@Override
 	public void show(String key) {
 		SmartDashboard.putNumber("Arm Pivot (Degrees)", getPivotDegrees());
-		SmartDashboard.putNumber("Arm (Int) Extension Position", extensionMotor.getSensorPosition());
+		SmartDashboard.putNumber("Desired Arm Pivot (Degrees)", pivotTarget.getTarget());
 		SmartDashboard.putNumber("predicted extension length (meters): ", getExtensionLength());
-		double target = Debug.debugNumber("target arm pivot (degrees): ", 0.0);
-		double extension = Debug.debugNumber("target extension length (cm): ", 0.0);
-		setExtensionLength(extension);
-		setPivotDegrees(target);
-
-		extensionPositionPID.debug("arm extension PID");
+		SmartDashboard.putNumber("test: ", test.getTarget());
 	}
 
 	@Override
 	public void debug(String key) {
-		leftPivotMotor.getConstants().debug("pivot");
-		rightPivotMotor.setConstants(leftPivotMotor.getConstants());
-
-		SmartDashboard.putNumber("current rotation: ", getPivotDegrees());
-		double target = Debug.debugNumber("arm target velocity: ", 0.0);
-
-		leftPivotMotor.set(ControlMode.Velocity, Conversions.degreesToFalcon(target, Constants.pivotGearRatio));
-		rightPivotMotor.set(ControlMode.Velocity, Conversions.degreesToFalcon(target, Constants.pivotGearRatio));
 	}
 }

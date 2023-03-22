@@ -8,7 +8,7 @@ import frc.robot.util.PIDWrapper;
 
 public final class Constants {
 	public static class PID {
-		public static final PIDWrapper extension_P = new PIDWrapper(0.5d, 0.0d, 0.0d, 0.0d);
+		public static final PIDWrapper extension_P = new PIDWrapper(0.1d, 0.001d, 0.0d, 0.0d);
 	}
 
 	public static class FieldData {
@@ -36,22 +36,23 @@ public final class Constants {
 	}
 
 	public static class Arm {
-		public static final double maxExtension = 245.0;
+		public static double maxExtensionSpeed = 150.0d;
+		public static final double maxExtensionLength = 245.0d;
+		public static final double maxExtension = 245.0d;
+		public static final double minExtension = 5.0d;
+		public static final double maxPivot = 120.0d;
+		public static final double minPivot = 10.0d;
 
 		// TODO: populate with real data!!!
-		public static double baseLength = -1.0d;
+		public static double baseLength = 68.5d;
 
 		// units per second
-		public static double maxExtensionSpeed = 1.0d;
-		// meters per second
-		public static double maxMPSExtensionSpeed = 1.0d;
+
 		// degrees per second
-		public static double maxPivotSpeed = -1.0d;
-		public static final double maxExtensionLength = -1.0d;
-		public static final double minExtensionLength = -1.0d;
-		public static final double minHeight = 0.02;
-		public static final double pivotHeight = 1.20;
-		public static final double offsetToBase = 0.57;
+		public static double maxPivotSpeed = 125.0d;
+		public static final double minHeight = 3.0d;
+		public static final double pivotHeight = 120.0d;
+		public static final double offsetToBase = 57.0d;
 	}
 
 	public static class Chassis {
@@ -59,7 +60,7 @@ public final class Constants {
 		public static final double width = Units.inchesToMeters(28);
 
 		// TODO: populate with real data!!!
-		public static final double height = -1;
+		public static final double height = 22.0d; // cm
 	}
 
 	public static final double Voltage = 12.0d;
