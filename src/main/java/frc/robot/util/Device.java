@@ -81,14 +81,18 @@ public class Device {
 				RioBus,
 				new PIDWrapper(0.05, 0, 0.0005, 0),
 				NeutralMode.Brake,
-				false, FeedbackDevice.IntegratedSensor);
+				false, FeedbackDevice.IntegratedSensor,
+				1.0,
+				40);
 
 		public static FalconBuilder leftPivot = new FalconBuilder(
 				13,
 				RioBus,
 				new PIDWrapper(0.05, 0, 0.0005, 0),
 				NeutralMode.Brake,
-				true, FeedbackDevice.IntegratedSensor);
+				true, FeedbackDevice.IntegratedSensor,
+				1.0,
+				40);
 
 		public static NeoBuilder extension = new NeoBuilder(
 				12,

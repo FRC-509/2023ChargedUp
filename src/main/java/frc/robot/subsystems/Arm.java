@@ -2,6 +2,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.CANCoder;
@@ -37,6 +38,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		this.leftPivotMotor = Device.Motor.leftPivot.build();
 		this.rightPivotMotor = Device.Motor.rightPivot.build();
 		this.extensionMotor = Device.Motor.extension.build();
+
 		this.pivotEncoder = Device.Encoder.pivot.build();
 		extensionMotor.setSmartCurrentLimit(20);
 		extensionMotor.setSensorPosition(0);

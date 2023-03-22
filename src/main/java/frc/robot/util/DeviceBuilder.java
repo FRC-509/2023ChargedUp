@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
@@ -84,6 +85,7 @@ public class DeviceBuilder {
 		final boolean isReverse;
 		final FeedbackDevice feedbackDevice;
 		final double gearRatio;
+		final double supplyCurrentLimit;
 
 		public FalconBuilder(int id, String canbus, PIDWrapper constants, NeutralMode neutralMode,
 				boolean isReverse, FeedbackDevice feedbackDevice) {
@@ -94,6 +96,7 @@ public class DeviceBuilder {
 			this.isReverse = isReverse;
 			this.feedbackDevice = feedbackDevice;
 			this.gearRatio = 1.0;
+			supplyCurrentLimit = -1;
 		}
 
 		public FalconBuilder(int id, String canbus, PIDWrapper constants, NeutralMode neutralMode,
@@ -105,6 +108,19 @@ public class DeviceBuilder {
 			this.isReverse = isReverse;
 			this.feedbackDevice = feedbackDevice;
 			this.gearRatio = gearRatio;
+			supplyCurrentLimit = -1;
+		}
+
+		public FalconBuilder(int id, String canbus, PIDWrapper constants, NeutralMode neutralMode,
+				boolean isReverse, FeedbackDevice feedbackDevice, double gearRatio, double supCurLim) {
+			this.id = id;
+			this.canBus = canbus;
+			this.constants = constants;
+			this.neutralMode = neutralMode;
+			this.isReverse = isReverse;
+			this.feedbackDevice = feedbackDevice;
+			this.gearRatio = gearRatio;
+			this.supplyCurrentLimit = supCurLim;
 		}
 
 		@Override
@@ -116,6 +132,15 @@ public class DeviceBuilder {
 			falcon.configIntegratedSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
 			falcon.configIntegratedSensorAbsoluteRange(AbsoluteSensorRange.Unsigned_0_to_360);
 			falcon.configSelectedFeedbackSensor(feedbackDevice);
+
+			if (supplyCurrentLimit != -1) {
+				SupplyCurrentLimitConfiguration currentLimitConfiguration = new SupplyCurrentLimitConfiguration();
+				currentLimitConfiguration.enable = true;
+				currentLimitConfiguration.triggerThresholdCurrent = supplyCurrentLimit;
+				currentLimitConfiguration.triggerThresholdTime = 0.1;
+				currentLimitConfiguration.currentLimit = 0;
+				falcon.configSupplyCurrentLimit(currentLimitConfiguration);
+			}
 
 			return falcon;
 		}

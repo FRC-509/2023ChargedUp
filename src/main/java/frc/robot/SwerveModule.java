@@ -12,6 +12,7 @@ import frc.robot.util.math.Conversions;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
@@ -58,6 +59,20 @@ public class SwerveModule {
 		this.driveMotor.config_kI(0, configs.drivePID.getI());
 		this.driveMotor.config_kD(0, configs.drivePID.getD());
 		this.driveMotor.config_kF(0, configs.drivePID.getF());
+
+		SupplyCurrentLimitConfiguration driveConf = new SupplyCurrentLimitConfiguration();
+		driveConf.enable = true;
+		driveConf.triggerThresholdCurrent = 80;
+		driveConf.triggerThresholdTime = 0.1;
+		driveConf.currentLimit = 0;
+		driveMotor.configSupplyCurrentLimit(driveConf);
+
+		SupplyCurrentLimitConfiguration steerConf = new SupplyCurrentLimitConfiguration();
+		steerConf.enable = true;
+		steerConf.triggerThresholdCurrent = 20;
+		steerConf.triggerThresholdTime = 0.1;
+		steerConf.currentLimit = 0;
+		angleMotor.configSupplyCurrentLimit(steerConf);
 
 		// "full output" will now scale to 12 Volts for all control modes.
 		this.driveMotor.configVoltageCompSaturation(12);
