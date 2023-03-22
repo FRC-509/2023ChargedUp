@@ -29,7 +29,6 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	private PIDWrapper extensionPositionPID;
 	private PositionTarget extensionTarget;
 	private PositionTarget pivotTarget;
-	private PositionTarget test;
 
 	// the percent output needed to maintain a completely horizontal position.
 	private final NEOSparkMax extensionMotor;
@@ -57,11 +56,6 @@ public class Arm extends SubsystemBase implements IDebuggable {
 				Constants.Arm.maxExtension);
 
 		this.pivotTarget = new PositionTarget(
-				getPivotDegrees(),
-				Constants.Arm.minPivot,
-				Constants.Arm.maxPivot);
-
-		this.test = new PositionTarget(
 				getPivotDegrees(),
 				Constants.Arm.minPivot,
 				Constants.Arm.maxPivot);
@@ -219,8 +213,22 @@ public class Arm extends SubsystemBase implements IDebuggable {
 
 	public void setPivotOutput(double percent) {
 		percent = MathUtil.clamp(percent, -1.0d, +1.0d);
-		test.update(percent, 100);
-		setPivotDegrees(test.getTarget());
+		pivotTarget.update(percent, Constants.Arm.maxPivotSpeed);
+
+		double delta = (pivotTarget.getTarget() - getPivotDegrees()) % 360;
+		if (delta > 180.0d) {
+			delta -= 360.0d;
+		} else if (delta < -180.0d) {
+			delta += 360.0d;
+		}
+
+		double target = getPivotDegrees() + delta;
+		double ticks = Conversions.degreesToFalcon(target, Constants.pivotGearRatio);
+
+		leftPivotMotor.set(ControlMode.Position, ticks);
+		rightPivotMotor.set(ControlMode.Position, ticks);
+
+		setPivotDegrees(pivotTarget.getTarget());
 	}
 
 	public void setExtensionPosition(double target) {
@@ -263,7 +271,6 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		SmartDashboard.putNumber("Arm Pivot (Degrees)", getPivotDegrees());
 		SmartDashboard.putNumber("Desired Arm Pivot (Degrees)", pivotTarget.getTarget());
 		SmartDashboard.putNumber("predicted extension length (meters): ", getExtensionLength());
-		SmartDashboard.putNumber("test: ", test.getTarget());
 	}
 
 	@Override
