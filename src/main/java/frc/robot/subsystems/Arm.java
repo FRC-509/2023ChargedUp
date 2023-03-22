@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.CANCoder;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -13,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.Debug;
 import frc.robot.util.Device;
+import frc.robot.util.PIDWrapper;
 import frc.robot.util.drivers.LazyTalonFX;
 import frc.robot.util.drivers.NEOSparkMax;
 import frc.robot.util.interfaces.IDebuggable;
@@ -23,18 +25,12 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	private final LazyTalonFX leftPivotMotor;
 	private final LazyTalonFX rightPivotMotor;
 	private CANCoder pivotEncoder;
-	private PIDController extensionPositionPID;
-	private TalonSRX extensionSRXEncoder;
+	private PIDWrapper extensionPositionPID;
 	private PositionTarget extensionTarget;
 	private PositionTarget pivotTarget;
 
 	// the percent output needed to maintain a completely horizontal position.
 	private final NEOSparkMax extensionMotor;
-	private double targetExtension;
-	private boolean extensionLoopDisabled;
-	private double pivotFeedForward = 0.0;
-
-	private boolean out = true;
 
 	public Arm() {
 		this.leftPivotMotor = Device.Motor.leftPivot.build();
@@ -43,28 +39,20 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		this.pivotEncoder = Device.Encoder.pivot.build();
 		extensionMotor.setSmartCurrentLimit(20);
 		extensionMotor.setSensorPosition(0);
-		extensionSRXEncoder = new TalonSRX(Device.EncoderId.extension);
-		extensionPositionPID = Constants.PID.extension_P;
-
-		targetExtension = 0;
-		extensionLoopDisabled = true;
+		extensionPositionPID = new PIDWrapper(Constants.PID.extension_P);
 
 		Timer.delay(1.0);
 
-		double initialPivot = Conversions.degreesToFalcon(pivotEncoder.getAbsolutePosition(), Constants.pivotGearRatio);
-		leftPivotMotor.setSelectedSensorPosition(initialPivot);
-		rightPivotMotor.setSelectedSensorPosition(initialPivot);
-
-		double initialExtension = SRXToNEOUnits(extensionSRXEncoder.getSelectedSensorPosition() / 4096.0d);
-		extensionSRXEncoder.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
-		SmartDashboard.putNumber("initial pos: ", initialExtension);
-		SmartDashboard.putNumber("initial pos (SRX): ", extensionSRXEncoder.getSelectedSensorPosition());
-		extensionMotor.setSensorPosition(initialExtension);
+		double pivot = Conversions.degreesToFalcon(pivotEncoder.getAbsolutePosition(), Constants.pivotGearRatio);
+		leftPivotMotor.setSelectedSensorPosition(pivot);
+		rightPivotMotor.setSelectedSensorPosition(pivot);
+		resetExtensionPosition();
 
 		this.extensionTarget = new PositionTarget(
 				getExtensionPosition(),
 				0.0d,
 				Constants.Arm.maxExtension);
+
 		this.pivotTarget = new PositionTarget(
 				getPivotDegrees(),
 				0,
@@ -197,6 +185,10 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		return (units - 0.898447) / 0.0364971;
 	}
 
+	public void resetExtensionPosition() {
+		extensionMotor.setSensorPosition(0.0d);
+	}
+
 	public void setPivotDegrees(double degrees) {
 		double delta = (degrees - getPivotDegrees()) % 360;
 		if (delta > 180.0d) {
@@ -215,11 +207,6 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		pivotTarget.setTarget(target);
 	}
 
-	public void setExtensionLength(double meters) {
-		double ticks = extensionLengthToTicks(meters);
-		setExtensionPosition(ticks);
-	}
-
 	public void setPivotOutput(double percent) {
 		double target = pivotTarget.update(percent, Constants.Arm.maxPivotSpeed);
 
@@ -227,17 +214,30 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		rightPivotMotor.set(ControlMode.Position, target);
 	}
 
+	public void setExtensionPosition(double target) {
+		extensionTarget.setTarget(target);
+		double output = extensionPositionPID.calculate(extensionMotor.getSensorPosition(), extensionTarget.getTarget());
+		extensionMotor.set(output);
+	}
+
+	public void setExtensionLength(double meters) {
+		double ticks = extensionLengthToTicks(meters);
+		setExtensionPosition(ticks);
+	}
+
 	public void setExtensionOutput(double percent) {
-		// TODO: meters / second or units / second?
-		// extensionTarget.update(percent, Constants.Arm.maxExtensionSpeed);
+		percent = MathUtil.clamp(percent, -1.0d, +1.0d);
+		extensionTarget.update(percent, 1.0d);
+		double output = extensionPositionPID.calculate(extensionMotor.getSensorPosition(), extensionTarget.getTarget());
+		extensionMotor.set(output);
+	}
+
+	public void setExtensionRawOutput(double percent) {
+		percent = MathUtil.clamp(percent, -1.0d, +1.0d);
 		extensionMotor.set(percent);
 	}
 
 	// Extension Control
-
-	public void setExtensionPosition(double target) {
-		extensionTarget.setTarget(target);
-	}
 
 	public void stopExtensionMotor() {
 		setExtensionOutput(0);
@@ -245,36 +245,21 @@ public class Arm extends SubsystemBase implements IDebuggable {
 
 	@Override
 	public void periodic() {
-		double output = extensionPositionPID.calculate(extensionMotor.getSensorPosition(),
-				extensionTarget.getTarget());
-
-		SmartDashboard.putNumber("PID output: ", output);
-		extensionMotor.set(output);
 
 		show("s_arm");
-		// debug("s_arm")
 	}
 
 	@Override
 	public void show(String key) {
 		SmartDashboard.putNumber("Arm Pivot (Degrees)", getPivotDegrees());
-		// SmartDashboard.putNumber("Arm Pivot CANCODER",
-		// pivotEncoder.getAbsolutePosition());
 		SmartDashboard.putNumber("Arm (Int) Extension Position", extensionMotor.getSensorPosition());
-		SmartDashboard.putNumber("Arm (SRX) Extension Position",
-				extensionSRXEncoder.getSelectedSensorPosition() / 4096.0d);
-
 		SmartDashboard.putNumber("predicted extension length (meters): ", getExtensionLength());
-
-		out = Debug.debugBool("go out: ", true);
-
 		double target = Debug.debugNumber("target arm pivot (degrees): ", 0.0);
-		setPivotDegrees(target);
-
 		double extension = Debug.debugNumber("target extension length (cm): ", 0.0);
 		setExtensionLength(extension);
+		setPivotDegrees(target);
 
-		SmartDashboard.putNumber("actual target extensio: ", extensionTarget.getTarget());
+		extensionPositionPID.debug("arm extension PID");
 	}
 
 	@Override

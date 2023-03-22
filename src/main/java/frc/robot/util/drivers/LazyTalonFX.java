@@ -3,7 +3,7 @@ package frc.robot.util.drivers;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
-import frc.robot.util.PIDConstants;
+import frc.robot.util.PIDWrapper;
 import frc.robot.util.math.Conversions;
 
 // Implemented by team 254: https://github.com/Team254/FRC-2022-Public/blob/main/src/main/java/com/team254/lib/drivers/LazyTalonFX.java
@@ -16,7 +16,7 @@ public class LazyTalonFX extends TalonFX {
 	protected double lastSet = Double.NaN;
 	protected final double gearRatio;
 	protected ControlMode lastControlMode = null;
-	protected PIDConstants constants;
+	protected PIDWrapper constants;
 
 	public LazyTalonFX(int deviceId, String canBus) {
 		super(deviceId, canBus);
@@ -28,21 +28,17 @@ public class LazyTalonFX extends TalonFX {
 		gearRatio = 1.0;
 	}
 
-	public PIDConstants getConstants() {
+	public PIDWrapper getConstants() {
 		return constants;
 	}
 
-	public void setConstants(PIDConstants constants) {
-		config_kP(0, constants.kP);
-		config_kI(0, constants.kI);
-		config_kD(0, constants.kD);
-		config_kF(0, constants.kF);
+	public void setConstants(PIDWrapper constants) {
+		config_kP(0, constants.getP());
+		config_kI(0, constants.getI());
+		config_kD(0, constants.getD());
+		config_kF(0, constants.getF());
 
 		this.constants = constants;
-	}
-
-	public void setControlMode(ControlMode mode) {
-		constants.mode = mode;
 	}
 
 	public LazyTalonFX(int deviceId, String canBus, double gearRatio) {

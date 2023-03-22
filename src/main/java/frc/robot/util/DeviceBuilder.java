@@ -79,13 +79,13 @@ public class DeviceBuilder {
 	public static class FalconBuilder implements IDeviceBuilder<LazyTalonFX> {
 		final int id;
 		final String canBus;
-		final PIDConstants constants;
+		final PIDWrapper constants;
 		final NeutralMode neutralMode;
 		final boolean isReverse;
 		final FeedbackDevice feedbackDevice;
 		final double gearRatio;
 
-		public FalconBuilder(int id, String canbus, PIDConstants constants, NeutralMode neutralMode,
+		public FalconBuilder(int id, String canbus, PIDWrapper constants, NeutralMode neutralMode,
 				boolean isReverse, FeedbackDevice feedbackDevice) {
 			this.id = id;
 			this.canBus = canbus;
@@ -96,7 +96,7 @@ public class DeviceBuilder {
 			this.gearRatio = 1.0;
 		}
 
-		public FalconBuilder(int id, String canbus, PIDConstants constants, NeutralMode neutralMode,
+		public FalconBuilder(int id, String canbus, PIDWrapper constants, NeutralMode neutralMode,
 				boolean isReverse, FeedbackDevice feedbackDevice, double gearRatio) {
 			this.id = id;
 			this.canBus = canbus;

@@ -79,14 +79,14 @@ public class Device {
 		public static FalconBuilder rightPivot = new FalconBuilder(
 				20,
 				RioBus,
-				new PIDConstants(0.05, 0, 0.0005, 0),
+				new PIDWrapper(0.05, 0, 0.0005, 0),
 				NeutralMode.Brake,
 				false, FeedbackDevice.IntegratedSensor);
 
 		public static FalconBuilder leftPivot = new FalconBuilder(
 				13,
 				RioBus,
-				new PIDConstants(0.05, 0, 0.0005, 0),
+				new PIDWrapper(0.05, 0, 0.0005, 0),
 				NeutralMode.Brake,
 				true, FeedbackDevice.IntegratedSensor);
 

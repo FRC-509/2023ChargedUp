@@ -3,19 +3,19 @@ package frc.robot.util.drivers;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.REVLibError;
 
-import frc.robot.util.PIDConstants;
+import frc.robot.util.PIDWrapper;
 
 public class NEOSparkMax extends CANSparkMax {
 	public NEOSparkMax(int deviceId) {
 		super(deviceId, MotorType.kBrushless);
 	}
 
-	public NEOSparkMax(int deviceId, PIDConstants constants) {
+	public NEOSparkMax(int deviceId, PIDWrapper constants) {
 		super(deviceId, MotorType.kBrushless);
-		getPIDController().setP(constants.kP);
-		getPIDController().setI(constants.kI);
-		getPIDController().setD(constants.kD);
-		getPIDController().setFF(constants.kF);
+		getPIDController().setP(constants.getP());
+		getPIDController().setI(constants.getI());
+		getPIDController().setD(constants.getD());
+		getPIDController().setFF(constants.getF());
 	}
 
 	public double getSensorPosition() {
@@ -42,10 +42,10 @@ public class NEOSparkMax extends CANSparkMax {
 		getPIDController().setReference(value, controlType);
 	}
 
-	public void configurePID(PIDConstants pid) {
-		getPIDController().setP(pid.kP);
-		getPIDController().setP(pid.kI);
-		getPIDController().setP(pid.kD);
-		getPIDController().setFF(pid.kF);
+	public void configurePID(PIDWrapper pid) {
+		getPIDController().setP(pid.getP());
+		getPIDController().setP(pid.getI());
+		getPIDController().setP(pid.getD());
+		getPIDController().setFF(pid.getF());
 	}
 }

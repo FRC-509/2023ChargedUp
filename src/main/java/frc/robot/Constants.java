@@ -4,11 +4,11 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
-import frc.robot.util.PIDConstants;
+import frc.robot.util.PIDWrapper;
 
 public final class Constants {
 	public static class PID {
-		public static final PIDController extension_P = new PIDController(.1, 0.0, 0.0);
+		public static final PIDWrapper extension_P = new PIDWrapper(0.5d, 0.0d, 0.0d, 0.0d);
 	}
 
 	public static class FieldData {
@@ -93,8 +93,8 @@ public final class Constants {
 	public static final double kV = 2.3277 / 12.0;
 	public static final double kA = 0.26532 / 12.0;
 
-	public static final PIDConstants drive = new PIDConstants(0.1, 0, 0, 0);
-	public static final PIDConstants steer = new PIDConstants(0.2, 0, 0, 0);
+	public static final PIDWrapper drive = new PIDWrapper(0.012, 0, 0.5, 0.0455);
+	public static final PIDWrapper steer = new PIDWrapper(0.2, 0, 0, 0);
 	public static final boolean closedLoopDriveVelocity = false;
 
 	/*
@@ -117,11 +117,11 @@ public final class Constants {
 		public int angleMotorId;
 		public int driveMotorId;
 		public double angleEncoderOffset;
-		public PIDConstants steerPID;
-		public PIDConstants drivePID;
+		public PIDWrapper steerPID;
+		public PIDWrapper drivePID;
 
 		public SwerveModuleConfigurations(int moduleNumber, int angleEncoderId, int angleMotorId, int driveMotorId,
-				double angleEncoderOffset, PIDConstants steerPID, PIDConstants drivePID) {
+				double angleEncoderOffset, PIDWrapper steerPID, PIDWrapper drivePID) {
 			this.moduleNumber = moduleNumber;
 			this.angleEncoderId = angleEncoderId;
 			this.angleMotorId = angleMotorId;

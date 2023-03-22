@@ -31,6 +31,7 @@ public class ArmCommand extends CommandBase {
 
 	@Override
 	public void execute() {
+
 		// s_Arm.setPivotOutput(rotationSup.getAsDouble());
 
 		// if (extensionSup.getAsDouble() == 0) {
@@ -45,6 +46,6 @@ public class ArmCommand extends CommandBase {
 		// s_Arm.setExtensionOutput(extensionSup.getAsDouble());
 		// }
 
-		s_Arm.setExtensionOutput(extensionSup.getAsDouble());
+		// s_Arm.setExtensionOutput(extensionSup.getAsDouble());
 	}
 }

@@ -45,19 +45,19 @@ public class SwerveModule {
 		// Angle Motor Config
 		this.angleMotor = new LazyTalonFX(configs.angleMotorId, Device.CanBus);
 		this.angleMotor.setNeutralMode(NeutralMode.Coast);
-		this.angleMotor.config_kP(0, configs.steerPID.kP);
-		this.angleMotor.config_kI(0, configs.steerPID.kI);
-		this.angleMotor.config_kD(0, configs.steerPID.kD);
-		this.angleMotor.config_kF(0, configs.steerPID.kF);
+		this.angleMotor.config_kP(0, configs.steerPID.getP());
+		this.angleMotor.config_kI(0, configs.steerPID.getI());
+		this.angleMotor.config_kD(0, configs.steerPID.getD());
+		this.angleMotor.config_kF(0, configs.steerPID.getF());
 
 		// Drive Motor Config
 		this.driveMotor = new LazyTalonFX(configs.driveMotorId, Device.CanBus);
 		this.driveMotor.setNeutralMode(NeutralMode.Brake);
 		this.driveMotor.setSelectedSensorPosition(0);
-		this.driveMotor.config_kP(0, configs.drivePID.kP);
-		this.driveMotor.config_kI(0, configs.drivePID.kI);
-		this.driveMotor.config_kD(0, configs.drivePID.kD);
-		this.driveMotor.config_kF(0, configs.drivePID.kF);
+		this.driveMotor.config_kP(0, configs.drivePID.getP());
+		this.driveMotor.config_kI(0, configs.drivePID.getI());
+		this.driveMotor.config_kD(0, configs.drivePID.getD());
+		this.driveMotor.config_kF(0, configs.drivePID.getF());
 
 		// "full output" will now scale to 12 Volts for all control modes.
 		this.driveMotor.configVoltageCompSaturation(12);
@@ -154,11 +154,19 @@ public class SwerveModule {
 					Math.abs(desiredState.speedMetersPerSecond),
 					Constants.wheelCircumference,
 					Constants.driveGearRatio);
+			SmartDashboard.putNumber("TargetV" + moduleNumber, desiredState.speedMetersPerSecond);
+			SmartDashboard.putNumber("SensorV" + moduleNumber, getState().speedMetersPerSecond);
+
+			double kError = desiredState.speedMetersPerSecond - getState().speedMetersPerSecond;
+			SmartDashboard.putNumber("PushBy" + moduleNumber, kError / desiredState.speedMetersPerSecond);
+			SmartDashboard.putNumber("Err" + moduleNumber, kError);
 
 			double velocityMps = Math.abs(desiredState.speedMetersPerSecond) * invertSpeed;
 			Conversions.MPSToFalcon(velocityMps, Constants.wheelCircumference, Constants.driveGearRatio);
-			this.driveMotor.set(ControlMode.Velocity, velocity * invertSpeed, DemandType.ArbitraryFeedForward,
-					feedforward.calculate(velocityMps));
+			// this.driveMotor.set(ControlMode.Velocity, velocity * invertSpeed,
+			// DemandType.ArbitraryFeedForward,
+			// feedforward.calculate(velocityMps));
+			this.driveMotor.set(ControlMode.Velocity, velocity * invertSpeed);
 		} else {
 			double out = Math.abs(desiredState.speedMetersPerSecond) / Constants.maxSpeed;
 			this.driveMotor.set(ControlMode.PercentOutput, invertSpeed * out);
