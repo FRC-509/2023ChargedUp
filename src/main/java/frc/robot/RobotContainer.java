@@ -140,8 +140,8 @@ public class RobotContainer {
 		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
 				clawSubsystem,
 				() -> controller.isPressed(LogiButton.A),
-				() -> controller.isDown(LogiButton.RTrigger),
-				() -> controller.isDown(LogiButton.LTrigger)));
+				() -> controller.isPressed(LogiButton.RTrigger),
+				() -> controller.isPressed(LogiButton.LTrigger)));
 
 		armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem,
 				() -> MathUtil.applyDeadband(controller.getLeftStickY(),
