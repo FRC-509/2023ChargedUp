@@ -85,18 +85,54 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		return extensionTicksToLength(getExtensionPosition());
 	}
 
+	public double getPivotCosBiasAt(double degrees) {
+		return Constants.Arm.offsetToPivot * Math.cos(Math.toRadians(degrees));
+	}
+
+	public double getPivotCosBias() {
+		return getPivotCosBiasAt(getPivotDegrees());
+	}
+
+	public double getPivotSinBiasAt(double degrees) {
+		return Constants.Arm.offsetToPivot * Math.sin(Math.toRadians(degrees));
+	}
+
+	public double getPivotSinBias() {
+		return getPivotSinBiasAt(getPivotDegrees());
+	}
+
+	public double getBiasedArmHeight() {
+		double theta1 = Math.acos(Constants.Arm.offsetToPivot / getArmLength());
+		double theta2 = Math.toRadians(getPivotDegrees() + 90) - theta1;
+		double biasedLength = Math.hypot(Constants.Arm.offsetToPivot, getArmLength());
+
+		return biasedLength * Math.cos(theta2);
+	}
+
+	public double getBiasedHeightFromGround() {
+		return getHeightLimit() - getBiasedArmHeight();
+	}
+
+	public double getBiasedArmBase() {
+		double theta1 = Math.acos(Constants.Arm.offsetToPivot / getArmLength());
+		double theta2 = Math.toRadians(getPivotDegrees() + 90) - theta1;
+		double biasedLength = Math.hypot(Constants.Arm.offsetToPivot, getArmLength());
+
+		return biasedLength * Math.sin(theta2);
+	}
+
 	/**
 	 * @return the current length of the arm base + extension
 	 */
 	public double getArmLength() {
-		return Constants.Arm.baseLength + getExtensionLength();
+		return Constants.Arm.baseLength + Constants.Arm.clawLength + getExtensionLength();
 	}
 
 	/**
 	 * @return the maximum possible length of the arm base + extension
 	 */
 	public double getMaxArmLength() {
-		return Constants.Arm.maxExtensionLength + Constants.Arm.baseLength;
+		return Constants.Arm.maxExtensionLength + Constants.Arm.baseLength + Constants.Arm.clawLength;
 	}
 
 	/**
@@ -116,7 +152,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	 */
 	public double getHeightLimitAt(double degrees) {
 		if (degrees > 90.0d && degrees < 270.0d) {
-			return Double.NEGATIVE_INFINITY;
+			return Double.POSITIVE_INFINITY;
 		}
 
 		if (isInChassis()) {
@@ -141,7 +177,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	}
 
 	public double getHeightFromGround() {
-		return Constants.Arm.pivotHeight - getArmLength() * Math.cos(Math.toRadians(getPivotDegrees()));
+		return getHeightLimit() - getHeight();
 	}
 
 	/**
@@ -151,7 +187,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	 *         robot
 	 */
 	public boolean isValidState(double pivot, double extension) {
-		double height = getArmLength() * Math.cos(Math.toRadians(pivot));
+		double height = extension * Math.cos(Math.toRadians(pivot));
 		return height < getHeightLimitAt(pivot);
 	}
 
@@ -159,8 +195,8 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	 * @return whether the arm is currently residing within the chassis bounds
 	 */
 	public boolean isInChassis() {
-		double sin = getArmLength() * Math.sin(Math.toRadians(getPivotDegrees()));
-		return sin < Constants.Arm.offsetToBase;
+		double tan = Constants.Arm.pivotHeight * Math.tan(Math.toRadians(getPivotDegrees()));
+		return tan < Constants.Arm.offsetToBase;
 	}
 
 	/**
@@ -215,8 +251,13 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	}
 
 	public void setPivotOutput(double percent) {
+		double previous = pivotTarget.getTarget();
 		percent = MathUtil.clamp(percent, -1.0d, +1.0d);
 		pivotTarget.update(percent, Constants.Arm.maxPivotSpeed);
+
+		if (percent < 0.0d && !isValidState(pivotTarget.getTarget(), getArmLength())) {
+			pivotTarget.setTarget(previous);
+		}
 
 		double delta = (pivotTarget.getTarget() - getPivotDegrees()) % 360;
 		if (delta > 180.0d) {
@@ -246,8 +287,14 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	}
 
 	public void setExtensionOutput(double percent) {
+		double previous = extensionTarget.getTarget();
 		percent = MathUtil.clamp(percent, -1.0d, +1.0d);
 		extensionTarget.update(percent, Constants.Arm.maxExtensionSpeed);
+
+		if (percent > 0.0d && !isValidState(getPivotDegrees(), getArmLength())) {
+			extensionTarget.setTarget(previous);
+		}
+
 		double output = extensionPositionPID.calculate(extensionMotor.getSensorPosition(), extensionTarget.getTarget());
 		extensionMotor.set(output);
 	}

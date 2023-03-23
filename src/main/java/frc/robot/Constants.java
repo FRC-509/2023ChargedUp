@@ -42,24 +42,22 @@ public final class Constants {
 		public static final double minExtension = 5.0d;
 		public static final double maxPivot = 120.0d;
 		public static final double minPivot = 10.0d;
+		public static final double clawLength = 35.0d;
+		public static final double offsetToPivot = 5.0d;
 
-		// TODO: populate with real data!!!
-		public static double baseLength = 68.5d;
-
-		// units per second
+		public static double baseLength = 68.5;
 
 		// degrees per second
 		public static double maxPivotSpeed = 250.0d;
-		public static final double minHeight = 3.0d;
+		public static final double minHeight = 20.0d;
 		public static final double pivotHeight = 120.0d;
-		public static final double offsetToBase = 57.0d;
+		public static final double offsetToBase = 65.0d;
 	}
 
 	public static class Chassis {
 		public static final double length = Units.inchesToMeters(28);
 		public static final double width = Units.inchesToMeters(28);
 
-		// TODO: populate with real data!!!
 		public static final double height = 22.0d; // cm
 	}
 

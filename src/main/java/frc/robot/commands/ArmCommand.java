@@ -34,11 +34,15 @@ public class ArmCommand extends CommandBase {
 	@Override
 	public void execute() {
 
-		boolean isValid = s_Arm.isValidState(s_Arm.getPivotDegrees(), s_Arm.getExtensionLength());
+		boolean isValid = s_Arm.isValidState(s_Arm.getPivotDegrees(), s_Arm.getArmLength());
+		SmartDashboard.putNumber("bias height:", s_Arm.getBiasedArmHeight());
+		SmartDashboard.putNumber("bias height from ground:", s_Arm.getBiasedHeightFromGround());
+		SmartDashboard.putNumber("bias base:", s_Arm.getBiasedArmBase());
 		SmartDashboard.putBoolean("is valid state:", isValid);
 		SmartDashboard.putNumber("height: ", s_Arm.getHeight());
 		SmartDashboard.putNumber("height from ground: ", s_Arm.getHeightFromGround());
-		SmartDashboard.putNumber("arm len", s_Arm.getArmLength());
+		SmartDashboard.putNumber("arm length: ", s_Arm.getArmLength());
+		SmartDashboard.putNumber("height limit: ", s_Arm.getHeightLimit());
 
 		s_Arm.setPivotOutput(rotationSup.getAsDouble());
 
