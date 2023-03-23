@@ -18,11 +18,6 @@ public class RotateArm extends CommandBase {
 	}
 
 	@Override
-	public void end(boolean wasInterrupted) {
-		arm.setPivotOutput(0);
-	}
-
-	@Override
 	public boolean isFinished() {
 		return Math.abs(arm.getPivotDegrees() - targetAngleDegrees) <= 2.5;
 	}

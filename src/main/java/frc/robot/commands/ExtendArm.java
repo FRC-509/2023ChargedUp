@@ -18,11 +18,6 @@ public class ExtendArm extends CommandBase {
 	}
 
 	@Override
-	public void end(boolean wasInterrupted) {
-		arm.stopExtensionMotor();
-	}
-
-	@Override
 	public boolean isFinished() {
 		return Math.abs(arm.getExtensionPosition() - targetPosition) <= 1.5;
 	}

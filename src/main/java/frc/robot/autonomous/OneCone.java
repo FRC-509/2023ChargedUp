@@ -17,6 +17,6 @@ public class OneCone extends SequentialCommandGroup {
 				new ExtendArm(arm, 230),
 				new InstantCommand(() -> claw.retractClaw(), claw),
 				new WaitCommand(0.2),
-				new ExtendArm(arm, 10));
+				new ExtendArm(arm, 0));
 	}
 }
