@@ -17,9 +17,9 @@ public class PositionTarget {
 
 	public PositionTarget(double start, double min, double max) {
 		previousTimeStamp = Timer.getFPGATimestamp();
-		setTarget(start);
 		this.min = min;
 		this.max = max;
+		setTarget(start);
 	}
 
 	public void setMin(double min) {

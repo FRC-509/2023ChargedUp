@@ -15,6 +15,8 @@ import frc.robot.util.telemetry.Thunderstorm;
  * project.
  */
 public class Robot extends TimedRobot {
+	public static boolean hasInitialized = false;
+
 	private Command autonomousCommand;
 	private RobotContainer robotContainer;
 	private Thunderstorm thunderstorm;
@@ -31,6 +33,11 @@ public class Robot extends TimedRobot {
 		// autonomous chooser on the dashboard.
 		this.robotContainer = new RobotContainer();
 		this.thunderstorm = new Thunderstorm();
+
+		if (!hasInitialized) {
+			robotContainer.armSubsystem.onFirstInit();
+		}
+		hasInitialized = true;
 	}
 
 	/**

@@ -57,10 +57,4 @@ public class PIDWrapper extends PIDController implements IDebuggable {
 		setD(kD);
 		setF(kF);
 	}
-
-	@Override
-	public void show(String key) {
-		// TODO Auto-generated method stub
-
-	}
 }

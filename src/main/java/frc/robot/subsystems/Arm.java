@@ -16,6 +16,7 @@ import frc.robot.Constants;
 import frc.robot.util.Debug;
 import frc.robot.util.Device;
 import frc.robot.util.PIDWrapper;
+import frc.robot.util.SubsystemWrapper;
 import frc.robot.util.drivers.LazyTalonFX;
 import frc.robot.util.drivers.NEOSparkMax;
 import frc.robot.util.interfaces.IDebuggable;
@@ -42,13 +43,15 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		extensionMotor.setSmartCurrentLimit(20);
 		extensionMotor.setSensorPosition(0);
 		extensionPositionPID = new PIDWrapper(Constants.PID.extension_P);
+	}
 
-		Timer.delay(1.0);
-
+	public void onFirstInit() {
 		double pivot = Conversions.degreesToFalcon(pivotEncoder.getAbsolutePosition(), Constants.pivotGearRatio);
 		leftPivotMotor.setSelectedSensorPosition(pivot);
 		rightPivotMotor.setSelectedSensorPosition(pivot);
 		resetExtensionPosition();
+
+		SmartDashboard.putNumber("init pivot: ", pivotEncoder.getAbsolutePosition());
 
 		this.extensionTarget = new PositionTarget(
 				getExtensionPosition(),
@@ -56,7 +59,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 				Constants.Arm.maxExtension);
 
 		this.pivotTarget = new PositionTarget(
-				getPivotDegrees(),
+				pivotEncoder.getAbsolutePosition(),
 				Constants.Arm.minPivot,
 				Constants.Arm.maxPivot);
 	}
@@ -263,17 +266,13 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	@Override
 	public void periodic() {
 
-		show("s_arm");
-	}
-
-	@Override
-	public void show(String key) {
-		SmartDashboard.putNumber("Arm Pivot (Degrees)", getPivotDegrees());
-		SmartDashboard.putNumber("Desired Arm Pivot (Degrees)", pivotTarget.getTarget());
-		SmartDashboard.putNumber("predicted extension length (meters): ", getExtensionLength());
+		debug("s_arm");
 	}
 
 	@Override
 	public void debug(String key) {
+		SmartDashboard.putNumber("Arm Pivot (Degrees)", getPivotDegrees());
+		SmartDashboard.putNumber("Desired Arm Pivot (Degrees)", pivotTarget.getTarget());
+		SmartDashboard.putNumber("predicted extension length (meters): ", getExtensionLength());
 	}
 }
