@@ -40,7 +40,7 @@ public final class Constants {
 		public static final double maxExtensionLength = 245.0d;
 		public static final double maxExtension = 245.0d;
 		public static final double minExtension = 5.0d;
-		public static final double maxPivot = 120.0d;
+		public static final double maxPivot = 110.0d;
 		public static final double minPivot = 10.0d;
 		public static final double clawLength = 35.0d;
 		public static final double offsetToPivot = 5.0d;
@@ -51,7 +51,7 @@ public final class Constants {
 		public static double maxPivotSpeed = 250.0d;
 		public static final double minHeight = 20.0d;
 		public static final double pivotHeight = 120.0d;
-		public static final double offsetToBase = 65.0d;
+		public static final double offsetToBase = 75.0d;
 	}
 
 	public static class Chassis {

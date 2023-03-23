@@ -14,6 +14,7 @@ import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Swerve;
 import edu.wpi.first.cameraserver.*;
 import frc.robot.subsystems.TimeStamp;
+import frc.robot.subsystems.Led.BlinkinLedMode;
 import frc.robot.util.Device;
 import frc.robot.util.controllers.JoystickController;
 import frc.robot.util.controllers.LogitechController;
@@ -52,6 +53,8 @@ public class RobotContainer {
 
 	public static TimeStamp timeStamp = new TimeStamp();
 
+	public static boolean isRedAlliance = true;
+
 	public final LimelightWrapper limelight = new LimelightWrapper(Device.limelightName);
 	public final PigeonWrapper pigeon = new PigeonWrapper(30, Device.CanBus, 180.0d);
 	public AprilTagFieldLayout fieldLayout;
@@ -69,6 +72,8 @@ public class RobotContainer {
 			cam.setFPS(15);
 			cam.setResolution(10, 10);
 		}
+
+		Led.setMode(BlinkinLedMode.FIXED_BREATH_RED);
 
 		// Initialize and configure the gyroscope.
 		this.pigeon.configFactoryDefault();
@@ -152,6 +157,16 @@ public class RobotContainer {
 				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_VIOLET)));
 		controller.isPressedBind(LogiButton.Y,
 				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_ORANGE)));
+
+		controller.isPressedBind(LogiButton.Start, new InstantCommand(() -> {
+			isRedAlliance = !isRedAlliance;
+
+			if (isRedAlliance) {
+				Led.setMode(BlinkinLedMode.SOLID_RED);
+			} else {
+				Led.setMode(BlinkinLedMode.SOLID_BLUE);
+			}
+		}));
 		/*
 		 * controller.isPressedBind(LogiButton.X, new InstantCommand(() ->
 		 * Led.set(PatternID.OFF)));
