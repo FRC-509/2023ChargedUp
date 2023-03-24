@@ -103,6 +103,18 @@ public class RobotContainer {
 			DriverStation.reportWarning("failed to load april tag field layout json", true);
 			fieldLayout = null;
 		}
+
+		switch (DriverStation.getAlliance()) {
+			case Blue:
+				Led.setMode(BlinkinLedMode.SOLID_BLUE);
+				break;
+			case Invalid:
+				Led.setMode(BlinkinLedMode.SOLID_RED_ORANGE);
+				break;
+			case Red:
+				Led.setMode(BlinkinLedMode.SOLID_RED);
+				break;
+		}
 	}
 
 	public double deltaTime() {
@@ -167,22 +179,6 @@ public class RobotContainer {
 				Led.setMode(BlinkinLedMode.SOLID_BLUE);
 			}
 		}));
-		/*
-		 * controller.isPressedBind(LogiButton.X, new InstantCommand(() ->
-		 * Led.set(PatternID.OFF)));
-		 * controller.isPressedBind(LogiButton.Y, new InstantCommand(() ->
-		 * Led.set(PatternID.YELLOW)));
-		 * controller.isPressedBind(LogiButton.B, new InstantCommand(() ->
-		 * Led.set(PatternID.VIOLET)));
-		 */
-		// controller.isPressedBind(LogiButton.Start, new
-		// PickUpCubeFromGround(armSubsystem, clawSubsystem));
-		// controller.isPressedBind(LogiButton.LBTrigger, new InstantCommand(() ->
-		// armSubsystem.setPivotDegrees(100)));
-		// controller.isPressedBind(LogiButton.RBTrigger, new InstantCommand(() ->
-		// armSubsystem.setPivotDegrees(0)));
-		// controller.isPressedBind(LogiButton.Back, new InstantCommand(() ->
-		// armSubsystem.setExtensionPosition(0)));
 	}
 
 	private void addAutonomousRoutines() {
