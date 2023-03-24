@@ -164,10 +164,13 @@ public class Swerve extends SubsystemBase {
 	/* Used by SwerveControllerCommand in Auto */
 	public void setModuleStates(SwerveModuleState[] desiredStates) {
 		SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Constants.maxSpeed);
+		ChassisSpeeds speeds = Constants.swerveKinematics.toChassisSpeeds(desiredStates);
+		drive(new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond), speeds.omegaRadiansPerSecond,
+				false, false);
 
-		for (SwerveModule mod : this.swerveModules) {
-			mod.setDesiredState(desiredStates[mod.moduleNumber]);
-		}
+		// for (SwerveModule mod : this.swerveModules) {
+		// mod.setDesiredState(desiredStates[mod.moduleNumber]);
+		// }
 	}
 
 	public Pose2d getPose() {

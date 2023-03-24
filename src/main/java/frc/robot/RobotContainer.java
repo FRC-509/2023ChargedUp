@@ -1,6 +1,7 @@
 package frc.robot;
 
 import frc.robot.autonomous.OneConeAndTaxiStable;
+import frc.robot.autonomous.PickUpCubeFromGround;
 import frc.robot.autonomous.OneCone;
 import frc.robot.autonomous.OneConeAndChargeStation;
 import frc.robot.autonomous.OneConeAndChargeStationMorePoints;
@@ -64,7 +65,6 @@ public class RobotContainer {
 	public final Claw clawSubsystem;
 	public final UsbCamera usbCamera = new UsbCamera("509cam", 1);
 	private final SendableChooser<Command> chooser = new SendableChooser<Command>();
-	private final SendableChooser<String> loopTypeForExtension = new SendableChooser<String>();
 
 	public RobotContainer() {
 		if (RobotBase.isReal()) {
@@ -85,10 +85,6 @@ public class RobotContainer {
 		// Configure button bindings
 		this.configureButtonBindings();
 		this.addAutonomousRoutines();
-
-		this.loopTypeForExtension.addOption("Closed Loop", "CL");
-		this.loopTypeForExtension.addOption("Open Loop", "OL");
-		SmartDashboard.putData(loopTypeForExtension);
 
 		this.zeroGyro();
 
@@ -179,6 +175,9 @@ public class RobotContainer {
 				Led.setMode(BlinkinLedMode.SOLID_BLUE);
 			}
 		}));
+
+		// controller.isPressedBind(LogiButton.LBTrigger, new OneCone(armSubsystem,
+		// clawSubsystem, swerveSubsystem));
 	}
 
 	private void addAutonomousRoutines() {
@@ -187,21 +186,23 @@ public class RobotContainer {
 		chooser.addOption("One Cone and Taxi (Experimental)",
 				new OneConeAndTaxiPP(armSubsystem, clawSubsystem, swerveSubsystem));
 		chooser.addOption("One Cone and Charge Station",
-				new OneConeAndChargeStation(armSubsystem, clawSubsystem, swerveSubsystem, pigeon));
+				new OneConeAndChargeStation(armSubsystem, clawSubsystem, swerveSubsystem,
+						pigeon));
 		chooser.addOption("One Cone",
 				new OneCone(armSubsystem, clawSubsystem, swerveSubsystem));
 		chooser.addOption("test Charge",
-				new OneConeAndChargeStationMorePoints(armSubsystem, clawSubsystem, swerveSubsystem, pigeon));
+				new OneConeAndChargeStationMorePoints(armSubsystem, clawSubsystem,
+						swerveSubsystem, pigeon));
 		chooser.setDefaultOption("Charge Station",
 				new ChargeStation(swerveSubsystem, pigeon, -1));
 		chooser.addOption("None", null);
-		PathPlannerTrajectory trajectory = PathPlanner.loadPath("inTheShop",
-				new PathConstraints(Constants.maxSpeed, 3.2));
+		PathPlannerTrajectory trajectory = PathPlanner.loadPath("line",
+				new PathConstraints(Constants.maxSpeed / 3, 3.2 / 2));
 		SwerveAutoBuilder builder = new SwerveAutoBuilder(swerveSubsystem::getPose,
 				swerveSubsystem::resetOdometry,
 				Constants.swerveKinematics,
-				new PIDConstants(3.5, 0, 0),
-				new PIDConstants(1.6, 0.3, 0.1),
+				new PIDConstants(3.0, 0, 0),
+				new PIDConstants(1.3, 0.3, 0.1),
 				swerveSubsystem::setModuleStates,
 				Map.of(),
 				swerveSubsystem);
@@ -210,6 +211,9 @@ public class RobotContainer {
 						swerveSubsystem),
 				builder.followPath(trajectory),
 				new InstantCommand(() -> swerveSubsystem.drive(new Translation2d(), 0, false, true), swerveSubsystem));
+		// new InstantCommand(() -> swerveSubsystem.setTargetHeading(0),
+		// swerveSubsystem),
+		// new PickUpCubeFromGround(armSubsystem, clawSubsystem));
 		chooser.addOption("PATHPLANNER??!?!", group);
 
 		SmartDashboard.putData("Auto Chooser", chooser);

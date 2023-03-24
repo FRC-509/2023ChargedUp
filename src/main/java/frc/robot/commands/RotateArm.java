@@ -14,7 +14,11 @@ public class RotateArm extends CommandBase {
 
 	@Override
 	public void initialize() {
-		arm.setPivotDegrees(targetAngleDegrees);
+		if (!arm.isValidState(targetAngleDegrees, arm.getExtensionLength())) {
+			end(true);
+		} else {
+			arm.setPivotDegrees(targetAngleDegrees);
+		}
 	}
 
 	@Override
