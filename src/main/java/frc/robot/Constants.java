@@ -37,8 +37,8 @@ public final class Constants {
 
 	public static class Arm {
 		public static double maxExtensionSpeed = 150.0d;
-		public static final double maxExtensionLength = 245.0d;
-		public static final double maxExtension = 245.0d;
+		public static final double maxExtensionLength = 250.0d;
+		public static final double maxExtension = 250.0d;
 		public static final double minExtension = 5.0d;
 		public static final double maxPivot = 110.0d;
 		public static final double minPivot = 10.0d;
@@ -81,6 +81,8 @@ public final class Constants {
 	// Drivetrain-related constants.
 
 	public static final double offsetToSwerveModule = Chassis.length / 2 - Units.inchesToMeters(3.25);
+
+	public static final double minHeadingCorrectionSpeed = 0.15;
 
 	public static final double wheelCircumference = Units.inchesToMeters(4.0) * Math.PI; // 0.3192 meters
 	public static final double driveGearRatio = 6.75; // exact value is 425.0d / 63.0d

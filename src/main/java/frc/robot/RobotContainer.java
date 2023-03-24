@@ -176,8 +176,8 @@ public class RobotContainer {
 			}
 		}));
 
-		// controller.isPressedBind(LogiButton.LBTrigger, new OneCone(armSubsystem,
-		// clawSubsystem, swerveSubsystem));
+		controller.isPressedBind(LogiButton.LBTrigger, new OneCone(armSubsystem,
+				clawSubsystem, swerveSubsystem));
 	}
 
 	private void addAutonomousRoutines() {

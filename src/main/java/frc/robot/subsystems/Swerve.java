@@ -108,7 +108,12 @@ public class Swerve extends SubsystemBase {
 			timer.reset();
 		}
 
-		if (omitRotationCorrection || hasRotationInput || timer.get() < rotationTimeout) {
+		double speed = Math.hypot(translationMetersPerSecond.getX(), translationMetersPerSecond.getY());
+		SmartDashboard.putBoolean("correcting Heading", speed < Constants.minHeadingCorrectionSpeed);
+		SmartDashboard.putNumber("spped", speed);
+
+		if ((speed != 0 && speed < Constants.minHeadingCorrectionSpeed) || omitRotationCorrection || hasRotationInput
+				|| timer.get() < rotationTimeout) {
 			setTargetHeading(pigeon.getRelativeYaw());
 			rotationOutput = interpolatedRotation;
 		} else {

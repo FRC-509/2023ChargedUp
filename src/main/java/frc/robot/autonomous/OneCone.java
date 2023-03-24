@@ -13,7 +13,7 @@ public class OneCone extends SequentialCommandGroup {
 	public OneCone(Arm arm, Claw claw, Swerve swerve) {
 		addCommands(
 				new RotateArm(arm, 110),
-				new ExtendArm(arm, 230),
+				new ExtendArm(arm, 255),
 				new InstantCommand(() -> claw.retractClaw(), claw),
 				new WaitCommand(0.2),
 				new ExtendArm(arm, 0));
