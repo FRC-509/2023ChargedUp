@@ -23,17 +23,21 @@ public class ClawIntakeCommand extends CommandBase {
 	@Override
 	public void execute() {
 		if (intake.getAsBoolean()) {
-			if (clawSubsystem.isIntaking()) {
-				clawSubsystem.stopIntake();
-			} else {
-				clawSubsystem.spinIntake(true);
-			}
+			// if (clawSubsystem.isIntaking()) {
+			// clawSubsystem.stopIntake();
+			// } else {
+			// clawSubsystem.spinIntake(true);
+			// }
+			clawSubsystem.spinIntake(true);
 		} else if (outake.getAsBoolean()) {
-			if (clawSubsystem.isOutaking()) {
-				clawSubsystem.stopIntake();
-			} else {
-				clawSubsystem.spinIntake(false);
-			}
+			// if (clawSubsystem.isOutaking()) {
+			// clawSubsystem.stopIntake();
+			// } else {
+			// clawSubsystem.spinIntake(false);
+			// }
+			clawSubsystem.spinIntake(false);
+		} else {
+			clawSubsystem.stopIntake();
 		}
 
 		if (toggleClose.getAsBoolean()) {

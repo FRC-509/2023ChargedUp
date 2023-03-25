@@ -122,8 +122,8 @@ public class RobotContainer {
 					() -> -leftStick.getY(),
 					() -> -leftStick.getX(),
 					() -> -rightStick.getX(),
-					() -> leftStick.isDown(StickButton.Bottom),
-					() -> leftStick.isDown(StickButton.RightSideMiddleBottom),
+					() -> false, // leftStick.isDown(StickButton.Bottom),
+					() -> rightStick.isDown(StickButton.Bottom),
 					() -> rightStick.isDown(StickButton.Trigger),
 					() -> leftStick.isDown(StickButton.Trigger)));
 		} else {
@@ -138,11 +138,13 @@ public class RobotContainer {
 					() -> controller.isDown(LogiButton.LTrigger)));
 		}
 
+		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
+
 		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
 				clawSubsystem,
 				() -> controller.isPressed(LogiButton.A),
-				() -> controller.isPressed(LogiButton.RTrigger),
-				() -> controller.isPressed(LogiButton.LTrigger)));
+				() -> controller.isDown(LogiButton.RTrigger),
+				() -> controller.isDown(LogiButton.LTrigger)));
 
 		armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem,
 				() -> MathUtil.applyDeadband(controller.getLeftStickY(),
@@ -153,7 +155,6 @@ public class RobotContainer {
 						* -Constants.armExtensionOperatorCoefficient,
 				() -> controller.isDown(LogiButton.B)));
 
-		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
 		controller.isPressedBind(LogiButton.X,
 				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_VIOLET)));
 		controller.isPressedBind(LogiButton.Y,
