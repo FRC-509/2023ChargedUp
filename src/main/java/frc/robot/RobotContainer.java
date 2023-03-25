@@ -11,6 +11,9 @@ import frc.robot.commands.ArmCommand;
 import frc.robot.commands.ChargeStation;
 import frc.robot.commands.ClawIntakeCommand;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.OneConeTeleopHigh;
+import frc.robot.commands.OneConeTeleopMid;
+import frc.robot.commands.ResetArm;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Swerve;
@@ -26,6 +29,7 @@ import frc.robot.util.drivers.PigeonWrapper;
 import frc.robot.vision.*;
 import frc.robot.subsystems.Led;
 import java.io.IOException;
+import java.security.DrbgParameters.Reseed;
 import java.util.Map;
 
 import com.pathplanner.lib.PathConstraints;
@@ -100,18 +104,6 @@ public class RobotContainer {
 			DriverStation.reportWarning("failed to load april tag field layout json", true);
 			fieldLayout = null;
 		}
-
-		switch (DriverStation.getAlliance()) {
-			case Blue:
-				Led.setMode(BlinkinLedMode.SOLID_BLUE);
-				break;
-			case Invalid:
-				Led.setMode(BlinkinLedMode.SOLID_RED_ORANGE);
-				break;
-			case Red:
-				Led.setMode(BlinkinLedMode.SOLID_RED);
-				break;
-		}
 	}
 
 	public double deltaTime() {
@@ -167,32 +159,22 @@ public class RobotContainer {
 		controller.isPressedBind(LogiButton.Y,
 				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_ORANGE)));
 
-		controller.isPressedBind(LogiButton.Start, new InstantCommand(() -> {
-			isRedAlliance = !isRedAlliance;
-
-			if (isRedAlliance) {
-				Led.setMode(BlinkinLedMode.SOLID_RED);
-			} else {
-				Led.setMode(BlinkinLedMode.SOLID_BLUE);
-			}
-		}));
-
-		controller.isPressedBind(LogiButton.RBTrigger, new OneConeMidRung(armSubsystem,
-				clawSubsystem, swerveSubsystem));
-		controller.isPressedBind(LogiButton.LBTrigger, new OneCone(armSubsystem, clawSubsystem, swerveSubsystem));
+		controller.isPressedBind(LogiButton.RBTrigger, new OneConeTeleopMid(armSubsystem));
+		controller.isPressedBind(LogiButton.LBTrigger,
+				new OneConeTeleopHigh(armSubsystem));
+		// controller.isPressedBind(LogiButton.Start,
+		// new ResetArm(armSubsystem));
 	}
 
 	private void addAutonomousRoutines() {
 		chooser.addOption("One Cone and Taxi (Stable)",
 				new OneConeAndTaxiStable(armSubsystem, clawSubsystem, swerveSubsystem));
-		chooser.addOption("One Cone and Taxi (Experimental)",
-				new OneConeAndTaxiPP(armSubsystem, clawSubsystem, swerveSubsystem));
 		chooser.addOption("One Cone and Charge Station",
 				new OneConeAndChargeStation(armSubsystem, clawSubsystem, swerveSubsystem,
 						pigeon));
 		chooser.addOption("One Cone",
 				new OneCone(armSubsystem, clawSubsystem, swerveSubsystem));
-		chooser.addOption("test Charge",
+		chooser.addOption("One Cone + Taxi Charge",
 				new OneConeAndChargeStationMorePoints(armSubsystem, clawSubsystem,
 						swerveSubsystem, pigeon));
 		chooser.setDefaultOption("Charge Station",

@@ -18,6 +18,6 @@ public class OneConeMidRung extends SequentialCommandGroup {
 				new InstantCommand(() -> claw.retractClaw(), claw),
 				new WaitCommand(0.2),
 				new ExtendArm(arm, 0),
-				new RotateArm(arm, 40));
+				new RotateArm(arm, 10));
 	}
 }

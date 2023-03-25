@@ -41,7 +41,7 @@ public final class Constants {
 		public static final double maxExtension = 250.0d;
 		public static final double minExtension = 5.0d;
 		public static final double maxPivot = 110.0d;
-		public static final double minPivot = 10.0d;
+		public static final double minPivot = 20.0d;
 		public static final double clawLength = 35.0d;
 		public static final double offsetToPivot = 5.0d;
 

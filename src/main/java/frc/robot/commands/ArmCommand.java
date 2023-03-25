@@ -43,6 +43,7 @@ public class ArmCommand extends CommandBase {
 		SmartDashboard.putNumber("height from ground: ", s_Arm.getHeightFromGround());
 		SmartDashboard.putNumber("arm length: ", s_Arm.getArmLength());
 		SmartDashboard.putNumber("height limit: ", s_Arm.getHeightLimit());
+		SmartDashboard.putNumber("extension position: ", s_Arm.getExtensionPosition());
 
 		s_Arm.setPivotOutput(rotationSup.getAsDouble());
 
