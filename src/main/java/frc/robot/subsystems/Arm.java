@@ -284,6 +284,13 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		setPivotDegrees(pivotTarget.getTarget());
 	}
 
+	public void setPivotRawOutput(double percent) {
+		leftPivotMotor.set(ControlMode.PercentOutput, percent);
+		rightPivotMotor.set(ControlMode.PercentOutput, percent);
+
+		pivotTarget.setTarget(getPivotDegrees());
+	}
+
 	public void setExtensionPosition(double target) {
 		extensionTarget.setTarget(target);
 		double output = extensionPositionPID.calculate(extensionMotor.getSensorPosition(), extensionTarget.getTarget());

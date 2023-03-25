@@ -14,6 +14,7 @@ public class ClawIntakeCommand extends CommandBase {
 	public ClawIntakeCommand(Claw claw, BooleanSupplier toggleClose,
 			BooleanSupplier intake, BooleanSupplier outake) {
 		addRequirements(claw);
+
 		clawSubsystem = claw;
 		this.intake = intake;
 		this.outake = outake;

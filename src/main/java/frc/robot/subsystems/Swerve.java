@@ -119,8 +119,12 @@ public class Swerve extends SubsystemBase {
 		} else {
 			double delta = pigeon.getRelativeYaw() - targetHeading;
 			if (delta > 180.0d) {
-				delta -= 360;
+				delta -= 360.0d;
 			}
+			if (delta < -180.0d) {
+				delta += 360.0d;
+			}
+
 			double outputDegrees = Math.abs(delta) > 5.0d
 					? Constants.Voltage * rotationAggressivePID.calculate(delta)
 					: Constants.Voltage * rotationPassivePID.calculate(delta);

@@ -45,7 +45,7 @@ public class SwerveModule {
 
 		// Angle Motor Config
 		this.angleMotor = new LazyTalonFX(configs.angleMotorId, Device.CanBus);
-		this.angleMotor.setNeutralMode(NeutralMode.Coast);
+		this.angleMotor.setNeutralMode(NeutralMode.Brake);
 		this.angleMotor.config_kP(0, configs.steerPID.getP());
 		this.angleMotor.config_kI(0, configs.steerPID.getI());
 		this.angleMotor.config_kD(0, configs.steerPID.getD());
@@ -60,19 +60,25 @@ public class SwerveModule {
 		this.driveMotor.config_kD(0, configs.drivePID.getD());
 		this.driveMotor.config_kF(0, configs.drivePID.getF());
 
-		SupplyCurrentLimitConfiguration driveConf = new SupplyCurrentLimitConfiguration();
-		driveConf.enable = true;
-		driveConf.triggerThresholdCurrent = 80;
-		driveConf.triggerThresholdTime = 0.1;
-		driveConf.currentLimit = 0;
-		driveMotor.configSupplyCurrentLimit(driveConf);
+		/*
+		 * SupplyCurrentLimitConfiguration driveConf = new
+		 * SupplyCurrentLimitConfiguration();
+		 * driveConf.enable = true;
+		 * driveConf.triggerThresholdCurrent = 80;
+		 * driveConf.triggerThresholdTime = 0.1;
+		 * driveConf.currentLimit = 0;
+		 * driveMotor.configSupplyCurrentLimit(driveConf);
+		 */
 
-		SupplyCurrentLimitConfiguration steerConf = new SupplyCurrentLimitConfiguration();
-		steerConf.enable = true;
-		steerConf.triggerThresholdCurrent = 20;
-		steerConf.triggerThresholdTime = 0.1;
-		steerConf.currentLimit = 0;
-		angleMotor.configSupplyCurrentLimit(steerConf);
+		/*
+		 * SupplyCurrentLimitConfiguration steerConf = new
+		 * SupplyCurrentLimitConfiguration();
+		 * steerConf.enable = true;
+		 * steerConf.triggerThresholdCurrent = 20;
+		 * steerConf.triggerThresholdTime = 0.1;
+		 * steerConf.currentLimit = 0;
+		 * angleMotor.configSupplyCurrentLimit(steerConf);
+		 */
 
 		// "full output" will now scale to 12 Volts for all control modes.
 		this.driveMotor.configVoltageCompSaturation(12);

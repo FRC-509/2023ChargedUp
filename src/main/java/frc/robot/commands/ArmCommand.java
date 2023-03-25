@@ -45,10 +45,9 @@ public class ArmCommand extends CommandBase {
 		SmartDashboard.putNumber("height limit: ", s_Arm.getHeightLimit());
 		SmartDashboard.putNumber("extension position: ", s_Arm.getExtensionPosition());
 
-		s_Arm.setPivotOutput(rotationSup.getAsDouble());
-
 		if (rawOutputSup.getAsBoolean()) {
 			inRawOutput = true;
+			s_Arm.setPivotRawOutput(rotationSup.getAsDouble());
 			s_Arm.setExtensionRawOutput(extensionSup.getAsDouble());
 		} else {
 			if (inRawOutput) {
@@ -56,6 +55,7 @@ public class ArmCommand extends CommandBase {
 			}
 
 			inRawOutput = false;
+			s_Arm.setPivotOutput(rotationSup.getAsDouble());
 			s_Arm.setExtensionOutput(extensionSup.getAsDouble());
 		}
 

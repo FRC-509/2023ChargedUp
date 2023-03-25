@@ -184,25 +184,7 @@ public class RobotContainer {
 		chooser.addOption("Charge Station",
 				new ChargeStation(swerveSubsystem, pigeon, -1));
 		chooser.addOption("None", null);
-		PathPlannerTrajectory trajectory = PathPlanner.loadPath("line",
-				new PathConstraints(Constants.maxSpeed / 3, 3.2 / 2));
-		SwerveAutoBuilder builder = new SwerveAutoBuilder(swerveSubsystem::getPose,
-				swerveSubsystem::resetOdometry,
-				Constants.swerveKinematics,
-				new PIDConstants(3.0, 0, 0),
-				new PIDConstants(1.3, 0.3, 0.1),
-				swerveSubsystem::setModuleStates,
-				Map.of(),
-				swerveSubsystem);
-		SequentialCommandGroup group = new SequentialCommandGroup(
-				new InstantCommand(() -> swerveSubsystem.resetOdometry(trajectory.getInitialHolonomicPose()),
-						swerveSubsystem),
-				builder.followPath(trajectory),
-				new InstantCommand(() -> swerveSubsystem.drive(new Translation2d(), 0, false, true), swerveSubsystem));
-		// new InstantCommand(() -> swerveSubsystem.setTargetHeading(0),
-		// swerveSubsystem),
-		// new PickUpCubeFromGround(armSubsystem, clawSubsystem));
-		chooser.addOption("PATHPLANNER??!?!", group);
+		chooser.addOption("PATHPLANNER??!?!", null);
 
 		SmartDashboard.putData("Auto Chooser", chooser);
 	}
