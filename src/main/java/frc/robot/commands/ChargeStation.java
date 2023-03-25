@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class ChargeStation extends CommandBase {
 
-	private PIDController pid = new PIDController(0.03, 0, 0);
+	private PIDController pid = new PIDController(0.05, 0, 0);
 
 	// Pitch buffer
 	private double pitchBuffer;
