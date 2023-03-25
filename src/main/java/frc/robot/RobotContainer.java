@@ -119,8 +119,8 @@ public class RobotContainer {
 			// The thrustmaster joysticks on the Driver Station.
 			swerveSubsystem.setDefaultCommand(new DriveCommand(
 					swerveSubsystem,
-					() -> -leftStick.getY(),
-					() -> -leftStick.getX(),
+					() -> Math.signum(-leftStick.getY()) * Math.pow(-leftStick.getY(), 2),
+					() -> Math.signum(-leftStick.getX()) * Math.pow(-leftStick.getX(), 2),
 					() -> -rightStick.getX(),
 					() -> false, // leftStick.isDown(StickButton.Bottom),
 					() -> rightStick.isDown(StickButton.Bottom),
