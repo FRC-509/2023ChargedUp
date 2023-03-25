@@ -94,7 +94,7 @@ public final class Constants {
 	public static final double kV = 2.3277 / 12.0;
 	public static final double kA = 0.26532 / 12.0;
 
-	public static final PIDWrapper drive = new PIDWrapper(0.012, 0, 0.5, 0.0455);
+	public static final PIDWrapper drive = new PIDWrapper(0.01, 0.000425, 0.0, 0.01);
 	public static final PIDWrapper steer = new PIDWrapper(0.2, 0, 0, 0);
 	public static final boolean closedLoopDriveVelocity = false;
 

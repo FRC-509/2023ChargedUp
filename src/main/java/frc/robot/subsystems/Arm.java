@@ -1,23 +1,14 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.CANCoder;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.util.Debug;
 import frc.robot.util.Device;
 import frc.robot.util.PIDWrapper;
-import frc.robot.util.SubsystemWrapper;
 import frc.robot.util.drivers.LazyTalonFX;
 import frc.robot.util.drivers.NEOSparkMax;
 import frc.robot.util.interfaces.IDebuggable;
@@ -253,8 +244,8 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		double target = getPivotDegrees() + delta;
 		double ticks = Conversions.degreesToFalcon(target, Constants.pivotGearRatio);
 
-		leftPivotMotor.set(ControlMode.Position, ticks);
-		rightPivotMotor.set(ControlMode.Position, ticks);
+		// leftPivotMotor.set(ControlMode.Position, ticks);
+		// rightPivotMotor.set(ControlMode.Position, ticks);
 
 		pivotTarget.setTarget(target);
 	}
@@ -278,15 +269,15 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		double target = getPivotDegrees() + delta;
 		double ticks = Conversions.degreesToFalcon(target, Constants.pivotGearRatio);
 
-		leftPivotMotor.set(ControlMode.Position, ticks);
-		rightPivotMotor.set(ControlMode.Position, ticks);
+		// leftPivotMotor.set(ControlMode.Position, ticks);
+		// rightPivotMotor.set(ControlMode.Position, ticks);
 
 		setPivotDegrees(pivotTarget.getTarget());
 	}
 
 	public void setPivotRawOutput(double percent) {
-		leftPivotMotor.set(ControlMode.PercentOutput, percent);
-		rightPivotMotor.set(ControlMode.PercentOutput, percent);
+		// leftPivotMotor.set(ControlMode.PercentOutput, percent);
+		// rightPivotMotor.set(ControlMode.PercentOutput, percent);
 
 		pivotTarget.setTarget(getPivotDegrees());
 	}
