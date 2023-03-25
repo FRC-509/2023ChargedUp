@@ -175,10 +175,13 @@ public class RobotContainer {
 						pigeon));
 		chooser.addOption("One Cone",
 				new OneCone(armSubsystem, clawSubsystem, swerveSubsystem));
-		chooser.addOption("One Cone + Taxi Charge",
+		chooser.setDefaultOption("One Cone + Taxi Charge",
 				new OneConeAndChargeStationMorePoints(armSubsystem, clawSubsystem,
 						swerveSubsystem, pigeon));
-		chooser.setDefaultOption("Charge Station",
+		chooser.addOption("One Cone + Taxi + Pick Up Cube + Charge",
+				new OneConeAndChargeStationMorePoints(armSubsystem, clawSubsystem,
+						swerveSubsystem, pigeon));
+		chooser.addOption("Charge Station",
 				new ChargeStation(swerveSubsystem, pigeon, -1));
 		chooser.addOption("None", null);
 		PathPlannerTrajectory trajectory = PathPlanner.loadPath("line",
