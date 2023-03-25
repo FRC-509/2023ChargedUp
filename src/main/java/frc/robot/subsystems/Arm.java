@@ -47,8 +47,8 @@ public class Arm extends SubsystemBase implements IDebuggable {
 
 	public void onFirstInit() {
 		double pivot = Conversions.degreesToFalcon(pivotEncoder.getAbsolutePosition(), Constants.pivotGearRatio);
-		leftPivotMotor.setSelectedSensorPosition(pivot);
-		rightPivotMotor.setSelectedSensorPosition(pivot);
+		// leftPivotMotor.setSelectedSensorPosition(pivot);
+		// rightPivotMotor.setSelectedSensorPosition(pivot);
 
 		SmartDashboard.putNumber("init pivot: ", pivotEncoder.getAbsolutePosition());
 
@@ -250,8 +250,8 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		double target = getPivotDegrees() + delta;
 		double ticks = Conversions.degreesToFalcon(target, Constants.pivotGearRatio);
 
-		leftPivotMotor.set(ControlMode.Position, ticks);
-		rightPivotMotor.set(ControlMode.Position, ticks);
+		// leftPivotMotor.set(ControlMode.Position, ticks);
+		// rightPivotMotor.set(ControlMode.Position, ticks);
 
 		pivotTarget.setTarget(target);
 	}
@@ -275,8 +275,8 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		double target = getPivotDegrees() + delta;
 		double ticks = Conversions.degreesToFalcon(target, Constants.pivotGearRatio);
 
-		leftPivotMotor.set(ControlMode.Position, ticks);
-		rightPivotMotor.set(ControlMode.Position, ticks);
+		// leftPivotMotor.set(ControlMode.Position, ticks);
+		// rightPivotMotor.set(ControlMode.Position, ticks);
 
 		setPivotDegrees(pivotTarget.getTarget());
 	}

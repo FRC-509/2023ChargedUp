@@ -1,4 +1,5 @@
-package frc.robot.autonomous;
+//package frc.robot.autonomous;
+package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -9,14 +10,10 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Swerve;
 
-public class OneCone extends SequentialCommandGroup {
-	public OneCone(Arm arm, Claw claw, Swerve swerve) {
+public class OneConeTeleopHigh extends SequentialCommandGroup {
+	public OneConeTeleopHigh(Arm arm) {
 		addCommands(
 				new RotateArm(arm, 107),
-				new ExtendArm(arm, 255),
-				new InstantCommand(() -> claw.retractClaw(), claw),
-				new WaitCommand(0.2),
-				new ExtendArm(arm, 0),
-				new RotateArm(arm, 40));
+				new ExtendArm(arm, 255));
 	}
 }

@@ -9,11 +9,12 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Swerve;
 
-public class OneCone extends SequentialCommandGroup {
-	public OneCone(Arm arm, Claw claw, Swerve swerve) {
+public class OneConeMidRung extends SequentialCommandGroup {
+	public OneConeMidRung(Arm arm, Claw claw, Swerve swerve) {
+
 		addCommands(
-				new RotateArm(arm, 107),
-				new ExtendArm(arm, 255),
+				new RotateArm(arm, 90),
+				new ExtendArm(arm, 130),
 				new InstantCommand(() -> claw.retractClaw(), claw),
 				new WaitCommand(0.2),
 				new ExtendArm(arm, 0),

@@ -1,6 +1,7 @@
 package frc.robot;
 
 import frc.robot.autonomous.OneConeAndTaxiStable;
+import frc.robot.autonomous.OneConeMidRung;
 import frc.robot.autonomous.PickUpCubeFromGround;
 import frc.robot.autonomous.OneCone;
 import frc.robot.autonomous.OneConeAndChargeStation;
@@ -63,7 +64,7 @@ public class RobotContainer {
 	public final Swerve swerveSubsystem;
 	public final Arm armSubsystem;
 	public final Claw clawSubsystem;
-	public final UsbCamera usbCamera = new UsbCamera("509cam", 1);
+	public final UsbCamera usbCamera = new UsbCamera("509cam", 01);
 	private final SendableChooser<Command> chooser = new SendableChooser<Command>();
 
 	public RobotContainer() {
@@ -176,8 +177,9 @@ public class RobotContainer {
 			}
 		}));
 
-		controller.isPressedBind(LogiButton.LBTrigger, new OneCone(armSubsystem,
+		controller.isPressedBind(LogiButton.RBTrigger, new OneConeMidRung(armSubsystem,
 				clawSubsystem, swerveSubsystem));
+		controller.isPressedBind(LogiButton.LBTrigger, new OneCone(armSubsystem, clawSubsystem, swerveSubsystem));
 	}
 
 	private void addAutonomousRoutines() {
