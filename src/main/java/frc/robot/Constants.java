@@ -96,7 +96,7 @@ public final class Constants {
 
 	public static final PIDWrapper drive = new PIDWrapper(0.01, 0.000425, 0.0, 0.01);
 	public static final PIDWrapper steer = new PIDWrapper(0.2, 0, 0, 0);
-	public static final boolean closedLoopDriveVelocity = true;
+	public static final boolean closedLoopDriveVelocity = false;
 
 	/*
 	 * The order of each vector corresponds to the index of the swerve module inside
