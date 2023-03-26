@@ -14,18 +14,24 @@ public class ArmCommand extends CommandBase {
 	private final DoubleSupplier extensionSup;
 	private BooleanSupplier rawOutputSup;
 	private boolean inRawOutput;
+	private BooleanSupplier lbTriggerSup;
+	private BooleanSupplier rbTriggerSup;
 
 	public ArmCommand(
 			Arm s_Arm,
 			DoubleSupplier rotationSup,
 			DoubleSupplier extensionSup,
-			BooleanSupplier rawOUtputSup) {
+			BooleanSupplier rawOUtputSup,
+			BooleanSupplier lbTriggerSup,
+			BooleanSupplier rbTriggerSup) {
 		this.s_Arm = s_Arm;
 		addRequirements(s_Arm);
 
 		this.rotationSup = rotationSup;
 		this.extensionSup = extensionSup;
 		this.rawOutputSup = rawOUtputSup;
+		this.lbTriggerSup = lbTriggerSup;
+		this.rbTriggerSup = rbTriggerSup;
 	}
 
 	double pivot = 0.0d;
@@ -34,16 +40,19 @@ public class ArmCommand extends CommandBase {
 	@Override
 	public void execute() {
 
-		boolean isValid = s_Arm.isValidState(s_Arm.getPivotDegrees(), s_Arm.getArmLength());
-		SmartDashboard.putNumber("bias height:", s_Arm.getBiasedArmHeight());
-		SmartDashboard.putNumber("bias height from ground:", s_Arm.getBiasedHeightFromGround());
-		SmartDashboard.putNumber("bias base:", s_Arm.getBiasedArmBase());
-		SmartDashboard.putBoolean("is valid state:", isValid);
-		SmartDashboard.putNumber("height: ", s_Arm.getHeight());
-		SmartDashboard.putNumber("height from ground: ", s_Arm.getHeightFromGround());
-		SmartDashboard.putNumber("arm length: ", s_Arm.getArmLength());
-		SmartDashboard.putNumber("height limit: ", s_Arm.getHeightLimit());
-		SmartDashboard.putNumber("extension position: ", s_Arm.getExtensionPosition());
+		SmartDashboard.putNumber("pivot: ", s_Arm.getPivotDegrees());
+		SmartDashboard.putNumber("extension: ", s_Arm.getExtensionPosition());
+
+		boolean rb = rbTriggerSup.getAsBoolean();
+		boolean lb = lbTriggerSup.getAsBoolean();
+		if (lb && rb) {
+			(new OneConeTeleopHigh(s_Arm, false)).schedule();
+		} else if (rb) {
+			(new OneConeTeleopMid(s_Arm, true)).schedule();
+		} else if (lb) {
+			System.out.println("Scheduling OCTH");
+			(new OneConeTeleopHigh(s_Arm, true)).schedule();
+		}
 
 		if (rawOutputSup.getAsBoolean()) {
 			inRawOutput = true;

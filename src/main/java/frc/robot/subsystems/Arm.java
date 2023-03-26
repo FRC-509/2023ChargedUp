@@ -203,7 +203,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	 *         The equation for extension ticks to length was derived using
 	 *         regression
 	 */
-	public double extensionTicksToLength(double x) {
+	public static double extensionTicksToLength(double x) {
 		return 0.266 * x;
 	}
 
@@ -214,7 +214,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	 *         The equation for extension length to ticks was derived using
 	 *         regression
 	 */
-	public double extensionLengthToTicks(double y) {
+	public static double extensionLengthToTicks(double y) {
 		return y / 0.266;
 	}
 

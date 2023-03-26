@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Led.BlinkinLedMode;
 import frc.robot.util.telemetry.Thunderstorm;
+import frc.robot.vision.VisionTypes.PipelineState;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -42,6 +43,7 @@ public class Robot extends TimedRobot {
 			robotContainer.armSubsystem.onFirstInit();
 		}
 		hasInitialized = true;
+		this.robotContainer.limelight.setPipeline(PipelineState.RetroReflective);
 	}
 
 	/**

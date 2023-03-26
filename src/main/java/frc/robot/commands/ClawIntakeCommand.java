@@ -10,6 +10,8 @@ public class ClawIntakeCommand extends CommandBase {
 	private BooleanSupplier toggleClose;
 	private BooleanSupplier intake;
 	private BooleanSupplier outake;
+	private BooleanSupplier intakeHeld;
+	private BooleanSupplier outakeHeld;
 
 	public ClawIntakeCommand(Claw claw, BooleanSupplier toggleClose,
 			BooleanSupplier intake, BooleanSupplier outake) {
@@ -24,18 +26,8 @@ public class ClawIntakeCommand extends CommandBase {
 	@Override
 	public void execute() {
 		if (intake.getAsBoolean()) {
-			// if (clawSubsystem.isIntaking()) {
-			// clawSubsystem.stopIntake();
-			// } else {
-			// clawSubsystem.spinIntake(true);
-			// }
 			clawSubsystem.spinIntake(true);
 		} else if (outake.getAsBoolean()) {
-			// if (clawSubsystem.isOutaking()) {
-			// clawSubsystem.stopIntake();
-			// } else {
-			// clawSubsystem.spinIntake(false);
-			// }
 			clawSubsystem.spinIntake(false);
 		} else {
 			clawSubsystem.stopIntake();

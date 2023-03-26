@@ -11,12 +11,12 @@ import frc.robot.subsystems.Swerve;
 import frc.robot.vision.LimelightWrapper;
 import frc.robot.vision.VisionTypes.PipelineState;
 
-public class TargetReflectiveTape extends SequentialCommandGroup {
+public class TargetGamePiece extends SequentialCommandGroup {
 
 	private class StrafeToMeetTarget extends CommandBase {
 		private Swerve swerve;
 		private LimelightWrapper limelight;
-		private PIDController strafePID = new PIDController(0.0, 0, 0);
+		private PIDController strafePID = new PIDController(0.1, 0, 0);
 		private double targetAngle = 4.2d;
 
 		public StrafeToMeetTarget(Swerve swerve, LimelightWrapper limelight) {
@@ -27,8 +27,8 @@ public class TargetReflectiveTape extends SequentialCommandGroup {
 
 		@Override
 		public void initialize() {
-			limelight.setPipeline(PipelineState.RetroReflective);
-			swerve.setTargetHeading(180.0d);
+			limelight.setPipeline(PipelineState.MLGamePieces);
+			// swerve.setTargetHeading(0);
 			strafePID.setSetpoint(targetAngle);
 			strafePID.setTolerance(2.5);
 		}
@@ -56,7 +56,7 @@ public class TargetReflectiveTape extends SequentialCommandGroup {
 	private Swerve swerve;
 	private LimelightWrapper limelight;
 
-	public TargetReflectiveTape(Swerve swerve, LimelightWrapper limelight) {
+	public TargetGamePiece(Swerve swerve, LimelightWrapper limelight) {
 		this.swerve = swerve;
 		this.limelight = limelight;
 		swerve.setTargetHeading(0);

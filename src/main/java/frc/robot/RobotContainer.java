@@ -141,6 +141,9 @@ public class RobotContainer {
 		rightStick.isPressedBind(StickButton.Right, new TargetReflectiveTape(swerveSubsystem, limelight));
 		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
 
+		// controller.isDownBind(LogiButton.Y, new PickUpCubeFromGround(armSubsystem,
+		// clawSubsystem));
+
 		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
 				clawSubsystem,
 				() -> controller.isPressed(LogiButton.A),
@@ -154,18 +157,15 @@ public class RobotContainer {
 				() -> MathUtil.applyDeadband(controller.getRightStickY(),
 						Constants.stickDeadband)
 						* -Constants.armExtensionOperatorCoefficient,
-				() -> controller.isDown(LogiButton.B)));
+				() -> controller.isDown(LogiButton.B),
+				() -> controller.isPressed(LogiButton.LBTrigger),
+				() -> controller.isPressed(LogiButton.RBTrigger)));
 
 		controller.isPressedBind(LogiButton.X,
 				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_VIOLET)));
 		controller.isPressedBind(LogiButton.Y,
 				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_ORANGE)));
 
-		controller.isPressedBind(LogiButton.RBTrigger, new OneConeTeleopMid(armSubsystem));
-		controller.isPressedBind(LogiButton.LBTrigger,
-				new OneConeTeleopHigh(armSubsystem));
-		// controller.isPressedBind(LogiButton.Start,
-		// new ResetArm(armSubsystem));
 	}
 
 	private void addAutonomousRoutines() {
