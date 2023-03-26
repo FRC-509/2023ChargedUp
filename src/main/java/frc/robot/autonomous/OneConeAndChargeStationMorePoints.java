@@ -12,7 +12,7 @@ import frc.robot.util.drivers.PigeonWrapper;
 public class OneConeAndChargeStationMorePoints extends SequentialCommandGroup {
 	public OneConeAndChargeStationMorePoints(Arm arm, Claw claw, Swerve swerve, PigeonWrapper gyro) {
 		addCommands(
-				// new OneCone(arm, claw, swerve),
+				new OneCone(arm, claw, swerve),
 				new DriveCommand(swerve, 0.4, 0, 0, false).withTimeout(3.3),
 				new DriveCommand(swerve, -0.4, 0, 0, false).withTimeout(0.25),
 				new ChargeStation(swerve, gyro, 1.0));

@@ -24,7 +24,7 @@ public class Claw extends SubsystemBase {
 		solenoid = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 5, 7);
 		intakeMotor = new CANSparkMax(14, MotorType.kBrushed);
 		intakeMotor.setIdleMode(IdleMode.kBrake);
-		intakeMotor.setSmartCurrentLimit(13);
+		intakeMotor.setSmartCurrentLimit(20);
 		this.spinState = SpinState.None;
 
 	}

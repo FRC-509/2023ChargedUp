@@ -1,6 +1,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.sensors.CANCoder;
 
 import edu.wpi.first.math.MathUtil;
@@ -40,11 +41,12 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	}
 
 	public void onFirstInit() {
-		double pivot = Conversions.degreesToFalcon(pivotEncoder.getAbsolutePosition(), Constants.pivotGearRatio);
+		double pivot = Conversions.degreesToFalcon(360.0 - pivotEncoder.getAbsolutePosition(),
+				Constants.pivotGearRatio);
 		leftPivotMotor.setSelectedSensorPosition(pivot);
 		rightPivotMotor.setSelectedSensorPosition(pivot);
 
-		SmartDashboard.putNumber("init pivot: ", pivotEncoder.getAbsolutePosition());
+		SmartDashboard.putNumber("init pivot: ", 360.0 - pivotEncoder.getAbsolutePosition());
 
 		this.extensionTarget = new PositionTarget(
 				getExtensionPosition(),
@@ -52,7 +54,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 				Constants.Arm.maxExtension);
 
 		this.pivotTarget = new PositionTarget(
-				pivotEncoder.getAbsolutePosition(),
+				360.0 - pivotEncoder.getAbsolutePosition(),
 				Constants.Arm.minPivot,
 				Constants.Arm.maxPivot);
 
@@ -244,8 +246,8 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		double target = getPivotDegrees() + delta;
 		double ticks = Conversions.degreesToFalcon(target, Constants.pivotGearRatio);
 
-		// leftPivotMotor.set(ControlMode.Position, ticks);
-		// rightPivotMotor.set(ControlMode.Position, ticks);
+		leftPivotMotor.set(ControlMode.Position, ticks);
+		rightPivotMotor.set(ControlMode.Position, ticks);
 
 		pivotTarget.setTarget(target);
 	}
@@ -269,17 +271,25 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		double target = getPivotDegrees() + delta;
 		double ticks = Conversions.degreesToFalcon(target, Constants.pivotGearRatio);
 
-		// leftPivotMotor.set(ControlMode.Position, ticks);
-		// rightPivotMotor.set(ControlMode.Position, ticks);
+		leftPivotMotor.set(ControlMode.Position, ticks);
+		rightPivotMotor.set(ControlMode.Position, ticks);
 
 		setPivotDegrees(pivotTarget.getTarget());
 	}
 
 	public void setPivotRawOutput(double percent) {
-		// leftPivotMotor.set(ControlMode.PercentOutput, percent);
-		// rightPivotMotor.set(ControlMode.PercentOutput, percent);
+		leftPivotMotor.set(ControlMode.PercentOutput, percent);
+		rightPivotMotor.set(ControlMode.PercentOutput, percent);
 
-		pivotTarget.setTarget(getPivotDegrees());
+		double degrees = getPivotDegrees() % 360.0d;
+
+		if (degrees > 180.0d) {
+			degrees -= 360.0d;
+		} else if (degrees < -180.0d) {
+			degrees += 360.0d;
+		}
+
+		pivotTarget.setTarget(degrees);
 	}
 
 	public void setExtensionPosition(double target) {

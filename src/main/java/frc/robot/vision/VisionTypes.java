@@ -15,8 +15,8 @@ public class VisionTypes {
 	}
 
 	public enum PipelineState {
-		RetroReflective(0),
-		AprilTags(1),
+		AprilTags(0),
+		RetroReflective(1),
 		MLGamePieces(2);
 
 		final int value;

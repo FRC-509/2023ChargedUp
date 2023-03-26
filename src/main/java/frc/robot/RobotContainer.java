@@ -14,6 +14,7 @@ import frc.robot.commands.DriveCommand;
 import frc.robot.commands.OneConeTeleopHigh;
 import frc.robot.commands.OneConeTeleopMid;
 import frc.robot.commands.ResetArm;
+import frc.robot.commands.TargetReflectiveTape;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Swerve;
@@ -137,7 +138,7 @@ public class RobotContainer {
 					() -> controller.isDown(LogiButton.RTrigger),
 					() -> controller.isDown(LogiButton.LTrigger)));
 		}
-
+		rightStick.isPressedBind(StickButton.Right, new TargetReflectiveTape(swerveSubsystem, limelight));
 		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
 
 		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
