@@ -15,6 +15,7 @@ import frc.robot.util.drivers.NEOSparkMax;
 import frc.robot.util.interfaces.IDebuggable;
 import frc.robot.util.math.Conversions;
 import frc.robot.util.math.PositionTarget;
+import frc.robot.util.math.Utils;
 
 public class Arm extends SubsystemBase implements IDebuggable {
 	private final LazyTalonFX leftPivotMotor;
@@ -41,12 +42,12 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	}
 
 	public void onFirstInit() {
-		double pivot = Conversions.degreesToFalcon(360.0 - pivotEncoder.getAbsolutePosition(),
+		double pivot = Conversions.degreesToFalcon(pivotEncoder.getAbsolutePosition(),
 				Constants.pivotGearRatio);
 		leftPivotMotor.setSelectedSensorPosition(pivot);
 		rightPivotMotor.setSelectedSensorPosition(pivot);
 
-		SmartDashboard.putNumber("init pivot: ", 360.0 - pivotEncoder.getAbsolutePosition());
+		SmartDashboard.putNumber("init pivot: ", pivotEncoder.getAbsolutePosition());
 
 		this.extensionTarget = new PositionTarget(
 				getExtensionPosition(),
@@ -54,7 +55,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 				Constants.Arm.maxExtension);
 
 		this.pivotTarget = new PositionTarget(
-				360.0 - pivotEncoder.getAbsolutePosition(),
+				pivotEncoder.getAbsolutePosition(),
 				Constants.Arm.minPivot,
 				Constants.Arm.maxPivot);
 
@@ -329,6 +330,12 @@ public class Arm extends SubsystemBase implements IDebuggable {
 
 	@Override
 	public void periodic() {
+		if (Utils.withinDeadband(pivotEncoder.getVelocity(), 0.0d, 0.1)) {
+			double pivot = Conversions.degreesToFalcon(pivotEncoder.getAbsolutePosition(),
+					Constants.pivotGearRatio);
+			leftPivotMotor.setSelectedSensorPosition(pivot);
+			rightPivotMotor.setSelectedSensorPosition(pivot);
+		}
 
 		debug("s_arm");
 	}
@@ -337,6 +344,8 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	public void debug(String key) {
 		SmartDashboard.putNumber("Arm Pivot (Degrees)", getPivotDegrees());
 		SmartDashboard.putNumber("Desired Arm Pivot (Degrees)", pivotTarget.getTarget());
-		SmartDashboard.putNumber("predicted extension length (meters): ", getExtensionLength());
+		SmartDashboard.putNumber("Arm Extension", extensionMotor.getSensorPosition());
+		SmartDashboard.putNumber("Desired Arm Extension", extensionTarget.getTarget());
+		SmartDashboard.putNumber("Valid State", extensionTarget.getTarget());
 	}
 }

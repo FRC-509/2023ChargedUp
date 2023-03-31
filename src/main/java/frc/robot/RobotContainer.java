@@ -27,6 +27,7 @@ import frc.robot.util.controllers.LogitechController;
 import frc.robot.util.controllers.JoystickController.StickButton;
 import frc.robot.util.controllers.LogitechController.LogiButton;
 import frc.robot.util.drivers.PigeonWrapper;
+import frc.robot.util.math.Scaling;
 import frc.robot.vision.*;
 import frc.robot.subsystems.Led;
 import java.io.IOException;
@@ -120,8 +121,8 @@ public class RobotContainer {
 			// The thrustmaster joysticks on the Driver Station.
 			swerveSubsystem.setDefaultCommand(new DriveCommand(
 					swerveSubsystem,
-					() -> Math.signum(-leftStick.getY()) * Math.pow(-leftStick.getY(), 2),
-					() -> Math.signum(-leftStick.getX()) * Math.pow(-leftStick.getX(), 2),
+					() -> Scaling.pow(-leftStick.getY(), 1.0d),
+					() -> Scaling.pow(-leftStick.getX(), 1.0d),
 					() -> -rightStick.getX(),
 					() -> false, // leftStick.isDown(StickButton.Bottom),
 					() -> rightStick.isDown(StickButton.Bottom),

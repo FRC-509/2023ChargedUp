@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
+import frc.robot.util.math.Utils;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -68,24 +69,26 @@ public class DriveCommand extends CommandBase {
 
 		/* Drive */
 		if (xStanceSup.getAsBoolean()) {
-			this.s_Swerve.enterXStance();
+			s_Swerve.enterXStance();
 		} else if (faceForward.getAsBoolean() || faceBackward.getAsBoolean()) {
-			if (faceBackward.getAsBoolean()) {
-				s_Swerve.setTargetHeading(+0);
 
+			if (faceBackward.getAsBoolean()) {
+				s_Swerve.setTargetHeading(0.0d);
 			} else {
-				s_Swerve.setTargetHeading(+180);
+				s_Swerve.setTargetHeading(180.0d);
 			}
 
 			this.s_Swerve.drive(
 					new Translation2d(translationVal, strafeVal).times(0.4 * Constants.maxSpeed),
 					0.0d,
-					!this.robotCentricSup.getAsBoolean(), false);
+					!this.robotCentricSup.getAsBoolean(),
+					true);
 		} else {
 			this.s_Swerve.drive(
 					new Translation2d(translationVal, strafeVal).times(Constants.maxSpeed),
 					rotationVal * Constants.maxAngularVelocity,
-					!this.robotCentricSup.getAsBoolean(), false);
+					!this.robotCentricSup.getAsBoolean(),
+					true);
 		}
 	}
 }

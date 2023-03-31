@@ -39,18 +39,15 @@ public class ArmCommand extends CommandBase {
 
 	@Override
 	public void execute() {
-
-		SmartDashboard.putNumber("pivot: ", s_Arm.getPivotDegrees());
-		SmartDashboard.putNumber("extension: ", s_Arm.getExtensionPosition());
-
 		boolean rb = rbTriggerSup.getAsBoolean();
 		boolean lb = lbTriggerSup.getAsBoolean();
 		if (lb && rb) {
 			(new OneConeTeleopHigh(s_Arm, false)).schedule();
+			// (new PositionArm(s_Arm, 45, 0.0)).schedule();
+
 		} else if (rb) {
 			(new OneConeTeleopMid(s_Arm, true)).schedule();
 		} else if (lb) {
-			System.out.println("Scheduling OCTH");
 			(new OneConeTeleopHigh(s_Arm, true)).schedule();
 		}
 
@@ -67,6 +64,5 @@ public class ArmCommand extends CommandBase {
 			s_Arm.setPivotOutput(rotationSup.getAsDouble());
 			s_Arm.setExtensionOutput(extensionSup.getAsDouble());
 		}
-
 	}
 }

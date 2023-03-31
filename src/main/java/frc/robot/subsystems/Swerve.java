@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
 import frc.robot.util.Debug;
+import frc.robot.util.PIDWrapper;
 import frc.robot.util.drivers.PigeonWrapper;
 import frc.robot.util.math.Conversions;
 import frc.robot.util.math.Interpolator;
@@ -45,6 +46,8 @@ public class Swerve extends SubsystemBase {
 	private double rotationTimeout = 0.5;
 	private Timer timer;
 
+	private PIDWrapper drivePID;
+
 	public Swerve(TimeStamp stamp, PigeonWrapper pigeon, LimelightWrapper limelight) {
 		this.timer = new Timer();
 		timer.reset();
@@ -55,6 +58,8 @@ public class Swerve extends SubsystemBase {
 		this.timeStamp = stamp;
 		this.rotationInterplator = new Interpolator(timeStamp, Constants.maxAngularVelocity);
 		this.targetHeading = pigeon.getAbsoluteZero();
+
+		this.drivePID = Constants.drive;
 
 		swerveModules = new SwerveModule[] {
 				new SwerveModule(Constants.s_frontLeft),
@@ -109,8 +114,6 @@ public class Swerve extends SubsystemBase {
 		}
 
 		double speed = Math.hypot(translationMetersPerSecond.getX(), translationMetersPerSecond.getY());
-		SmartDashboard.putBoolean("correcting Heading", speed < Constants.minHeadingCorrectionSpeed);
-		SmartDashboard.putNumber("spped", speed);
 
 		if ((speed != 0 && speed < Constants.minHeadingCorrectionSpeed) || omitRotationCorrection || hasRotationInput
 				|| timer.get() < rotationTimeout) {
@@ -138,7 +141,7 @@ public class Swerve extends SubsystemBase {
 			moduleStates = Constants.swerveKinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(
 					translationMetersPerSecond.getX(),
 					translationMetersPerSecond.getY(),
-					rotationOutput,
+					rotationRadiansPerSecond,
 					getYaw()));
 		} else {
 			moduleStates = Constants.swerveKinematics.toSwerveModuleStates(new ChassisSpeeds(
@@ -242,6 +245,12 @@ public class Swerve extends SubsystemBase {
 		SmartDashboard.putNumber("roll", pigeon.getRoll());
 		SmartDashboard.putNumber("odometry-x", this.swerveDrivePoseEstimator.getEstimatedPosition().getX());
 		SmartDashboard.putNumber("odometry-y", this.swerveDrivePoseEstimator.getEstimatedPosition().getY());
+
+		drivePID.debug("drive PID");
+
+		for (var module : swerveModules) {
+			module.setDrivePID(drivePID);
+		}
 
 		// pointing up is -negative Pitch
 		// down is +positive Pitch

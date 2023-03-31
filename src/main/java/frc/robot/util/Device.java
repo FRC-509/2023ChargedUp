@@ -72,7 +72,8 @@ public class Device {
 		public static CANCoderBuilder pivot = new CANCoderBuilder(
 				EncoderId.pivot,
 				RioBus,
-				-235.458529d);
+				-235.458529d,
+				true);
 	}
 
 	public static class Motor {
