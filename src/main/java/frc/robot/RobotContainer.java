@@ -1,6 +1,8 @@
 package frc.robot;
 
 import frc.robot.autonomous.OneConeAndTaxiStable;
+import frc.robot.autonomous.OneConeMidRung;
+import frc.robot.autonomous.PickUpCubeFromGround;
 import frc.robot.autonomous.OneCone;
 import frc.robot.autonomous.OneConeAndChargeStation;
 import frc.robot.autonomous.OneConeAndChargeStationMorePoints;
@@ -9,20 +11,27 @@ import frc.robot.commands.ArmCommand;
 import frc.robot.commands.ChargeStation;
 import frc.robot.commands.ClawIntakeCommand;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.OneConeTeleopHigh;
+import frc.robot.commands.OneConeTeleopMid;
+import frc.robot.commands.ResetArm;
+import frc.robot.commands.TargetReflectiveTape;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Swerve;
 import edu.wpi.first.cameraserver.*;
 import frc.robot.subsystems.TimeStamp;
+import frc.robot.subsystems.Led.BlinkinLedMode;
 import frc.robot.util.Device;
 import frc.robot.util.controllers.JoystickController;
 import frc.robot.util.controllers.LogitechController;
 import frc.robot.util.controllers.JoystickController.StickButton;
 import frc.robot.util.controllers.LogitechController.LogiButton;
 import frc.robot.util.drivers.PigeonWrapper;
+import frc.robot.util.math.Scaling;
 import frc.robot.vision.*;
 import frc.robot.subsystems.Led;
 import java.io.IOException;
+import java.security.DrbgParameters.Reseed;
 import java.util.Map;
 
 import com.pathplanner.lib.PathConstraints;
@@ -52,6 +61,8 @@ public class RobotContainer {
 
 	public static TimeStamp timeStamp = new TimeStamp();
 
+	public static boolean isRedAlliance = true;
+
 	public final LimelightWrapper limelight = new LimelightWrapper(Device.limelightName);
 	public final PigeonWrapper pigeon = new PigeonWrapper(30, Device.CanBus, 180.0d);
 	public AprilTagFieldLayout fieldLayout;
@@ -59,9 +70,8 @@ public class RobotContainer {
 	public final Swerve swerveSubsystem;
 	public final Arm armSubsystem;
 	public final Claw clawSubsystem;
-	public final UsbCamera usbCamera = new UsbCamera("509cam", 1);
+	public final UsbCamera usbCamera = new UsbCamera("509cam", 01);
 	private final SendableChooser<Command> chooser = new SendableChooser<Command>();
-	private final SendableChooser<String> loopTypeForExtension = new SendableChooser<String>();
 
 	public RobotContainer() {
 		if (RobotBase.isReal()) {
@@ -69,6 +79,8 @@ public class RobotContainer {
 			cam.setFPS(15);
 			cam.setResolution(10, 10);
 		}
+
+		Led.setMode(BlinkinLedMode.FIXED_BREATH_RED);
 
 		// Initialize and configure the gyroscope.
 		this.pigeon.configFactoryDefault();
@@ -80,10 +92,6 @@ public class RobotContainer {
 		// Configure button bindings
 		this.configureButtonBindings();
 		this.addAutonomousRoutines();
-
-		this.loopTypeForExtension.addOption("Closed Loop", "CL");
-		this.loopTypeForExtension.addOption("Open Loop", "OL");
-		SmartDashboard.putData(loopTypeForExtension);
 
 		this.zeroGyro();
 
@@ -113,11 +121,11 @@ public class RobotContainer {
 			// The thrustmaster joysticks on the Driver Station.
 			swerveSubsystem.setDefaultCommand(new DriveCommand(
 					swerveSubsystem,
-					() -> -leftStick.getY(),
-					() -> -leftStick.getX(),
+					() -> Scaling.pow(-leftStick.getY(), 1.0d),
+					() -> Scaling.pow(-leftStick.getX(), 1.0d),
 					() -> -rightStick.getX(),
-					() -> leftStick.isDown(StickButton.Bottom),
-					() -> leftStick.isDown(StickButton.RightSideMiddleBottom),
+					() -> false, // leftStick.isDown(StickButton.Bottom),
+					() -> rightStick.isDown(StickButton.Bottom),
 					() -> rightStick.isDown(StickButton.Trigger),
 					() -> leftStick.isDown(StickButton.Trigger)));
 		} else {
@@ -131,6 +139,11 @@ public class RobotContainer {
 					() -> controller.isDown(LogiButton.RTrigger),
 					() -> controller.isDown(LogiButton.LTrigger)));
 		}
+		rightStick.isPressedBind(StickButton.Right, new TargetReflectiveTape(swerveSubsystem, limelight));
+		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
+
+		// controller.isDownBind(LogiButton.Y, new PickUpCubeFromGround(armSubsystem,
+		// clawSubsystem));
 
 		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
 				clawSubsystem,
@@ -145,61 +158,35 @@ public class RobotContainer {
 				() -> MathUtil.applyDeadband(controller.getRightStickY(),
 						Constants.stickDeadband)
 						* -Constants.armExtensionOperatorCoefficient,
-				() -> controller.isDown(LogiButton.B)));
+				() -> controller.isDown(LogiButton.B),
+				() -> controller.isPressed(LogiButton.LBTrigger),
+				() -> controller.isPressed(LogiButton.RBTrigger)));
 
-		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
 		controller.isPressedBind(LogiButton.X,
 				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_VIOLET)));
 		controller.isPressedBind(LogiButton.Y,
 				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_ORANGE)));
-		/*
-		 * controller.isPressedBind(LogiButton.X, new InstantCommand(() ->
-		 * Led.set(PatternID.OFF)));
-		 * controller.isPressedBind(LogiButton.Y, new InstantCommand(() ->
-		 * Led.set(PatternID.YELLOW)));
-		 * controller.isPressedBind(LogiButton.B, new InstantCommand(() ->
-		 * Led.set(PatternID.VIOLET)));
-		 */
-		// controller.isPressedBind(LogiButton.Start, new
-		// PickUpCubeFromGround(armSubsystem, clawSubsystem));
-		// controller.isPressedBind(LogiButton.LBTrigger, new InstantCommand(() ->
-		// armSubsystem.setPivotDegrees(100)));
-		// controller.isPressedBind(LogiButton.RBTrigger, new InstantCommand(() ->
-		// armSubsystem.setPivotDegrees(0)));
-		// controller.isPressedBind(LogiButton.Back, new InstantCommand(() ->
-		// armSubsystem.setExtensionPosition(0)));
+
 	}
 
 	private void addAutonomousRoutines() {
 		chooser.addOption("One Cone and Taxi (Stable)",
 				new OneConeAndTaxiStable(armSubsystem, clawSubsystem, swerveSubsystem));
-		chooser.addOption("One Cone and Taxi (Experimental)",
-				new OneConeAndTaxiPP(armSubsystem, clawSubsystem, swerveSubsystem));
 		chooser.addOption("One Cone and Charge Station",
-				new OneConeAndChargeStation(armSubsystem, clawSubsystem, swerveSubsystem, pigeon));
+				new OneConeAndChargeStation(armSubsystem, clawSubsystem, swerveSubsystem,
+						pigeon));
 		chooser.addOption("One Cone",
 				new OneCone(armSubsystem, clawSubsystem, swerveSubsystem));
-		chooser.addOption("test Charge",
-				new OneConeAndChargeStationMorePoints(armSubsystem, clawSubsystem, swerveSubsystem, pigeon));
-		chooser.setDefaultOption("Charge Station",
+		chooser.setDefaultOption("One Cone + Taxi Charge",
+				new OneConeAndChargeStationMorePoints(armSubsystem, clawSubsystem,
+						swerveSubsystem, pigeon));
+		chooser.addOption("One Cone + Taxi + Pick Up Cube + Charge",
+				new OneConeAndChargeStationMorePoints(armSubsystem, clawSubsystem,
+						swerveSubsystem, pigeon));
+		chooser.addOption("Charge Station",
 				new ChargeStation(swerveSubsystem, pigeon, -1));
 		chooser.addOption("None", null);
-		PathPlannerTrajectory trajectory = PathPlanner.loadPath("inTheShop",
-				new PathConstraints(Constants.maxSpeed, 3.2));
-		SwerveAutoBuilder builder = new SwerveAutoBuilder(swerveSubsystem::getPose,
-				swerveSubsystem::resetOdometry,
-				Constants.swerveKinematics,
-				new PIDConstants(3.5, 0, 0),
-				new PIDConstants(1.6, 0.3, 0.1),
-				swerveSubsystem::setModuleStates,
-				Map.of(),
-				swerveSubsystem);
-		SequentialCommandGroup group = new SequentialCommandGroup(
-				new InstantCommand(() -> swerveSubsystem.resetOdometry(trajectory.getInitialHolonomicPose()),
-						swerveSubsystem),
-				builder.followPath(trajectory),
-				new InstantCommand(() -> swerveSubsystem.drive(new Translation2d(), 0, false, true), swerveSubsystem));
-		chooser.addOption("PATHPLANNER??!?!", group);
+		chooser.addOption("PATHPLANNER??!?!", null);
 
 		SmartDashboard.putData("Auto Chooser", chooser);
 	}

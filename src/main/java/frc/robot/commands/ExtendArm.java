@@ -14,7 +14,11 @@ public class ExtendArm extends CommandBase {
 
 	@Override
 	public void initialize() {
-		arm.setExtensionPosition(targetPosition);
+		if (!arm.isValidState(arm.getPivotDegrees(), arm.extensionTicksToLength(targetPosition))) {
+			end(true);
+		} else {
+			arm.setExtensionPosition(targetPosition);
+		}
 	}
 
 	@Override

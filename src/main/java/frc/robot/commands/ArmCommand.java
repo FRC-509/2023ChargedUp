@@ -14,18 +14,24 @@ public class ArmCommand extends CommandBase {
 	private final DoubleSupplier extensionSup;
 	private BooleanSupplier rawOutputSup;
 	private boolean inRawOutput;
+	private BooleanSupplier lbTriggerSup;
+	private BooleanSupplier rbTriggerSup;
 
 	public ArmCommand(
 			Arm s_Arm,
 			DoubleSupplier rotationSup,
 			DoubleSupplier extensionSup,
-			BooleanSupplier rawOUtputSup) {
+			BooleanSupplier rawOUtputSup,
+			BooleanSupplier lbTriggerSup,
+			BooleanSupplier rbTriggerSup) {
 		this.s_Arm = s_Arm;
 		addRequirements(s_Arm);
 
 		this.rotationSup = rotationSup;
 		this.extensionSup = extensionSup;
 		this.rawOutputSup = rawOUtputSup;
+		this.lbTriggerSup = lbTriggerSup;
+		this.rbTriggerSup = rbTriggerSup;
 	}
 
 	double pivot = 0.0d;
@@ -33,17 +39,21 @@ public class ArmCommand extends CommandBase {
 
 	@Override
 	public void execute() {
+		boolean rb = rbTriggerSup.getAsBoolean();
+		boolean lb = lbTriggerSup.getAsBoolean();
+		if (lb && rb) {
+			(new OneConeTeleopHigh(s_Arm, false)).schedule();
+			// (new PositionArm(s_Arm, 45, 0.0)).schedule();
 
-		boolean isValid = s_Arm.isValidState(s_Arm.getPivotDegrees(), s_Arm.getExtensionLength());
-		SmartDashboard.putBoolean("is valid state:", isValid);
-		SmartDashboard.putNumber("height: ", s_Arm.getHeight());
-		SmartDashboard.putNumber("height from ground: ", s_Arm.getHeightFromGround());
-		SmartDashboard.putNumber("arm len", s_Arm.getArmLength());
-
-		s_Arm.setPivotOutput(rotationSup.getAsDouble());
+		} else if (rb) {
+			(new OneConeTeleopMid(s_Arm, true)).schedule();
+		} else if (lb) {
+			(new OneConeTeleopHigh(s_Arm, true)).schedule();
+		}
 
 		if (rawOutputSup.getAsBoolean()) {
 			inRawOutput = true;
+			s_Arm.setPivotRawOutput(rotationSup.getAsDouble());
 			s_Arm.setExtensionRawOutput(extensionSup.getAsDouble());
 		} else {
 			if (inRawOutput) {
@@ -51,8 +61,8 @@ public class ArmCommand extends CommandBase {
 			}
 
 			inRawOutput = false;
+			s_Arm.setPivotOutput(rotationSup.getAsDouble());
 			s_Arm.setExtensionOutput(extensionSup.getAsDouble());
 		}
-
 	}
 }

@@ -23,8 +23,6 @@ public class LimelightWrapper {
 	// Constructor
 	public LimelightWrapper(String name) {
 		this.limelightName = name;
-		setLEDState(false);
-		setPipeline(PipelineState.AprilTags);
 	}
 
 	public void setPipeline(PipelineState pipeline) {

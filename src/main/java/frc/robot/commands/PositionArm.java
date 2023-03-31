@@ -72,6 +72,6 @@ public class PositionArm extends CommandBase {
 	@Override
 	public boolean isFinished() {
 		return Utils.withinDeadband(arm.getPivotDegrees(), targetPivot, 2.50d)
-				&& Utils.withinDeadband(arm.getExtensionLength(), targetExtension, 0.05);
+				&& Utils.withinDeadband(arm.getExtensionLength(), targetExtension, 5.0d);
 	}
 }

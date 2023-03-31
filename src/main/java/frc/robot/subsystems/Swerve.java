@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
 import frc.robot.util.Debug;
+import frc.robot.util.PIDWrapper;
 import frc.robot.util.drivers.PigeonWrapper;
 import frc.robot.util.math.Conversions;
 import frc.robot.util.math.Interpolator;
@@ -45,6 +46,8 @@ public class Swerve extends SubsystemBase {
 	private double rotationTimeout = 0.5;
 	private Timer timer;
 
+	private PIDWrapper drivePID;
+
 	public Swerve(TimeStamp stamp, PigeonWrapper pigeon, LimelightWrapper limelight) {
 		this.timer = new Timer();
 		timer.reset();
@@ -55,6 +58,8 @@ public class Swerve extends SubsystemBase {
 		this.timeStamp = stamp;
 		this.rotationInterplator = new Interpolator(timeStamp, Constants.maxAngularVelocity);
 		this.targetHeading = pigeon.getAbsoluteZero();
+
+		this.drivePID = Constants.drive;
 
 		swerveModules = new SwerveModule[] {
 				new SwerveModule(Constants.s_frontLeft),
@@ -108,14 +113,21 @@ public class Swerve extends SubsystemBase {
 			timer.reset();
 		}
 
-		if (omitRotationCorrection || hasRotationInput || timer.get() < rotationTimeout) {
+		double speed = Math.hypot(translationMetersPerSecond.getX(), translationMetersPerSecond.getY());
+
+		if ((speed != 0 && speed < Constants.minHeadingCorrectionSpeed) || omitRotationCorrection || hasRotationInput
+				|| timer.get() < rotationTimeout) {
 			setTargetHeading(pigeon.getRelativeYaw());
 			rotationOutput = interpolatedRotation;
 		} else {
 			double delta = pigeon.getRelativeYaw() - targetHeading;
 			if (delta > 180.0d) {
-				delta -= 360;
+				delta -= 360.0d;
 			}
+			if (delta < -180.0d) {
+				delta += 360.0d;
+			}
+
 			double outputDegrees = Math.abs(delta) > 5.0d
 					? Constants.Voltage * rotationAggressivePID.calculate(delta)
 					: Constants.Voltage * rotationPassivePID.calculate(delta);
@@ -129,7 +141,7 @@ public class Swerve extends SubsystemBase {
 			moduleStates = Constants.swerveKinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(
 					translationMetersPerSecond.getX(),
 					translationMetersPerSecond.getY(),
-					rotationOutput,
+					rotationRadiansPerSecond,
 					getYaw()));
 		} else {
 			moduleStates = Constants.swerveKinematics.toSwerveModuleStates(new ChassisSpeeds(
@@ -164,10 +176,13 @@ public class Swerve extends SubsystemBase {
 	/* Used by SwerveControllerCommand in Auto */
 	public void setModuleStates(SwerveModuleState[] desiredStates) {
 		SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Constants.maxSpeed);
+		ChassisSpeeds speeds = Constants.swerveKinematics.toChassisSpeeds(desiredStates);
+		drive(new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond), speeds.omegaRadiansPerSecond,
+				false, false);
 
-		for (SwerveModule mod : this.swerveModules) {
-			mod.setDesiredState(desiredStates[mod.moduleNumber]);
-		}
+		// for (SwerveModule mod : this.swerveModules) {
+		// mod.setDesiredState(desiredStates[mod.moduleNumber]);
+		// }
 	}
 
 	public Pose2d getPose() {
@@ -230,6 +245,12 @@ public class Swerve extends SubsystemBase {
 		SmartDashboard.putNumber("roll", pigeon.getRoll());
 		SmartDashboard.putNumber("odometry-x", this.swerveDrivePoseEstimator.getEstimatedPosition().getX());
 		SmartDashboard.putNumber("odometry-y", this.swerveDrivePoseEstimator.getEstimatedPosition().getY());
+
+		drivePID.debug("drive PID");
+
+		for (var module : swerveModules) {
+			module.setDrivePID(drivePID);
+		}
 
 		// pointing up is -negative Pitch
 		// down is +positive Pitch

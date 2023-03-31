@@ -51,7 +51,7 @@ public class ChargeStation extends CommandBase {
 	public void execute() {
 		// Get the gyro pitch, pass it to the PID controller and clamp it to 40% speed
 		// (prevents us from flying off the charge station at first)
-		double increment = invert * MathUtil.clamp(pid.calculate(gyro.getPitch()), -0.4, 0.4);
+		double increment = invert * MathUtil.clamp(pid.calculate(gyro.getPitch()), -0.5, 0.5);
 		// Drive forward by the calculated increment
 		Translation2d driveTranslation = new Translation2d(increment, 0);
 		System.out.println("Driving at speed: " + increment);

@@ -37,29 +37,27 @@ public final class Constants {
 
 	public static class Arm {
 		public static double maxExtensionSpeed = 150.0d;
-		public static final double maxExtensionLength = 245.0d;
-		public static final double maxExtension = 245.0d;
+		public static final double maxExtensionLength = 250.0d;
+		public static final double maxExtension = 250.0d;
 		public static final double minExtension = 5.0d;
-		public static final double maxPivot = 120.0d;
-		public static final double minPivot = 10.0d;
+		public static final double maxPivot = 110.0d;
+		public static final double minPivot = 20.0d;
+		public static final double clawLength = 35.0d;
+		public static final double offsetToPivot = 5.0d;
 
-		// TODO: populate with real data!!!
-		public static double baseLength = 68.5d;
-
-		// units per second
+		public static double baseLength = 68.5;
 
 		// degrees per second
 		public static double maxPivotSpeed = 250.0d;
-		public static final double minHeight = 3.0d;
+		public static final double minHeight = 20.0d;
 		public static final double pivotHeight = 120.0d;
-		public static final double offsetToBase = 57.0d;
+		public static final double offsetToBase = 75.0d;
 	}
 
 	public static class Chassis {
 		public static final double length = Units.inchesToMeters(28);
 		public static final double width = Units.inchesToMeters(28);
 
-		// TODO: populate with real data!!!
 		public static final double height = 22.0d; // cm
 	}
 
@@ -84,6 +82,8 @@ public final class Constants {
 
 	public static final double offsetToSwerveModule = Chassis.length / 2 - Units.inchesToMeters(3.25);
 
+	public static final double minHeadingCorrectionSpeed = 0.15;
+
 	public static final double wheelCircumference = Units.inchesToMeters(4.0) * Math.PI; // 0.3192 meters
 	public static final double driveGearRatio = 6.75; // exact value is 425.0d / 63.0d
 	public static final double angleGearRatio = 12.8;
@@ -94,9 +94,9 @@ public final class Constants {
 	public static final double kV = 2.3277 / 12.0;
 	public static final double kA = 0.26532 / 12.0;
 
-	public static final PIDWrapper drive = new PIDWrapper(0.012, 0, 0.5, 0.0455);
+	public static final PIDWrapper drive = new PIDWrapper(0.01, 0.000425, 0.0, 0.01);
 	public static final PIDWrapper steer = new PIDWrapper(0.2, 0, 0, 0);
-	public static final boolean closedLoopDriveVelocity = false;
+	public static final boolean closedLoopDriveVelocity = true;
 
 	/*
 	 * The order of each vector corresponds to the index of the swerve module inside

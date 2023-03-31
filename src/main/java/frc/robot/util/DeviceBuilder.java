@@ -59,11 +59,13 @@ public class DeviceBuilder {
 		final int id;
 		final String canBus;
 		final double magnetOffset;
+		final boolean invert;
 
-		public CANCoderBuilder(int id, String canBus, double magnetOffset) {
+		public CANCoderBuilder(int id, String canBus, double magnetOffset, boolean invert) {
 			this.id = id;
 			this.canBus = canBus;
 			this.magnetOffset = magnetOffset;
+			this.invert = invert;
 		}
 
 		@Override
@@ -72,6 +74,7 @@ public class DeviceBuilder {
 			CANcoder.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
 			CANcoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
 			CANcoder.configMagnetOffset(magnetOffset);
+			CANcoder.configSensorDirection(invert);
 
 			return CANcoder;
 		}

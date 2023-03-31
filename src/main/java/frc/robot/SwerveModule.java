@@ -6,6 +6,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.Device;
+import frc.robot.util.PIDWrapper;
 import frc.robot.util.drivers.LazyTalonFX;
 import frc.robot.util.math.Conversions;
 
@@ -45,7 +46,7 @@ public class SwerveModule {
 
 		// Angle Motor Config
 		this.angleMotor = new LazyTalonFX(configs.angleMotorId, Device.CanBus);
-		this.angleMotor.setNeutralMode(NeutralMode.Coast);
+		this.angleMotor.setNeutralMode(NeutralMode.Brake);
 		this.angleMotor.config_kP(0, configs.steerPID.getP());
 		this.angleMotor.config_kI(0, configs.steerPID.getI());
 		this.angleMotor.config_kD(0, configs.steerPID.getD());
@@ -60,19 +61,25 @@ public class SwerveModule {
 		this.driveMotor.config_kD(0, configs.drivePID.getD());
 		this.driveMotor.config_kF(0, configs.drivePID.getF());
 
-		SupplyCurrentLimitConfiguration driveConf = new SupplyCurrentLimitConfiguration();
-		driveConf.enable = true;
-		driveConf.triggerThresholdCurrent = 80;
-		driveConf.triggerThresholdTime = 0.1;
-		driveConf.currentLimit = 0;
-		driveMotor.configSupplyCurrentLimit(driveConf);
+		/*
+		 * SupplyCurrentLimitConfiguration driveConf = new
+		 * SupplyCurrentLimitConfiguration();
+		 * driveConf.enable = true;
+		 * driveConf.triggerThresholdCurrent = 80;
+		 * driveConf.triggerThresholdTime = 0.1;
+		 * driveConf.currentLimit = 0;
+		 * driveMotor.configSupplyCurrentLimit(driveConf);
+		 */
 
-		SupplyCurrentLimitConfiguration steerConf = new SupplyCurrentLimitConfiguration();
-		steerConf.enable = true;
-		steerConf.triggerThresholdCurrent = 20;
-		steerConf.triggerThresholdTime = 0.1;
-		steerConf.currentLimit = 0;
-		angleMotor.configSupplyCurrentLimit(steerConf);
+		/*
+		 * SupplyCurrentLimitConfiguration steerConf = new
+		 * SupplyCurrentLimitConfiguration();
+		 * steerConf.enable = true;
+		 * steerConf.triggerThresholdCurrent = 20;
+		 * steerConf.triggerThresholdTime = 0.1;
+		 * steerConf.currentLimit = 0;
+		 * angleMotor.configSupplyCurrentLimit(steerConf);
+		 */
 
 		// "full output" will now scale to 12 Volts for all control modes.
 		this.driveMotor.configVoltageCompSaturation(12);
@@ -88,10 +95,7 @@ public class SwerveModule {
 
 	// Debug swerve module information to SmartDashboard
 	public void debug() {
-		SmartDashboard.putNumber(moduleNumber + " CANCoder",
-				angleEncoder.getAbsolutePosition());
-		SmartDashboard.putNumber(moduleNumber + " vel",
-				driveMotor.getSelectedSensorVelocity());
+
 	}
 
 	public Rotation2d getCanCoder() {
@@ -131,7 +135,18 @@ public class SwerveModule {
 		return Conversions.falconToDegrees(ticks, Constants.angleGearRatio);
 	}
 
+	public void setDrivePID(PIDWrapper PID) {
+		this.driveMotor.config_kP(0, PID.getP());
+		this.driveMotor.config_kI(0, PID.getI());
+		this.driveMotor.config_kD(0, PID.getD());
+		this.driveMotor.config_kF(0, PID.getF());
+	}
+
 	public void setDesiredState(SwerveModuleState desiredState) {
+		if (moduleNumber == 2 || moduleNumber == 1) {
+			return;
+		}
+
 		// target angle [-180, 180]
 		double targetAngle = desiredState.angle.getDegrees();
 		double delta = (targetAngle - this.getDegrees()) % 360;
@@ -169,18 +184,13 @@ public class SwerveModule {
 					Math.abs(desiredState.speedMetersPerSecond),
 					Constants.wheelCircumference,
 					Constants.driveGearRatio);
-			SmartDashboard.putNumber("TargetV" + moduleNumber, desiredState.speedMetersPerSecond);
-			SmartDashboard.putNumber("SensorV" + moduleNumber, getState().speedMetersPerSecond);
 
-			double kError = desiredState.speedMetersPerSecond - getState().speedMetersPerSecond;
-			SmartDashboard.putNumber("PushBy" + moduleNumber, kError / desiredState.speedMetersPerSecond);
-			SmartDashboard.putNumber("Err" + moduleNumber, kError);
+			SmartDashboard.putNumber("Target Velocity " + moduleNumber, desiredState.speedMetersPerSecond);
+			SmartDashboard.putNumber("Sensor Velocity " + moduleNumber, getState().speedMetersPerSecond);
 
-			double velocityMps = Math.abs(desiredState.speedMetersPerSecond) * invertSpeed;
-			Conversions.MPSToFalcon(velocityMps, Constants.wheelCircumference, Constants.driveGearRatio);
-			// this.driveMotor.set(ControlMode.Velocity, velocity * invertSpeed,
-			// DemandType.ArbitraryFeedForward,
-			// feedforward.calculate(velocityMps));
+			double kError = desiredState.speedMetersPerSecond - invertSpeed * getState().speedMetersPerSecond;
+			SmartDashboard.putNumber("Velocity Error " + moduleNumber, kError);
+
 			this.driveMotor.set(ControlMode.Velocity, velocity * invertSpeed);
 		} else {
 			double out = Math.abs(desiredState.speedMetersPerSecond) / Constants.maxSpeed;
