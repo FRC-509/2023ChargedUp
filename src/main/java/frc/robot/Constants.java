@@ -61,6 +61,11 @@ public final class Constants {
 		public static final double height = 22.0d; // cm
 	}
 
+	public static class Vision {
+		public static final double angleOffsetHighGoal = 7.9d;
+		public static final double angleOffsetLowGoal = 11.8d;
+	}
+
 	public static final double Voltage = 12.0d;
 
 	public static final int revBlinkinPort = 9;

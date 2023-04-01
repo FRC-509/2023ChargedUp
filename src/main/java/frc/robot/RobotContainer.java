@@ -1,20 +1,14 @@
 package frc.robot;
 
 import frc.robot.autonomous.OneConeAndTaxiStable;
-import frc.robot.autonomous.OneConeMidRung;
-import frc.robot.autonomous.PickUpCubeFromGround;
 import frc.robot.autonomous.OneCone;
 import frc.robot.autonomous.OneConeAndChargeStation;
 import frc.robot.autonomous.OneConeAndChargeStationMorePoints;
-import frc.robot.autonomous.OneConeAndTaxiPP;
 import frc.robot.commands.ArmCommand;
 import frc.robot.commands.ChargeStation;
 import frc.robot.commands.ClawIntakeCommand;
 import frc.robot.commands.DriveCommand;
-import frc.robot.commands.OneConeTeleopHigh;
-import frc.robot.commands.OneConeTeleopMid;
-import frc.robot.commands.ResetArm;
-import frc.robot.commands.TargetReflectiveTape;
+import frc.robot.commands.AlignWithTarget;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Swerve;
@@ -29,22 +23,13 @@ import frc.robot.util.controllers.LogitechController.LogiButton;
 import frc.robot.util.drivers.PigeonWrapper;
 import frc.robot.util.math.Scaling;
 import frc.robot.vision.*;
+import frc.robot.vision.VisionTypes.TargetType;
 import frc.robot.subsystems.Led;
 import java.io.IOException;
-import java.security.DrbgParameters.Reseed;
-import java.util.Map;
-
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.auto.PIDConstants;
-import com.pathplanner.lib.auto.SwerveAutoBuilder;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -52,7 +37,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class RobotContainer {
 	public final JoystickController leftStick = new JoystickController(1);
@@ -139,11 +123,9 @@ public class RobotContainer {
 					() -> controller.isDown(LogiButton.RTrigger),
 					() -> controller.isDown(LogiButton.LTrigger)));
 		}
-		rightStick.isDownBind(StickButton.Right, new TargetReflectiveTape(swerveSubsystem, limelight));
+		rightStick.isDownBind(StickButton.Left, new AlignWithTarget(swerveSubsystem, limelight, TargetType.CubeNode));
+		rightStick.isDownBind(StickButton.Right, new AlignWithTarget(swerveSubsystem, limelight, TargetType.ConeNode));
 		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
-
-		// controller.isDownBind(LogiButton.Y, new PickUpCubeFromGround(armSubsystem,
-		// clawSubsystem));
 
 		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
 				clawSubsystem,

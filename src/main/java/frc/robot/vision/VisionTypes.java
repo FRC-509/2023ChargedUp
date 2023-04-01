@@ -8,10 +8,9 @@ public class VisionTypes {
 	}
 
 	public enum TargetType {
-		SUBSTATION,
-		CUBE,
-		CONE,
-		NONE
+		Substation,
+		CubeNode,
+		ConeNode,
 	}
 
 	public enum PipelineState {
