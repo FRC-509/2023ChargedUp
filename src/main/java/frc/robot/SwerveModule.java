@@ -143,9 +143,6 @@ public class SwerveModule {
 	}
 
 	public void setDesiredState(SwerveModuleState desiredState) {
-		if (moduleNumber == 2 || moduleNumber == 1) {
-			return;
-		}
 
 		// target angle [-180, 180]
 		double targetAngle = desiredState.angle.getDegrees();

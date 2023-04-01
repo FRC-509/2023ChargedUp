@@ -139,7 +139,7 @@ public class RobotContainer {
 					() -> controller.isDown(LogiButton.RTrigger),
 					() -> controller.isDown(LogiButton.LTrigger)));
 		}
-		rightStick.isPressedBind(StickButton.Right, new TargetReflectiveTape(swerveSubsystem, limelight));
+		rightStick.isDownBind(StickButton.Right, new TargetReflectiveTape(swerveSubsystem, limelight));
 		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
 
 		// controller.isDownBind(LogiButton.Y, new PickUpCubeFromGround(armSubsystem,
@@ -207,13 +207,6 @@ public class RobotContainer {
 	}
 
 	public Command getAutonomousCommand() {
-		// return new FunctionalCommand(
-		// () -> swerveSubsystem.supplyVelocity(0),
-		// () -> swerveSubsystem.supplyVelocity(0),
-		// (end) -> {
-		// },
-		// () -> false,
-		// swerveSubsystem);
 		return chooser.getSelected();
 	}
 }

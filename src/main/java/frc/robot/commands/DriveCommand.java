@@ -82,13 +82,13 @@ public class DriveCommand extends CommandBase {
 					new Translation2d(translationVal, strafeVal).times(0.4 * Constants.maxSpeed),
 					0.0d,
 					!this.robotCentricSup.getAsBoolean(),
-					true);
+					false);
 		} else {
 			this.s_Swerve.drive(
 					new Translation2d(translationVal, strafeVal).times(Constants.maxSpeed),
 					rotationVal * Constants.maxAngularVelocity,
 					!this.robotCentricSup.getAsBoolean(),
-					true);
+					false);
 		}
 	}
 }

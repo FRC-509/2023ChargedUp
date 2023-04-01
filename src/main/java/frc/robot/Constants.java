@@ -36,9 +36,9 @@ public final class Constants {
 	}
 
 	public static class Arm {
-		public static double maxExtensionSpeed = 150.0d;
+		public static double maxExtensionSpeed = 175.0d;
 		public static final double maxExtensionLength = 250.0d;
-		public static final double maxExtension = 250.0d;
+		public static final double maxExtension = 240.0d;
 		public static final double minExtension = 5.0d;
 		public static final double maxPivot = 110.0d;
 		public static final double minPivot = 20.0d;
@@ -96,7 +96,7 @@ public final class Constants {
 
 	public static final PIDWrapper drive = new PIDWrapper(0.01, 0.000425, 0.0, 0.01);
 	public static final PIDWrapper steer = new PIDWrapper(0.2, 0, 0, 0);
-	public static final boolean closedLoopDriveVelocity = true;
+	public static final boolean closedLoopDriveVelocity = false;
 
 	/*
 	 * The order of each vector corresponds to the index of the swerve module inside

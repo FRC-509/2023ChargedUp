@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -66,8 +67,23 @@ public class Robot extends TimedRobot {
 		// robot's periodic
 		// block in order for anything in the Command-based framework to work.
 		CommandScheduler.getInstance().run();
-		thunderstorm.update(this.robotContainer);
 		SmartDashboard.putBoolean("Limelight: Has target????", this.robotContainer.limelight.hasTarget());
+		thunderstorm.update(this.robotContainer);
+
+		switch (this.robotContainer.limelight.getPipeline()) {
+			case AprilTags:
+				SmartDashboard.putString("Limelight Pipeline", "AprilTags");
+				break;
+			case MLGamePieces:
+				SmartDashboard.putString("Limelight Pipeline", "GamePieceML");
+				break;
+			case RetroReflective:
+				SmartDashboard.putString("Limelight Pipeline", "RetroReflective");
+				break;
+			default:
+				break;
+
+		}
 	}
 
 	/** This function is called once each time the robot enters Disabled mode. */
@@ -81,6 +97,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void disabledExit() {
+		robotContainer.armSubsystem.setPivotToEncoderValue();
 		robotContainer.swerveSubsystem.setHeadingToGyro();
 
 		switch (DriverStation.getAlliance()) {
@@ -147,6 +164,21 @@ public class Robot extends TimedRobot {
 	/** This function is called periodically during operator control. */
 	@Override
 	public void teleopPeriodic() {
+		switch (DriverStation.getAlliance()) {
+			case Blue:
+				Led.setMode(BlinkinLedMode.SOLID_BLUE);
+				break;
+			case Invalid:
+				Led.setMode(BlinkinLedMode.SOLID_RED_ORANGE);
+				break;
+			case Red:
+				Led.setMode(BlinkinLedMode.SOLID_RED);
+				break;
+		}
+
+		if (RobotController.isBrownedOut()) {
+			Led.setMode(BlinkinLedMode.SOLID_HOT_PINK);
+		}
 	}
 
 	@Override

@@ -41,6 +41,7 @@ public class ArmCommand extends CommandBase {
 	public void execute() {
 		boolean rb = rbTriggerSup.getAsBoolean();
 		boolean lb = lbTriggerSup.getAsBoolean();
+		SmartDashboard.putNumber("Extension POs", s_Arm.getExtensionPosition());
 		if (lb && rb) {
 			(new OneConeTeleopHigh(s_Arm, false)).schedule();
 			// (new PositionArm(s_Arm, 45, 0.0)).schedule();
