@@ -123,7 +123,8 @@ public class RobotContainer {
 					() -> controller.isDown(LogiButton.RTrigger),
 					() -> controller.isDown(LogiButton.LTrigger)));
 		}
-		rightStick.isDownBind(StickButton.Left, new AlignWithTarget(swerveSubsystem, limelight, TargetType.CubeNode));
+		rightStick.isDownBind(StickButton.Left,
+				new AlignWithTarget(swerveSubsystem, limelight, TargetType.Substation));
 		rightStick.isDownBind(StickButton.Right, new AlignWithTarget(swerveSubsystem, limelight, TargetType.ConeNode));
 		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
 

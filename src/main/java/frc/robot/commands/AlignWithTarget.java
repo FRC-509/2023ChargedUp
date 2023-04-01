@@ -5,6 +5,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
@@ -17,13 +18,14 @@ public class AlignWithTarget extends SequentialCommandGroup {
 	private class StrafeToMeetTarget extends CommandBase {
 		private Swerve swerve;
 		private LimelightWrapper limelight;
-		private PIDController strafePID = new PIDController(0.1, 0.0, 0);
+		private PIDController strafePID = new PIDController(0.07, 0.0, 0);
 		private double targetAngle;
 		private TargetType target;
 
 		public StrafeToMeetTarget(Swerve swerve, LimelightWrapper limelight, TargetType target) {
 			this.swerve = swerve;
 			this.limelight = limelight;
+			this.target = target;
 			addRequirements(swerve);
 		}
 
@@ -76,7 +78,8 @@ public class AlignWithTarget extends SequentialCommandGroup {
 		swerve.setTargetHeading(0);
 		addCommands(new StrafeToMeetTarget(swerve, limelight, target),
 				new DriveCommand(swerve, 0.1, 0, 0, false).withTimeout(0.25),
-				new DriveCommand(swerve, 0.0, 0, 0, false));
+				new DriveCommand(swerve, 0.0, 0, 0, false),
+				new InstantCommand(() -> limelight.setPipeline(PipelineState.RetroReflective)));
 	}
 
 }
