@@ -341,7 +341,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		// if (!extensionLimit.get()) {
 		// resetExtensionPosition();
 		// }
-		if (Utils.withinDeadband(pivotEncoder.getVelocity(), 0.0d, 0.1)) {
+		if (Utils.withinDeadband(pivotEncoder.getVelocity(), 0.0d, 0.01)) {
 			setPivotToEncoderValue();
 		}
 
