@@ -27,7 +27,6 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -187,8 +186,14 @@ public class RobotContainer {
 				Map.of(),
 				true,
 				swerve);
+		// PathPlanner will automatically flip paths based on alliance color, but it
+		// will NOT reset odometry; and when we reset odometry we need to flip the
+		// initial pose if we are on the Red alliance.
 		return new SequentialCommandGroup(
-				new InstantCommand(() -> swerve.resetOdometry(trajectory.getInitialHolonomicPose()), swerve),
+				new InstantCommand(() -> swerve.resetOdometry(
+						PathPlannerTrajectory.transformTrajectoryForAlliance(trajectory, DriverStation.getAlliance())
+								.getInitialHolonomicPose()),
+						swerve),
 				builder.followPath(trajectory),
 				new InstantCommand(() -> swerve.stopModules(), swerve));
 	}

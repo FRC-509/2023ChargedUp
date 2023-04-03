@@ -4,6 +4,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.Device;
 import frc.robot.util.PIDWrapper;
@@ -29,6 +30,9 @@ public class SwerveModule {
 
 	// The previously set steer angle.
 	private double lastSteerAngle;
+
+	// The last desired SwerveModuleState
+	private SwerveModuleState lastDesiredState = new SwerveModuleState();
 
 	private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(Constants.kS, Constants.kV, Constants.kA);
 
@@ -107,6 +111,9 @@ public class SwerveModule {
 	}
 
 	public SwerveModuleState getState() {
+		if (RobotBase.isSimulation()) {
+			return lastDesiredState;
+		}
 		return new SwerveModuleState(
 				Conversions.falconToMPS(
 						this.driveMotor.getSelectedSensorVelocity(),
@@ -138,6 +145,7 @@ public class SwerveModule {
 	}
 
 	public void setDesiredState(SwerveModuleState desiredState, boolean closedLoop) {
+		lastDesiredState = desiredState;
 
 		// target angle [-180, 180]
 		double targetAngle = desiredState.angle.getDegrees();
