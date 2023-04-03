@@ -62,8 +62,9 @@ public final class Constants {
 	}
 
 	public static class Vision {
-		public static final double angleOffsetHighGoal = 7.9d;
-		public static final double angleOffsetLowGoal = 11.8d;
+		public static final double highConeTargetAngle = 6.5d;
+		public static final double substationTargetAngle = 7.9d;
+		public static final double midConeTargetAngle = 11.8d;
 	}
 
 	public static final double Voltage = 12.0d;
@@ -99,9 +100,9 @@ public final class Constants {
 	public static final double kV = 2.3277 / 12.0;
 	public static final double kA = 0.26532 / 12.0;
 
-	public static final PIDWrapper drive = new PIDWrapper(0.01, 0.000425, 0.0, 0.01);
+	// kf was 0.01
+	public static final PIDWrapper drive = new PIDWrapper(0.01, 0.000425, 0.0, 0.00);
 	public static final PIDWrapper steer = new PIDWrapper(0.2, 0, 0, 0);
-	public static final boolean closedLoopDriveVelocity = false;
 
 	/*
 	 * The order of each vector corresponds to the index of the swerve module inside

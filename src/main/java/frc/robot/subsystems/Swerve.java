@@ -154,15 +154,15 @@ public class Swerve extends SubsystemBase {
 				Constants.maxSpeed);
 
 		for (SwerveModule mod : swerveModules) {
-			mod.setDesiredState(moduleStates[mod.moduleNumber]);
+			mod.setDesiredState(moduleStates[mod.moduleNumber], false);
 		}
 	}
 
 	public void enterXStance() {
-		swerveModules[0].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(45.0d)));
-		swerveModules[1].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(135.0d)));
-		swerveModules[2].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(45.0d)));
-		swerveModules[3].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(135.0d)));
+		swerveModules[0].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(45.0d)), false);
+		swerveModules[1].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(135.0d)), false);
+		swerveModules[2].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(45.0d)), false);
+		swerveModules[3].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(135.0d)), false);
 	}
 
 	public void setTargetHeading(double heading) {
@@ -175,14 +175,17 @@ public class Swerve extends SubsystemBase {
 
 	/* Used by SwerveControllerCommand in Auto */
 	public void setModuleStates(SwerveModuleState[] desiredStates) {
-		SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Constants.maxSpeed);
-		ChassisSpeeds speeds = Constants.swerveKinematics.toChassisSpeeds(desiredStates);
-		drive(new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond), speeds.omegaRadiansPerSecond,
-				false, false);
+		// SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates,
+		// Constants.maxSpeed);
+		// ChassisSpeeds speeds =
+		// Constants.swerveKinematics.toChassisSpeeds(desiredStates);
+		// drive(new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond),
+		// speeds.omegaRadiansPerSecond,
+		// false, false);
 
-		// for (SwerveModule mod : this.swerveModules) {
-		// mod.setDesiredState(desiredStates[mod.moduleNumber]);
-		// }
+		for (SwerveModule mod : this.swerveModules) {
+			mod.setDesiredState(desiredStates[mod.moduleNumber], true);
+		}
 	}
 
 	public Pose2d getPose() {

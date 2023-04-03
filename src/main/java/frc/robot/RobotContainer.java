@@ -8,6 +8,8 @@ import frc.robot.commands.ArmCommand;
 import frc.robot.commands.ChargeStation;
 import frc.robot.commands.ClawIntakeCommand;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.ExtendArm;
+import frc.robot.commands.RotateArm;
 import frc.robot.commands.AlignWithTarget;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -26,10 +28,19 @@ import frc.robot.vision.*;
 import frc.robot.vision.VisionTypes.TargetType;
 import frc.robot.subsystems.Led;
 import java.io.IOException;
+import java.util.Map;
+
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -37,6 +48,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class RobotContainer {
 	public final JoystickController leftStick = new JoystickController(1);
@@ -123,9 +135,14 @@ public class RobotContainer {
 					() -> controller.isDown(LogiButton.RTrigger),
 					() -> controller.isDown(LogiButton.LTrigger)));
 		}
+
 		rightStick.isDownBind(StickButton.Left,
-				new AlignWithTarget(swerveSubsystem, limelight, TargetType.Substation));
-		rightStick.isDownBind(StickButton.Right, new AlignWithTarget(swerveSubsystem, limelight, TargetType.ConeNode));
+				new AlignWithTarget(
+						swerveSubsystem,
+						limelight,
+						() -> leftStick.getY(),
+						TargetType.ConeNode));
+
 		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
 
 		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
@@ -153,6 +170,24 @@ public class RobotContainer {
 	}
 
 	private void addAutonomousRoutines() {
+		PathPlannerTrajectory trajectory = PathPlanner.loadPath("inTheShop",
+				new PathConstraints(Constants.maxSpeed, 3.0));
+		SwerveAutoBuilder builder = new SwerveAutoBuilder(swerveSubsystem::getPose,
+				swerveSubsystem::resetOdometry,
+				Constants.swerveKinematics,
+				new PIDConstants(3.5, 0, 0),
+				new PIDConstants(2, 0.0, 0.0),
+				swerveSubsystem::setModuleStates,
+				Map.of(),
+				true,
+				swerveSubsystem);
+		SequentialCommandGroup group = new SequentialCommandGroup(
+				new InstantCommand(() -> swerveSubsystem.resetOdometry(trajectory.getInitialHolonomicPose()),
+						swerveSubsystem),
+				builder.followPath(trajectory),
+				new InstantCommand(() -> swerveSubsystem.drive(new Translation2d(), 0, false,
+						true), swerveSubsystem));
+
 		chooser.addOption("One Cone and Taxi (Stable)",
 				new OneConeAndTaxiStable(armSubsystem, clawSubsystem, swerveSubsystem));
 		chooser.addOption("One Cone and Charge Station",
@@ -169,7 +204,7 @@ public class RobotContainer {
 		chooser.addOption("Charge Station",
 				new ChargeStation(swerveSubsystem, pigeon, -1));
 		chooser.addOption("None", null);
-		chooser.addOption("PATHPLANNER??!?!", null);
+		chooser.addOption("PATHPLANNER??!?!", group);
 
 		SmartDashboard.putData("Auto Chooser", chooser);
 	}

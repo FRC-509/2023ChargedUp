@@ -142,7 +142,7 @@ public class SwerveModule {
 		this.driveMotor.config_kF(0, PID.getF());
 	}
 
-	public void setDesiredState(SwerveModuleState desiredState) {
+	public void setDesiredState(SwerveModuleState desiredState, boolean closedLoop) {
 
 		// target angle [-180, 180]
 		double targetAngle = desiredState.angle.getDegrees();
@@ -176,18 +176,11 @@ public class SwerveModule {
 		double falconTarget = Conversions.degreesToFalcon(optimalTargetAngle, Constants.angleGearRatio);
 		this.angleMotor.set(ControlMode.Position, falconTarget);
 
-		if (Constants.closedLoopDriveVelocity) {
+		if (closedLoop) {
 			double velocity = Conversions.MPSToFalcon(
 					Math.abs(desiredState.speedMetersPerSecond),
 					Constants.wheelCircumference,
 					Constants.driveGearRatio);
-
-			SmartDashboard.putNumber("Target Velocity " + moduleNumber, desiredState.speedMetersPerSecond);
-			SmartDashboard.putNumber("Sensor Velocity " + moduleNumber, getState().speedMetersPerSecond);
-
-			double kError = desiredState.speedMetersPerSecond - invertSpeed * getState().speedMetersPerSecond;
-			SmartDashboard.putNumber("Velocity Error " + moduleNumber, kError);
-
 			this.driveMotor.set(ControlMode.Velocity, velocity * invertSpeed);
 		} else {
 			double out = Math.abs(desiredState.speedMetersPerSecond) / Constants.maxSpeed;

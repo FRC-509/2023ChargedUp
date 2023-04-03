@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -18,31 +20,38 @@ public class AlignWithTarget extends SequentialCommandGroup {
 	private class StrafeToMeetTarget extends CommandBase {
 		private Swerve swerve;
 		private LimelightWrapper limelight;
-		private PIDController strafePID = new PIDController(0.07, 0.0, 0);
+		private PIDController strafePID = new PIDController(0.03, 0.0, 0.00);
 		private double targetAngle;
 		private TargetType target;
+		private DoubleSupplier forwardStrafe;
 
-		public StrafeToMeetTarget(Swerve swerve, LimelightWrapper limelight, TargetType target) {
+		public StrafeToMeetTarget(Swerve swerve, LimelightWrapper limelight, DoubleSupplier forwardStrafe,
+				TargetType target) {
 			this.swerve = swerve;
 			this.limelight = limelight;
 			this.target = target;
+			this.forwardStrafe = forwardStrafe;
 			addRequirements(swerve);
 		}
 
 		@Override
 		public void initialize() {
+			if (!limelight.hasTarget()) {
+				end(true);
+			}
+
 			switch (target) {
 				case ConeNode:
 					limelight.setPipeline(PipelineState.RetroReflective);
-					targetAngle = Constants.Vision.angleOffsetHighGoal;
+					targetAngle = Constants.Vision.highConeTargetAngle;
 					break;
 				case CubeNode:
 					limelight.setPipeline(PipelineState.AprilTags);
-					targetAngle = Constants.Vision.angleOffsetHighGoal;
+					targetAngle = Constants.Vision.highConeTargetAngle;
 					break;
 				case Substation:
 					limelight.setPipeline(PipelineState.MLGamePieces);
-					targetAngle = Constants.Vision.angleOffsetHighGoal;
+					targetAngle = Constants.Vision.substationTargetAngle;
 					break;
 				default:
 					break;
@@ -58,8 +67,8 @@ public class AlignWithTarget extends SequentialCommandGroup {
 			}
 			// Strafe using a PID on the limelight's X offset to bring it to zero.
 			double strafeOutput = MathUtil.clamp(strafePID.calculate(limelight.getXOffset()), -0.25, 0.25);
-			swerve.drive(new Translation2d(0, -strafeOutput).times(Constants.maxSpeed), 0, true, false);
-			SmartDashboard.putNumber("Strafing at speed:", strafeOutput * Constants.maxSpeed);
+			swerve.drive(new Translation2d(-forwardStrafe.getAsDouble(), -strafeOutput).times(Constants.maxSpeed), 0,
+					true, false);
 		}
 
 		@Override
@@ -74,9 +83,9 @@ public class AlignWithTarget extends SequentialCommandGroup {
 		}
 	}
 
-	public AlignWithTarget(Swerve swerve, LimelightWrapper limelight, TargetType target) {
+	public AlignWithTarget(Swerve swerve, LimelightWrapper limelight, DoubleSupplier forwardStrafe, TargetType target) {
 		swerve.setTargetHeading(0);
-		addCommands(new StrafeToMeetTarget(swerve, limelight, target),
+		addCommands(new StrafeToMeetTarget(swerve, limelight, forwardStrafe, target),
 				new DriveCommand(swerve, 0.1, 0, 0, false).withTimeout(0.25),
 				new DriveCommand(swerve, 0.0, 0, 0, false),
 				new InstantCommand(() -> limelight.setPipeline(PipelineState.RetroReflective)));
