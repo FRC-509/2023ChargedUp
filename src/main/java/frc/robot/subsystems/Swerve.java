@@ -168,6 +168,12 @@ public class Swerve extends SubsystemBase {
 		swerveModules[3].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(135.0d)), false);
 	}
 
+	public void stopModules() {
+		for (SwerveModule module : swerveModules) {
+			module.setDesiredState(new SwerveModuleState(0, module.getCanCoder()), false);
+		}
+	}
+
 	public void setTargetHeading(double heading) {
 		targetHeading = heading % 360.0d;
 	}

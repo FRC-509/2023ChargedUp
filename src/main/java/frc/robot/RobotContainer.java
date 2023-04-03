@@ -153,23 +153,6 @@ public class RobotContainer {
 	}
 
 	private void addAutonomousRoutines() {
-		PathPlannerTrajectory trajectory = PathPlanner.loadPath("inTheShop",
-				new PathConstraints(Constants.maxSpeed, 3.0));
-		SwerveAutoBuilder builder = new SwerveAutoBuilder(swerveSubsystem::getRawOdometeryPose,
-				swerveSubsystem::resetOdometry,
-				Constants.swerveKinematics,
-				new PIDConstants(3.5, 0, 0),
-				new PIDConstants(1, 0.0, 0.0),
-				swerveSubsystem::setModuleStates,
-				Map.of(),
-				true,
-				swerveSubsystem);
-		SequentialCommandGroup group = new SequentialCommandGroup(
-				new InstantCommand(() -> swerveSubsystem.resetOdometry(trajectory.getInitialHolonomicPose()),
-						swerveSubsystem),
-				builder.followPath(trajectory),
-				new InstantCommand(() -> swerveSubsystem.drive(new Translation2d(), 0, false,
-						true), swerveSubsystem));
 
 		chooser.addOption("One Cone and Taxi (Stable)",
 				new OneConeAndTaxiStable(armSubsystem, clawSubsystem, swerveSubsystem));
@@ -187,9 +170,27 @@ public class RobotContainer {
 		chooser.addOption("Charge Station",
 				new ChargeStation(swerveSubsystem, pigeon, -1));
 		chooser.addOption("None", null);
-		chooser.addOption("PATHPLANNER??!?!", group);
+		chooser.addOption("PathPlanner testing (DO NOT USE!)", followPath("inTheShop", swerveSubsystem));
 
 		SmartDashboard.putData("Auto Chooser", chooser);
+	}
+
+	public static SequentialCommandGroup followPath(String path, Swerve swerve) {
+		PathPlannerTrajectory trajectory = PathPlanner.loadPath(path,
+				new PathConstraints(Constants.maxSpeed, 3.0));
+		SwerveAutoBuilder builder = new SwerveAutoBuilder(swerve::getRawOdometeryPose,
+				swerve::resetOdometry,
+				Constants.swerveKinematics,
+				new PIDConstants(3.5, 0, 0),
+				new PIDConstants(1, 0.0, 0.0),
+				swerve::setModuleStates,
+				Map.of(),
+				true,
+				swerve);
+		return new SequentialCommandGroup(
+				new InstantCommand(() -> swerve.resetOdometry(trajectory.getInitialHolonomicPose()), swerve),
+				builder.followPath(trajectory),
+				new InstantCommand(() -> swerve.stopModules(), swerve));
 	}
 
 	public void zeroGyro() {
