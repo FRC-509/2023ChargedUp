@@ -21,7 +21,7 @@ public class OneConeOneCube extends SequentialCommandGroup {
 		PathPlannerTrajectory trajectory = PathPlanner.loadPath("line",
 				new PathConstraints(Constants.maxSpeed / 3, 3.2 / 2));
 		SwerveAutoBuilder builder = new SwerveAutoBuilder(
-				swerve::getPose,
+				swerve::getRawOdometeryPose,
 				swerve::resetOdometry,
 				Constants.swerveKinematics,
 				new PIDConstants(3.0, 0, 0),

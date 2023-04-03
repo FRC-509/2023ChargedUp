@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
@@ -67,7 +66,7 @@ public final class Constants {
 		public static final double midConeTargetAngle = 11.8d;
 	}
 
-	public static final double Voltage = 12.0d;
+	public static final double rotationScale = 12.0d;
 
 	public static final int revBlinkinPort = 9;
 	public static final int ledPixelCount = 25;

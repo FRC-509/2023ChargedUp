@@ -93,11 +93,6 @@ public class SwerveModule {
 		this.angleMotor.setSelectedSensorPosition(falconAngle);
 	}
 
-	// Debug swerve module information to SmartDashboard
-	public void debug() {
-
-	}
-
 	public Rotation2d getCanCoder() {
 		return Rotation2d.fromDegrees(this.angleEncoder.getAbsolutePosition());
 	}

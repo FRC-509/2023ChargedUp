@@ -1,22 +1,9 @@
 package frc.robot;
 
-import frc.robot.autonomous.OneConeAndTaxiStable;
-import frc.robot.autonomous.OneCone;
-import frc.robot.autonomous.OneConeAndChargeStation;
-import frc.robot.autonomous.OneConeAndChargeStationMorePoints;
-import frc.robot.commands.ArmCommand;
-import frc.robot.commands.ChargeStation;
-import frc.robot.commands.ClawIntakeCommand;
-import frc.robot.commands.DriveCommand;
-import frc.robot.commands.ExtendArm;
-import frc.robot.commands.RotateArm;
-import frc.robot.commands.AlignWithTarget;
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Swerve;
-import edu.wpi.first.cameraserver.*;
+import frc.robot.autonomous.*;
+import frc.robot.commands.*;
+import frc.robot.subsystems.*;
 import frc.robot.subsystems.TimeStamp;
-import frc.robot.subsystems.Led.BlinkinLedMode;
 import frc.robot.util.Device;
 import frc.robot.util.controllers.JoystickController;
 import frc.robot.util.controllers.LogitechController;
@@ -26,7 +13,7 @@ import frc.robot.util.drivers.PigeonWrapper;
 import frc.robot.util.math.Utils;
 import frc.robot.vision.*;
 import frc.robot.vision.VisionTypes.TargetType;
-import frc.robot.subsystems.Led;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -37,9 +24,9 @@ import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -57,16 +44,14 @@ public class RobotContainer {
 
 	public static TimeStamp timeStamp = new TimeStamp();
 
-	public static boolean isRedAlliance = true;
-
 	public final LimelightWrapper limelight = new LimelightWrapper(Device.limelightName);
-	public final PigeonWrapper pigeon = new PigeonWrapper(30, Device.CanBus, 180.0d);
+	public final PigeonWrapper pigeon = new PigeonWrapper(Device.pigeonId, Device.CanBus, 180.0d);
 	public AprilTagFieldLayout fieldLayout;
 
 	public final Swerve swerveSubsystem;
 	public final Arm armSubsystem;
 	public final Claw clawSubsystem;
-	public final UsbCamera usbCamera = new UsbCamera("509cam", 01);
+	public final UsbCamera usbCamera = new UsbCamera(Device.webcamName, 1);
 	private final SendableChooser<Command> chooser = new SendableChooser<Command>();
 
 	public RobotContainer() {
@@ -75,8 +60,6 @@ public class RobotContainer {
 			cam.setFPS(15);
 			cam.setResolution(10, 10);
 		}
-
-		Led.setMode(BlinkinLedMode.FIXED_BREATH_RED);
 
 		// Initialize and configure the gyroscope.
 		this.pigeon.configFactoryDefault();
@@ -172,7 +155,7 @@ public class RobotContainer {
 	private void addAutonomousRoutines() {
 		PathPlannerTrajectory trajectory = PathPlanner.loadPath("inTheShop",
 				new PathConstraints(Constants.maxSpeed, 3.0));
-		SwerveAutoBuilder builder = new SwerveAutoBuilder(swerveSubsystem::getPose,
+		SwerveAutoBuilder builder = new SwerveAutoBuilder(swerveSubsystem::getRawOdometeryPose,
 				swerveSubsystem::resetOdometry,
 				Constants.swerveKinematics,
 				new PIDConstants(3.5, 0, 0),
@@ -218,10 +201,6 @@ public class RobotContainer {
 	public void setGyroHeading(double heading) {
 		pigeon.setYaw(heading);
 		swerveSubsystem.setTargetHeading(heading);
-	}
-
-	public Pose2d getEstimatedPose() {
-		return swerveSubsystem.getPose();
 	}
 
 	public Command getAutonomousCommand() {
