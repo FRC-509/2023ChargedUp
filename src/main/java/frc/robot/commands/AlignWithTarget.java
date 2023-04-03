@@ -57,7 +57,7 @@ public class AlignWithTarget extends SequentialCommandGroup {
 					break;
 			}
 			strafePID.setSetpoint(targetAngle);
-			strafePID.setTolerance(0);
+			strafePID.setTolerance(0.25);
 		}
 
 		@Override
@@ -66,15 +66,17 @@ public class AlignWithTarget extends SequentialCommandGroup {
 				return;
 			}
 			// Strafe using a PID on the limelight's X offset to bring it to zero.
-			double strafeOutput = MathUtil.clamp(strafePID.calculate(limelight.getXOffset()), -0.25, 0.25);
-			swerve.drive(new Translation2d(-forwardStrafe.getAsDouble(), -strafeOutput).times(Constants.maxSpeed), 0,
+			double strafeOutput = strafePID.calculate(limelight.getXOffset());
+			swerve.drive(new Translation2d(forwardStrafe.getAsDouble(), strafeOutput).times(0.4d * Constants.maxSpeed),
+					0,
 					true, false);
 		}
 
 		@Override
 		public boolean isFinished() {
 			SmartDashboard.putBoolean("Are we done?", strafePID.atSetpoint());
-			return strafePID.atSetpoint();
+			// return strafePID.atSetpoint();
+			return false;
 		}
 
 		@Override

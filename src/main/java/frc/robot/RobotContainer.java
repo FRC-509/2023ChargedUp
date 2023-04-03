@@ -23,7 +23,7 @@ import frc.robot.util.controllers.LogitechController;
 import frc.robot.util.controllers.JoystickController.StickButton;
 import frc.robot.util.controllers.LogitechController.LogiButton;
 import frc.robot.util.drivers.PigeonWrapper;
-import frc.robot.util.math.Scaling;
+import frc.robot.util.math.Utils;
 import frc.robot.vision.*;
 import frc.robot.vision.VisionTypes.TargetType;
 import frc.robot.subsystems.Led;
@@ -117,8 +117,8 @@ public class RobotContainer {
 			// The thrustmaster joysticks on the Driver Station.
 			swerveSubsystem.setDefaultCommand(new DriveCommand(
 					swerveSubsystem,
-					() -> Scaling.pow(-leftStick.getY(), 1.0d),
-					() -> Scaling.pow(-leftStick.getX(), 1.0d),
+					() -> Utils.pow(-leftStick.getY(), 1.0d),
+					() -> Utils.pow(-leftStick.getX(), 1.0d),
 					() -> -rightStick.getX(),
 					() -> false, // leftStick.isDown(StickButton.Bottom),
 					() -> rightStick.isDown(StickButton.Bottom),
@@ -140,7 +140,7 @@ public class RobotContainer {
 				new AlignWithTarget(
 						swerveSubsystem,
 						limelight,
-						() -> leftStick.getY(),
+						() -> Utils.pow(-leftStick.getY(), 2),
 						TargetType.ConeNode));
 
 		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
@@ -176,7 +176,7 @@ public class RobotContainer {
 				swerveSubsystem::resetOdometry,
 				Constants.swerveKinematics,
 				new PIDConstants(3.5, 0, 0),
-				new PIDConstants(2, 0.0, 0.0),
+				new PIDConstants(1, 0.0, 0.0),
 				swerveSubsystem::setModuleStates,
 				Map.of(),
 				true,
