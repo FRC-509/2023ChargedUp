@@ -1,190 +1,219 @@
 package frc.robot;
 
+import frc.robot.autonomous.OneConeAndTaxiStable;
+import frc.robot.autonomous.OneConeMidRung;
+import frc.robot.autonomous.PickUpCubeFromGround;
+import frc.robot.autonomous.OneCone;
+import frc.robot.autonomous.OneConeAndChargeStation;
+import frc.robot.autonomous.OneConeAndChargeStationMorePoints;
+import frc.robot.autonomous.OneConeAndTaxiPP;
 import frc.robot.commands.ArmCommand;
-import frc.robot.commands.ClawCommand;
+import frc.robot.commands.ChargeStation;
+import frc.robot.commands.ClawIntakeCommand;
 import frc.robot.commands.DriveCommand;
-import frc.robot.commands.OdometryCommand;
+import frc.robot.commands.OneConeTeleopHigh;
+import frc.robot.commands.OneConeTeleopMid;
+import frc.robot.commands.ResetArm;
+import frc.robot.commands.TargetReflectiveTape;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Led;
 import frc.robot.subsystems.Swerve;
-import frc.robot.subsystems.Led.PatternID;
-import frc.robot.util.TrajectoryBuilderWrapper;
-import frc.robot.vision.Odometry;
-
-import org.opencv.video.Video;
-
-import com.ctre.phoenix.sensors.Pigeon2;
+import edu.wpi.first.cameraserver.*;
+import frc.robot.subsystems.TimeStamp;
+import frc.robot.subsystems.Led.BlinkinLedMode;
+import frc.robot.util.Device;
+import frc.robot.util.controllers.JoystickController;
+import frc.robot.util.controllers.LogitechController;
+import frc.robot.util.controllers.JoystickController.StickButton;
+import frc.robot.util.controllers.LogitechController.LogiButton;
+import frc.robot.util.drivers.PigeonWrapper;
+import frc.robot.util.math.Scaling;
 import frc.robot.vision.*;
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.CameraServerCvJNI;
-import edu.wpi.first.cscore.MjpegServer;
-import edu.wpi.first.cscore.VideoSink;
-import edu.wpi.first.wpilibj.AddressableLED;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import frc.robot.subsystems.Led;
+import java.io.IOException;
+import java.security.DrbgParameters.Reseed;
+import java.util.Map;
+
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
-/**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in
- * the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of
- * the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
- */
 public class RobotContainer {
+	public final JoystickController leftStick = new JoystickController(1);
+	public final JoystickController rightStick = new JoystickController(0);
+	public final LogitechController controller = new LogitechController(2);
 
-  public final Pigeon2 pigeon2 = new Pigeon2(30, Constants.CANIVORE);
-  public final Joystick leftStick = new Joystick(1);
-  public final Joystick rightStick = new Joystick(0);
+	public static TimeStamp timeStamp = new TimeStamp();
 
-  public final Swerve swerveSubsystem;
-  public final Odometry odometry;
-  // public final Intake intakeSubsystem;
-  public final Arm armSubsystem;
-  public final Claw clawSubsystem;
-  public final MjpegServer cam = CameraServer.addServer("limelight.local:5800");
-  
-  public final GenericHID operatorController = new GenericHID(2);
-  private final JoystickButton leftTrigger = new JoystickButton(leftStick, 1);
-  private final JoystickButton rightTrigger = new JoystickButton(rightStick, 1);
-  private final JoystickButton leftStickButtonTwo = new JoystickButton(leftStick, 2);
-  private final JoystickButton leftStickButtonThree = new JoystickButton(leftStick, 3);
-  private final JoystickButton operatorButtonOne = new JoystickButton(operatorController, 1);
-  private final JoystickButton operatorButtonTwo = new JoystickButton(operatorController, 2);
-  private final JoystickButton rightStickButtonThree = new JoystickButton(rightStick, 3);
-  private final JoystickButton rightStickButtonFour = new JoystickButton(rightStick, 4);
-  private final JoystickButton leftStickButtonFour = new JoystickButton(leftStick, 4);
-  private final JoystickButton operatorButtonThree = new JoystickButton(operatorController, 3);
-  private final JoystickButton operatorButtonFour = new JoystickButton(operatorController, 4);
+	public static boolean isRedAlliance = true;
 
-  private final SendableChooser<Command> chooser =  new SendableChooser();
-  public RobotContainer() {
+	public final LimelightWrapper limelight = new LimelightWrapper(Device.limelightName);
+	public final PigeonWrapper pigeon = new PigeonWrapper(30, Device.CanBus, 180.0d);
+	public AprilTagFieldLayout fieldLayout;
 
-    // Initialize and configure the gyroscope.
-    this.pigeon2.configFactoryDefault();
-    // Zero the gyroscope rotation.
-    this.zeroGyro();
-  //  SmartDashboard.putData(cam);
-    // Instantiate the odometer.
-    this.odometry = new Odometry(pigeon2);
-    // Instantiate the drivetrain.
-    this.swerveSubsystem = new Swerve(pigeon2);
-    // Instantiate the intake.
-    // this.intakeSubsystem = new Intake();
-    // Instantiate the arm.
-    this.armSubsystem = new Arm();
+	public final Swerve swerveSubsystem;
+	public final Arm armSubsystem;
+	public final Claw clawSubsystem;
+	public final UsbCamera usbCamera = new UsbCamera("509cam", 01);
+	private final SendableChooser<Command> chooser = new SendableChooser<Command>();
 
-    this.clawSubsystem = new Claw();
-    // Instantiate the claw.
-    // this.clawSubsystem = new Claw();
-    // Configure button/stick bindings.
-    this.configureButtonBindings();
-    this.addAutonomousRoutines();
-  }
+	public RobotContainer() {
+		if (RobotBase.isReal()) {
+			UsbCamera cam = CameraServer.startAutomaticCapture();
+			cam.setFPS(15);
+			cam.setResolution(10, 10);
+		}
 
-  private void addAutonomousRoutines() {
-    chooser.setDefaultOption("LiterallyDriveStraightFor0.7Seconds", new DriveCommand(
-      swerveSubsystem, 
-      1.0, 
-      0, 
-      0, true)
-    .withTimeout(0.7));
-    chooser.addOption("None", null);
-    // chooser.addOption("DO NOT SELECT", new TrajectoryBuilderWrapper("New Path").getPathFollowingCommand(this.swerveSubsystem));
-  }
+		Led.setMode(BlinkinLedMode.FIXED_BREATH_RED);
 
-  public void configureButtonBindings() {
-    // Set the default command of the drive train subsystem to DriveCommand.
-    this.swerveSubsystem.setDefaultCommand(new DriveCommand(
-        this.swerveSubsystem,
-         () -> -this.leftStick.getY(),
-         () -> -this.leftStick.getX(),
-         () -> -this.rightStick.getX(),
-         () -> this.leftStick.getRawButton(2)));
+		// Initialize and configure the gyroscope.
+		this.pigeon.configFactoryDefault();
+		// Initialize subsystems.
+		this.swerveSubsystem = new Swerve(timeStamp, pigeon, limelight);
+		this.armSubsystem = new Arm();
+		this.clawSubsystem = new Claw();
 
-    this.odometry.setDefaultCommand(new OdometryCommand(this.odometry, this.swerveSubsystem.swerveOdometry));
+		// Configure button bindings
+		this.configureButtonBindings();
+		this.addAutonomousRoutines();
 
-    // When button two on the left stick is pressed, zero the gyroscope.
-    // The swerve subsystem is added as a requirement, since although the Pigeon
-    // does not live in it, it most certainly depends on it.
-    this.leftStickButtonTwo.whileTrue(
-        new InstantCommand(() -> zeroGyro(),
-            this.swerveSubsystem)); 
+		this.zeroGyro();
 
-    
+		// Initialize the AprilTagFieldLayout
+		try {
+			fieldLayout = new AprilTagFieldLayout(
+					Filesystem
+							.getDeployDirectory()
+							.toPath()
+							.resolve("2023-chargedup.json"));
+		} catch (IOException e) {
+			DriverStation.reportWarning("failed to load april tag field layout json", true);
+			fieldLayout = null;
+		}
+	}
 
-    // The slider on the right stick controls the intake motor speed. Intake with
-    // the right stick's trigger, outtake with the left stick's trigger.
-    // Any function that returns a joystick axis does so from a scale of [-1, 1],
-    // so we need to convert that to [0, 1] for easier intake speed control.
-    //  this.rightTrigger
-    //      .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getRawAxis(3) + 1.0) / 2.0));
-    //  this.leftTrigger
-    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> (this.rightStick.getRawAxis(3) + 1.0) / 2.0));
-    // this.operatorButtonFour.toggleOnTrue(new InstantCommand(() -> Led.set(PatternID.YELLOW)));
-    // this.operatorButtonTwo.toggleOnTrue(new InstantCommand(() -> Led.set(PatternID.VIOLET)));
-    // this.operatorButtonThree.toggleOnTrue(new InstantCommand(() -> Led.set(PatternID.OFF)));
-    
-    // this.rightStickButtonThree
-    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> .75, false));
-    // this.rightStickButtonFour
-    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> .75, true));
-    // this.leftStickButtonFour
-    //     .whileTrue(new IntakeCommand(this.intakeSubsystem, () -> -.75, true));
-    
-    // The A button on the operator's Logitech controller, or button three on the
-    // driver's left stick, is used for toggling the claw's state between open and
-    // closed.
-    // this.operatorButtonOne.onTrue(
-    //     new InstantCommand(() -> 
-    //       this.clawSubsystem.openClose(),
-    //         this.armSubsystem))
-    //     .or(leftStickButtonThree);
-    // this.operatorButtonOne.onTrue(getAutonomousCommand());
-    // this.clawSubsystem.setDefaultCommand(new ClawCommand(clawSubsystem, () -> this.operatorController.getRawButtonPressed(1)));
-    // this.armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(1) / 5.0d,
-    //          () -> this.operatorController.getRawAxis(5) * -Constants.armExtensionOperatorCoefficient));
-  //  this.armSubsystem
-  //       .setDefaultCommand(new ArmCommand(armSubsystem, () -> this.operatorController.getRawAxis(2) * Constants.armPivotOperatorCoefficient,
-  //           () -> -this.operatorController.getRawAxis(1) * Constants.armExtensionOperatorCoefficient));
-  }
+	public double deltaTime() {
+		return timeStamp.deltaTime();
+	}
 
-  public void zeroGyro() {
-    this.pigeon2.setYaw(0);
-    this.pigeon2.zeroGyroBiasNow();
-  }
+	public void configureButtonBindings() {
+		timeStamp.setDefaultCommand(new InstantCommand(
+				() -> timeStamp.update(),
+				timeStamp));
 
-  // public void handleIntakeInput() {
-  //   if (rightStick.getRawButton(3)) {
-  //     intakeSubsystem.retract();
-  //   }
-  //   else if (rightStick.getRawButton(1)) {
-  //     intakeSubsystem.drop();
-  //     intakeSubsystem.spin(Constants.intakePercentVel);
-  //   }
-  //   else if (leftStick.getRawButton(1)) {
-  //     intakeSubsystem.drop();
-  //     intakeSubsystem.spin(-Constants.intakePercentVel);
-  //   }
-  //   else if (armSubsystem.inDanger()) {
-  //     intakeSubsystem.drop();
-  //     intakeSubsystem.spin(0);
-  //   }
-  //   else {
-  //     intakeSubsystem.retract();
-  //     intakeSubsystem.spin(0);
-  //   }
-  // }
+		if (RobotBase.isReal()) {
+			// The thrustmaster joysticks on the Driver Station.
+			swerveSubsystem.setDefaultCommand(new DriveCommand(
+					swerveSubsystem,
+					() -> Scaling.pow(-leftStick.getY(), 1.0d),
+					() -> Scaling.pow(-leftStick.getX(), 1.0d),
+					() -> -rightStick.getX(),
+					() -> false, // leftStick.isDown(StickButton.Bottom),
+					() -> rightStick.isDown(StickButton.Bottom),
+					() -> rightStick.isDown(StickButton.Trigger),
+					() -> leftStick.isDown(StickButton.Trigger)));
+		} else {
+			swerveSubsystem.setDefaultCommand(new DriveCommand(
+					swerveSubsystem,
+					() -> -controller.getLeftStickY(),
+					() -> -controller.getLeftStickX(),
+					() -> -controller.getRightStickX(),
+					() -> controller.isDown(LogiButton.Y),
+					() -> controller.isDown(LogiButton.X),
+					() -> controller.isDown(LogiButton.RTrigger),
+					() -> controller.isDown(LogiButton.LTrigger)));
+		}
+		rightStick.isPressedBind(StickButton.Right, new TargetReflectiveTape(swerveSubsystem, limelight));
+		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
 
-  public Command getAutonomousCommand() {
-    return chooser.getSelected();
-  }
+		// controller.isDownBind(LogiButton.Y, new PickUpCubeFromGround(armSubsystem,
+		// clawSubsystem));
+
+		clawSubsystem.setDefaultCommand(new ClawIntakeCommand(
+				clawSubsystem,
+				() -> controller.isPressed(LogiButton.A),
+				() -> controller.isDown(LogiButton.RTrigger),
+				() -> controller.isDown(LogiButton.LTrigger)));
+
+		armSubsystem.setDefaultCommand(new ArmCommand(armSubsystem,
+				() -> MathUtil.applyDeadband(controller.getLeftStickY(),
+						Constants.stickDeadband)
+						* -Constants.armPivotOperatorCoefficient,
+				() -> MathUtil.applyDeadband(controller.getRightStickY(),
+						Constants.stickDeadband)
+						* -Constants.armExtensionOperatorCoefficient,
+				() -> controller.isDown(LogiButton.B),
+				() -> controller.isPressed(LogiButton.LBTrigger),
+				() -> controller.isPressed(LogiButton.RBTrigger)));
+
+		controller.isPressedBind(LogiButton.X,
+				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_VIOLET)));
+		controller.isPressedBind(LogiButton.Y,
+				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_ORANGE)));
+
+	}
+
+	private void addAutonomousRoutines() {
+		chooser.addOption("One Cone and Taxi (Stable)",
+				new OneConeAndTaxiStable(armSubsystem, clawSubsystem, swerveSubsystem));
+		chooser.addOption("One Cone and Charge Station",
+				new OneConeAndChargeStation(armSubsystem, clawSubsystem, swerveSubsystem,
+						pigeon));
+		chooser.addOption("One Cone",
+				new OneCone(armSubsystem, clawSubsystem, swerveSubsystem));
+		chooser.setDefaultOption("One Cone + Taxi Charge",
+				new OneConeAndChargeStationMorePoints(armSubsystem, clawSubsystem,
+						swerveSubsystem, pigeon));
+		chooser.addOption("One Cone + Taxi + Pick Up Cube + Charge",
+				new OneConeAndChargeStationMorePoints(armSubsystem, clawSubsystem,
+						swerveSubsystem, pigeon));
+		chooser.addOption("Charge Station",
+				new ChargeStation(swerveSubsystem, pigeon, -1));
+		chooser.addOption("None", null);
+		chooser.addOption("PATHPLANNER??!?!", null);
+
+		SmartDashboard.putData("Auto Chooser", chooser);
+	}
+
+	public void zeroGyro() {
+		pigeon.setYaw(0);
+		pigeon.zeroGyroBiasNow();
+		swerveSubsystem.zeroHeading();
+	}
+
+	public void setGyroHeading(double heading) {
+		pigeon.setYaw(heading);
+		swerveSubsystem.setTargetHeading(heading);
+	}
+
+	public Pose2d getEstimatedPose() {
+		return swerveSubsystem.getPose();
+	}
+
+	public Command getAutonomousCommand() {
+		// return new FunctionalCommand(
+		// () -> swerveSubsystem.supplyVelocity(0),
+		// () -> swerveSubsystem.supplyVelocity(0),
+		// (end) -> {
+		// },
+		// () -> false,
+		// swerveSubsystem);
+		return chooser.getSelected();
+	}
 }

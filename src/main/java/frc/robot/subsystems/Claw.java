@@ -1,34 +1,90 @@
 package frc.robot.subsystems;
+
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class Claw extends SubsystemBase {
-    private DoubleSolenoid solenoid;
+	enum SpinState {
+		None,
+		Outake,
+		Intake
+	}
 
-  public Claw() {
-    solenoid = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 5, 7);
-  }
-  public void toggleIntake() {
-      if (solenoid.get() == DoubleSolenoid.Value.kForward) {
-          retractIntake();
-      }
-      else {
-          extendIntake();
-      }
-  }
+	private DoubleSolenoid solenoid;
+	private CANSparkMax intakeMotor;
+	private SpinState spinState;
 
-  public void extendIntake() {
-      if (solenoid.get() == DoubleSolenoid.Value.kForward) {
-          return;
-      }
-      solenoid.set(DoubleSolenoid.Value.kForward);
-  }
+	public Claw() {
+		solenoid = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 5, 7);
+		intakeMotor = new CANSparkMax(14, MotorType.kBrushed);
+		intakeMotor.setIdleMode(IdleMode.kBrake);
+		intakeMotor.setSmartCurrentLimit(20);
+		this.spinState = SpinState.None;
 
-  public void retractIntake() {
-      if (solenoid.get() == DoubleSolenoid.Value.kReverse) {
-          return;
-      }
-      solenoid.set(DoubleSolenoid.Value.kReverse);
-  }
+	}
+
+	public boolean isClosed() {
+		return solenoid.get() == DoubleSolenoid.Value.kForward;
+	}
+
+	public void toggleClaw() {
+		if (solenoid.get() == DoubleSolenoid.Value.kForward) {
+			retractClaw();
+		} else {
+			extendClaw();
+		}
+	}
+
+	public void extendClaw() {
+		if (solenoid.get() == DoubleSolenoid.Value.kForward) {
+			return;
+		}
+		solenoid.set(DoubleSolenoid.Value.kForward);
+	}
+
+	public void retractClaw() {
+		if (solenoid.get() == DoubleSolenoid.Value.kReverse) {
+			return;
+		}
+		solenoid.set(DoubleSolenoid.Value.kReverse);
+	}
+
+	public void spinIntake(boolean inwards) {
+		if (inwards) {
+			spinState = SpinState.Intake;
+			intakeMotor.set(-Constants.intakePercentVel);
+		} else {
+			spinState = SpinState.Outake;
+			intakeMotor.set(Constants.intakePercentVel);
+		}
+	}
+
+	public void stopIntake() {
+		intakeMotor.set(0);
+		spinState = SpinState.None;
+	}
+
+	public boolean isOutaking() {
+		return spinState == SpinState.Outake;
+	}
+
+	public boolean isIntaking() {
+		return spinState == SpinState.Intake;
+	}
+
+	public boolean isStopped() {
+		return spinState == SpinState.None;
+	}
+
+	@Override
+	public void periodic() {
+		// SmartDashboard.putNumber("Claw Current (Amps)",
+		// intakeMotor.getOutputCurrent());
+	}
 }

@@ -1,0 +1,117 @@
+package frc.robot.subsystems;
+
+import static frc.robot.Constants.Controller.*;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.sensors.CANCoder;
+import com.pathplanner.lib.auto.PIDConstants;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants;
+import frc.robot.util.Device;
+import frc.robot.util.StatefulSubsystem;
+import frc.robot.util.controllers.LogitechController.LogiButton;
+import frc.robot.util.drivers.LazyTalonFX;
+import frc.robot.util.drivers.NEOSparkMax;
+import frc.robot.util.math.Conversions;
+
+enum ArmState {
+	TeleopControl,
+	ScoreConeHighGoal,
+}
+
+public class StatefulArm extends StatefulSubsystem<ArmState> {
+	private final LazyTalonFX leftPivotMotor;
+	private final LazyTalonFX rightPivotMotor;
+	private final CANCoder pivotEncoder;
+	private final NEOSparkMax extensionMotor;
+	private final PIDController extensionPosPID;
+	private final TalonSRX extensionSRXEncoder;
+	private double extensionTarget;
+
+	public StatefulArm(ArmState startingState) {
+		super(startingState);
+
+		this.leftPivotMotor = Device.Motor.leftPivot.build();
+		this.rightPivotMotor = Device.Motor.rightPivot.build();
+		this.extensionMotor = Device.Motor.extension.build();
+		this.pivotEncoder = Device.Encoder.pivot.build();
+		this.extensionPosPID = Constants.PID.extension;
+		this.extensionSRXEncoder = new TalonSRX(Device.EncoderId.extension);
+		extensionSRXEncoder.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
+		this.extensionTarget = 0.0d;
+
+		Timer.delay(1.0);
+
+		double encoderTick = Conversions.degreesToFalcon(pivotEncoder.getAbsolutePosition(), Constants.pivotGearRatio);
+		leftPivotMotor.setSelectedSensorPosition(encoderTick);
+		rightPivotMotor.setSelectedSensorPosition(encoderTick);
+	}
+
+	public double getPivotDegrees() {
+		return Conversions.falconToDegrees(leftPivotMotor.getSelectedSensorPosition(), Constants.pivotGearRatio);
+	}
+
+	public double getExtensionPosition() {
+		return extensionMotor.getSensorPosition();
+	}
+
+	public void setPivotOutput(double percentOutput) {
+		percentOutput = MathUtil.clamp(percentOutput, -1.0d, 1.0d);
+		leftPivotMotor.set(ControlMode.PercentOutput, percentOutput);
+		rightPivotMotor.set(ControlMode.PercentOutput, percentOutput);
+	}
+
+	public void onStateEnter(ArmState state) {
+		switch (state) {
+			case TeleopControl:
+				break;
+			case ScoreConeHighGoal:
+
+				break;
+			default:
+				break;
+		}
+	}
+
+	@Override
+	public ArmState setState(ArmState state) {
+		if (controller.isPressed(LogiButton.X)) {
+			switch (state) {
+				case TeleopControl:
+					return ArmState.ScoreConeHighGoal;
+				case ScoreConeHighGoal:
+					return ArmState.TeleopControl;
+			}
+		}
+
+		return state;
+	}
+
+	@Override
+	public void onStateExit(ArmState state) {
+		switch (state) {
+			case TeleopControl:
+				break;
+			case ScoreConeHighGoal:
+				extensionMotor.set(0);
+				leftPivotMotor.set(ControlMode.PercentOutput, 0);
+				rightPivotMotor.set(ControlMode.PercentOutput, 0);
+				break;
+		}
+	}
+
+	@Override
+	public void onStateUpdate(ArmState state) {
+		switch (state) {
+			case TeleopControl:
+				break;
+			case ScoreConeHighGoal:
+				break;
+		}
+	}
+}
