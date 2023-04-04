@@ -44,10 +44,6 @@ public class PositionArmTeleop extends SequentialCommandGroup {
 	}
 
 	public PositionArmTeleop(Arm arm, ArmState state) {
-
-		boolean s = arm.isValidState(state.getPivot(),
-				arm.getArmLength());
-
 		if (!arm.isValidState(state.getPivot(),
 				arm.getArmLength())) {
 			addCommands(

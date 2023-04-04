@@ -79,10 +79,13 @@ public class DriveCommand extends CommandBase {
 
 		if (lockToTarget.getAsBoolean()) {
 			if (!limelight.hasTarget()) {
-				RobotContainer.ledMode = BlinkinLedMode.FIXED_WAVES_OCEAN;
+				RobotContainer.ledMode = BlinkinLedMode.SOLID_ORANGE;
 			} else {
-				RobotContainer.ledMode = BlinkinLedMode.SOLID_GREEN;
-				(new AlignWithTarget(s_Swerve, limelight, strafeSup, TargetType.ConeNode, lockToTarget)).schedule();
+				s_Swerve.setTargetHeading(0.0);
+				RobotContainer.ledMode = BlinkinLedMode.SOLID_LAWN_GREEN;
+				(new AlignWithTarget(s_Swerve, limelight, translationSup, TargetType.ConeNode,
+						lockToTarget)).schedule();
+				return;
 			}
 		}
 
