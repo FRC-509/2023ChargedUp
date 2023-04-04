@@ -338,10 +338,19 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	@Override
 	public void periodic() {
 
-		// if (!extensionLimit.get()) {
-		// resetExtensionPosition();
-		// }
-		if (Utils.withinDeadband(pivotEncoder.getVelocity(), 0.0d, 0.01)) {
+		if (!extensionLimit.get()) {
+			resetExtensionPosition();
+		}
+
+		double delta = (pivotEncoder.getAbsolutePosition() - getPivotDegrees()) % 360.0d;
+
+		if (delta > 180.0d) {
+			delta -= 360.0d;
+		} else if (delta < -180.0d) {
+			delta += 360.0d;
+		}
+
+		if (Utils.withinDeadband(pivotEncoder.getVelocity(), 0.0d, 0.01) && delta > 5.0d) {
 			setPivotToEncoderValue();
 		}
 

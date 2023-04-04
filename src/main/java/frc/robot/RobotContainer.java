@@ -1,20 +1,8 @@
 package frc.robot;
 
-import frc.robot.autonomous.OneConeAndTaxiStable;
-import frc.robot.autonomous.OneCone;
-import frc.robot.autonomous.OneConeAndChargeStation;
-import frc.robot.autonomous.OneConeAndChargeStationMorePoints;
-import frc.robot.commands.ArmCommand;
-import frc.robot.commands.ChargeStation;
-import frc.robot.commands.ClawIntakeCommand;
-import frc.robot.commands.DriveCommand;
-import frc.robot.commands.ExtendArm;
-import frc.robot.commands.RotateArm;
-import frc.robot.commands.AlignWithTarget;
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Claw;
-import frc.robot.subsystems.Swerve;
-import edu.wpi.first.cameraserver.*;
+import frc.robot.autonomous.*;
+import frc.robot.commands.*;
+import frc.robot.subsystems.*;
 import frc.robot.subsystems.TimeStamp;
 import frc.robot.subsystems.Led.BlinkinLedMode;
 import frc.robot.util.Device;
@@ -26,7 +14,7 @@ import frc.robot.util.drivers.PigeonWrapper;
 import frc.robot.util.math.Utils;
 import frc.robot.vision.*;
 import frc.robot.vision.VisionTypes.TargetType;
-import frc.robot.subsystems.Led;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -37,10 +25,9 @@ import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -60,13 +47,13 @@ public class RobotContainer {
 	public static BlinkinLedMode ledMode;
 
 	public final LimelightWrapper limelight = new LimelightWrapper(Device.limelightName);
-	public final PigeonWrapper pigeon = new PigeonWrapper(30, Device.CanBus, 180.0d);
+	public final PigeonWrapper pigeon = new PigeonWrapper(Device.pigeonId, Device.CanBus, 180.0d);
 	public AprilTagFieldLayout fieldLayout;
 
 	public final Swerve swerveSubsystem;
 	public final Arm armSubsystem;
 	public final Claw clawSubsystem;
-	public final UsbCamera usbCamera = new UsbCamera("509cam", 01);
+	public final UsbCamera usbCamera = new UsbCamera(Device.webcamName, 1);
 	private final SendableChooser<Command> chooser = new SendableChooser<Command>();
 
 	public RobotContainer() {
@@ -123,7 +110,7 @@ public class RobotContainer {
 	}
 
 	public void configureButtonBindings() {
-		setLedToAllianceColors();
+		// setLedToAllianceColors();
 
 		timeStamp.setDefaultCommand(new InstantCommand(
 				() -> timeStamp.update(),
@@ -133,31 +120,35 @@ public class RobotContainer {
 			// The thrustmaster joysticks on the Driver Station.
 			swerveSubsystem.setDefaultCommand(new DriveCommand(
 					swerveSubsystem,
+					limelight,
 					() -> Utils.pow(-leftStick.getY(), 1.0d),
 					() -> Utils.pow(-leftStick.getX(), 1.0d),
 					() -> -rightStick.getX(),
 					() -> false, // leftStick.isDown(StickButton.Bottom),
 					() -> rightStick.isDown(StickButton.Bottom),
 					() -> rightStick.isDown(StickButton.Trigger),
-					() -> leftStick.isDown(StickButton.Trigger)));
+					() -> leftStick.isDown(StickButton.Trigger),
+					() -> rightStick.isDown(StickButton.Left)));
 		} else {
 			swerveSubsystem.setDefaultCommand(new DriveCommand(
 					swerveSubsystem,
+					limelight,
 					() -> -controller.getLeftStickY(),
 					() -> -controller.getLeftStickX(),
 					() -> -controller.getRightStickX(),
 					() -> controller.isDown(LogiButton.Y),
 					() -> controller.isDown(LogiButton.X),
 					() -> controller.isDown(LogiButton.RTrigger),
-					() -> controller.isDown(LogiButton.LTrigger)));
+					() -> controller.isDown(LogiButton.LTrigger),
+					() -> false));
 		}
 
-		rightStick.isDownBind(StickButton.Left,
-				new AlignWithTarget(
-						swerveSubsystem,
-						limelight,
-						() -> Utils.pow(-leftStick.getY(), 2),
-						TargetType.ConeNode));
+		// rightStick.isDownBind(StickButton.Left,
+		// new AlignWithTarget(
+		// swerveSubsystem,
+		// limelight,
+		// () -> Utils.pow(-leftStick.getY(), 2),
+		// TargetType.ConeNode));
 
 		leftStick.isDownBind(StickButton.Bottom, new InstantCommand(() -> zeroGyro(), swerveSubsystem));
 
@@ -187,23 +178,6 @@ public class RobotContainer {
 	}
 
 	private void addAutonomousRoutines() {
-		PathPlannerTrajectory trajectory = PathPlanner.loadPath("inTheShop",
-				new PathConstraints(Constants.maxSpeed, 3.0));
-		SwerveAutoBuilder builder = new SwerveAutoBuilder(swerveSubsystem::getPose,
-				swerveSubsystem::resetOdometry,
-				Constants.swerveKinematics,
-				new PIDConstants(3.5, 0, 0),
-				new PIDConstants(1, 0.0, 0.0),
-				swerveSubsystem::setModuleStates,
-				Map.of(),
-				true,
-				swerveSubsystem);
-		SequentialCommandGroup group = new SequentialCommandGroup(
-				new InstantCommand(() -> swerveSubsystem.resetOdometry(trajectory.getInitialHolonomicPose()),
-						swerveSubsystem),
-				builder.followPath(trajectory),
-				new InstantCommand(() -> swerveSubsystem.drive(new Translation2d(), 0, false,
-						true), swerveSubsystem));
 
 		chooser.addOption("One Cone and Taxi (Stable)",
 				new OneConeAndTaxiStable(armSubsystem, clawSubsystem, swerveSubsystem));
@@ -221,9 +195,33 @@ public class RobotContainer {
 		chooser.addOption("Charge Station",
 				new ChargeStation(swerveSubsystem, pigeon, -1));
 		chooser.addOption("None", null);
-		chooser.addOption("PATHPLANNER??!?!", group);
+		chooser.addOption("PathPlanner testing (DO NOT USE!)", followPath("inTheShop", swerveSubsystem));
 
 		SmartDashboard.putData("Auto Chooser", chooser);
+	}
+
+	public static SequentialCommandGroup followPath(String path, Swerve swerve) {
+		PathPlannerTrajectory trajectory = PathPlanner.loadPath(path,
+				new PathConstraints(Constants.maxSpeed, 3.0));
+		SwerveAutoBuilder builder = new SwerveAutoBuilder(swerve::getRawOdometeryPose,
+				swerve::resetOdometry,
+				Constants.swerveKinematics,
+				new PIDConstants(3.5, 0, 0),
+				new PIDConstants(1, 0.0, 0.0),
+				swerve::setModuleStates,
+				Map.of(),
+				true,
+				swerve);
+		// PathPlanner will automatically flip paths based on alliance color, but it
+		// will NOT reset odometry; and when we reset odometry we need to flip the
+		// initial pose if we are on the Red alliance.
+		return new SequentialCommandGroup(
+				new InstantCommand(() -> swerve.resetOdometry(
+						PathPlannerTrajectory.transformTrajectoryForAlliance(trajectory, DriverStation.getAlliance())
+								.getInitialHolonomicPose()),
+						swerve),
+				builder.followPath(trajectory),
+				new InstantCommand(() -> swerve.stopModules(), swerve));
 	}
 
 	public void zeroGyro() {
@@ -235,10 +233,6 @@ public class RobotContainer {
 	public void setGyroHeading(double heading) {
 		pigeon.setYaw(heading);
 		swerveSubsystem.setTargetHeading(heading);
-	}
-
-	public Pose2d getEstimatedPose() {
-		return swerveSubsystem.getPose();
 	}
 
 	public Command getAutonomousCommand() {

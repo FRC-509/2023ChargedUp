@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
@@ -31,7 +32,8 @@ import frc.robot.vision.LimelightWrapper;
 public class Swerve extends SubsystemBase {
 
 	public SwerveModule[] swerveModules;
-	public SwerveDrivePoseEstimator swerveDrivePoseEstimator;
+	public SwerveDrivePoseEstimator poseEstimator;
+	public SwerveDriveOdometry odometry;
 	private Field2d field2d;
 	private LimelightWrapper limelight;
 	private PigeonWrapper pigeon;
@@ -46,7 +48,7 @@ public class Swerve extends SubsystemBase {
 	private double rotationTimeout = 0.5;
 	private Timer timer;
 
-	private PIDWrapper drivePID;
+	// private PIDWrapper drivePID;
 
 	public Swerve(TimeStamp stamp, PigeonWrapper pigeon, LimelightWrapper limelight) {
 		this.timer = new Timer();
@@ -59,7 +61,7 @@ public class Swerve extends SubsystemBase {
 		this.rotationInterplator = new Interpolator(timeStamp, Constants.maxAngularVelocity);
 		this.targetHeading = pigeon.getAbsoluteZero();
 
-		this.drivePID = Constants.drive;
+		// this.drivePID = Constants.drive;
 
 		swerveModules = new SwerveModule[] {
 				new SwerveModule(Constants.s_frontLeft),
@@ -75,11 +77,12 @@ public class Swerve extends SubsystemBase {
 		resetIntegratedToAbsolute();
 		field2d = new Field2d();
 
-		swerveDrivePoseEstimator = new SwerveDrivePoseEstimator(
+		poseEstimator = new SwerveDrivePoseEstimator(
 				Constants.swerveKinematics,
 				getYaw(),
 				getModulePositions(),
 				limelight.getRobotPose().orElse(new Pose3d()).toPose2d());
+		odometry = new SwerveDriveOdometry(Constants.swerveKinematics, getYaw(), getModulePositions());
 
 		Shuffleboard.getTab("Robot Field Position").add(field2d);
 	}
@@ -129,8 +132,8 @@ public class Swerve extends SubsystemBase {
 			}
 
 			double outputDegrees = Math.abs(delta) > 5.0d
-					? Constants.Voltage * rotationAggressivePID.calculate(delta)
-					: Constants.Voltage * rotationPassivePID.calculate(delta);
+					? Constants.rotationScale * rotationAggressivePID.calculate(delta)
+					: Constants.rotationScale * rotationPassivePID.calculate(delta);
 
 			rotationOutput = Units.degreesToRadians(outputDegrees);
 		}
@@ -165,6 +168,12 @@ public class Swerve extends SubsystemBase {
 		swerveModules[3].setDesiredState(new SwerveModuleState(0.0d, Rotation2d.fromDegrees(135.0d)), false);
 	}
 
+	public void stopModules() {
+		for (SwerveModule module : swerveModules) {
+			module.setDesiredState(new SwerveModuleState(0, module.getCanCoder()), false);
+		}
+	}
+
 	public void setTargetHeading(double heading) {
 		targetHeading = heading % 360.0d;
 	}
@@ -175,26 +184,25 @@ public class Swerve extends SubsystemBase {
 
 	/* Used by SwerveControllerCommand in Auto */
 	public void setModuleStates(SwerveModuleState[] desiredStates) {
-		// SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates,
-		// Constants.maxSpeed);
-		// ChassisSpeeds speeds =
-		// Constants.swerveKinematics.toChassisSpeeds(desiredStates);
-		// drive(new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond),
-		// speeds.omegaRadiansPerSecond,
-		// false, false);
-
 		for (SwerveModule mod : this.swerveModules) {
 			mod.setDesiredState(desiredStates[mod.moduleNumber], true);
 		}
 	}
 
-	public Pose2d getPose() {
-		return this.swerveDrivePoseEstimator.getEstimatedPosition();
+	public Pose2d getEstimatedPose() {
+		return this.poseEstimator.getEstimatedPosition();
+	}
+
+	public Pose2d getRawOdometeryPose() {
+		return this.odometry.getPoseMeters();
+	}
+
+	public void resetPoseEstimation(Pose2d pose) {
+		this.poseEstimator.resetPosition(getYaw(), getModulePositions(), pose);
 	}
 
 	public void resetOdometry(Pose2d pose) {
-		System.out.println("[Swerve::resetOdometry] Passed pose: " + pose.getX() + ", " + pose.getY());
-		this.swerveDrivePoseEstimator.resetPosition(getYaw(), getModulePositions(), pose);
+		this.odometry.resetPosition(getYaw(), getModulePositions(), pose);
 	}
 
 	public SwerveModule[] getModules() {
@@ -227,33 +235,30 @@ public class Swerve extends SubsystemBase {
 		}
 	}
 
-	public void supplyVelocity(double velocityMps) {
-		for (SwerveModule mod : this.swerveModules) {
-			mod.supplyVelocity(velocityMps);
-		}
-	}
-
 	@Override
 	public void periodic() {
 		Optional<Pose3d> llPose = limelight.getRobotPose();
 		if (llPose.isPresent()) {
-			swerveDrivePoseEstimator.addVisionMeasurement(llPose.get().toPose2d(), Timer.getFPGATimestamp());
+			poseEstimator.addVisionMeasurement(llPose.get().toPose2d(), Timer.getFPGATimestamp());
 		}
-		swerveDrivePoseEstimator.update(getYaw(), getModulePositions());
+		poseEstimator.update(getYaw(), getModulePositions());
+		field2d.setRobotPose(getEstimatedPose());
 
-		field2d.setRobotPose(getPose());
+		odometry.update(getYaw(), getModulePositions());
 
 		SmartDashboard.putNumber("yaw", getYaw().getDegrees());
 		SmartDashboard.putNumber("pitch", pigeon.getPitch());
 		SmartDashboard.putNumber("roll", pigeon.getRoll());
-		SmartDashboard.putNumber("odometry-x", this.swerveDrivePoseEstimator.getEstimatedPosition().getX());
-		SmartDashboard.putNumber("odometry-y", this.swerveDrivePoseEstimator.getEstimatedPosition().getY());
+		SmartDashboard.putNumber("estimation-x", poseEstimator.getEstimatedPosition().getX());
+		SmartDashboard.putNumber("estimation-y", poseEstimator.getEstimatedPosition().getY());
+		SmartDashboard.putNumber("odometry-x", odometry.getPoseMeters().getX());
+		SmartDashboard.putNumber("odometry-y", odometry.getPoseMeters().getY());
 
-		drivePID.debug("drive PID");
+		// drivePID.debug("drive PID");
 
-		for (var module : swerveModules) {
-			module.setDrivePID(drivePID);
-		}
+		// for (var module : swerveModules) {
+		// module.setDrivePID(drivePID);
+		// }
 
 		// pointing up is -negative Pitch
 		// down is +positive Pitch

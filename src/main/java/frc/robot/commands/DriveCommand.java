@@ -1,8 +1,12 @@
 package frc.robot.commands;
 
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.Led.BlinkinLedMode;
 import frc.robot.util.math.Utils;
+import frc.robot.vision.LimelightWrapper;
+import frc.robot.vision.VisionTypes.TargetType;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -13,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class DriveCommand extends CommandBase {
 	private Swerve s_Swerve;
+	private LimelightWrapper limelight;
 	private DoubleSupplier translationSup;
 	private DoubleSupplier strafeSup;
 	private DoubleSupplier rotationSup;
@@ -20,17 +25,21 @@ public class DriveCommand extends CommandBase {
 	private BooleanSupplier xStanceSup;
 	private BooleanSupplier faceForward;
 	private BooleanSupplier faceBackward;
+	private BooleanSupplier lockToTarget;
 
 	public DriveCommand(
 			Swerve s_Swerve,
+			LimelightWrapper limelight,
 			DoubleSupplier translationSup,
 			DoubleSupplier strafeSup,
 			DoubleSupplier rotationSup,
 			BooleanSupplier robotCentricSup,
 			BooleanSupplier xStanceSup,
 			BooleanSupplier faceForward,
-			BooleanSupplier faceBackward) {
+			BooleanSupplier faceBackward,
+			BooleanSupplier lockToTarget) {
 		this.s_Swerve = s_Swerve;
+		this.limelight = limelight;
 		addRequirements(s_Swerve);
 
 		this.translationSup = translationSup;
@@ -40,6 +49,7 @@ public class DriveCommand extends CommandBase {
 		this.xStanceSup = xStanceSup;
 		this.faceForward = faceForward;
 		this.faceBackward = faceBackward;
+		this.lockToTarget = lockToTarget;
 	}
 
 	public DriveCommand(
@@ -66,6 +76,15 @@ public class DriveCommand extends CommandBase {
 		double translationVal = MathUtil.applyDeadband(this.translationSup.getAsDouble(), Constants.stickDeadband);
 		double strafeVal = MathUtil.applyDeadband(this.strafeSup.getAsDouble(), Constants.stickDeadband);
 		double rotationVal = MathUtil.applyDeadband(this.rotationSup.getAsDouble(), Constants.stickDeadband);
+
+		if (lockToTarget.getAsBoolean()) {
+			if (!limelight.hasTarget()) {
+				RobotContainer.ledMode = BlinkinLedMode.FIXED_WAVES_OCEAN;
+			} else {
+				RobotContainer.ledMode = BlinkinLedMode.SOLID_GREEN;
+				(new AlignWithTarget(s_Swerve, limelight, strafeSup, TargetType.ConeNode, lockToTarget)).schedule();
+			}
+		}
 
 		/* Drive */
 		if (xStanceSup.getAsBoolean()) {

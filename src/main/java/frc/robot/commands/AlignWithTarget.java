@@ -1,10 +1,12 @@
 package frc.robot.commands;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -24,13 +26,15 @@ public class AlignWithTarget extends SequentialCommandGroup {
 		private double targetAngle;
 		private TargetType target;
 		private DoubleSupplier forwardStrafe;
+		private BooleanSupplier run;
 
 		public StrafeToMeetTarget(Swerve swerve, LimelightWrapper limelight, DoubleSupplier forwardStrafe,
-				TargetType target) {
+				TargetType target, BooleanSupplier run) {
 			this.swerve = swerve;
 			this.limelight = limelight;
 			this.target = target;
 			this.forwardStrafe = forwardStrafe;
+			this.run = run;
 			addRequirements(swerve);
 		}
 
@@ -76,7 +80,7 @@ public class AlignWithTarget extends SequentialCommandGroup {
 		public boolean isFinished() {
 			SmartDashboard.putBoolean("Are we done?", strafePID.atSetpoint());
 			// return strafePID.atSetpoint();
-			return false;
+			return !run.getAsBoolean();
 		}
 
 		@Override
@@ -85,9 +89,10 @@ public class AlignWithTarget extends SequentialCommandGroup {
 		}
 	}
 
-	public AlignWithTarget(Swerve swerve, LimelightWrapper limelight, DoubleSupplier forwardStrafe, TargetType target) {
+	public AlignWithTarget(Swerve swerve, LimelightWrapper limelight, DoubleSupplier forwardStrafe, TargetType target,
+			BooleanSupplier run) {
 		swerve.setTargetHeading(0);
-		addCommands(new StrafeToMeetTarget(swerve, limelight, forwardStrafe, target),
+		addCommands(new StrafeToMeetTarget(swerve, limelight, forwardStrafe, target, run),
 				new DriveCommand(swerve, 0.1, 0, 0, false).withTimeout(0.25),
 				new DriveCommand(swerve, 0.0, 0, 0, false),
 				new InstantCommand(() -> limelight.setPipeline(PipelineState.RetroReflective)));

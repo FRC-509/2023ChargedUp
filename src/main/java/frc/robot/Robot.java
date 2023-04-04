@@ -70,20 +70,22 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putBoolean("Limelight has target", this.robotContainer.limelight.hasTarget());
 		thunderstorm.update(this.robotContainer);
 
-		switch (this.robotContainer.limelight.getPipeline()) {
-			case AprilTags:
-				SmartDashboard.putString("Limelight Pipeline", "AprilTags");
-				break;
-			case MLGamePieces:
-				SmartDashboard.putString("Limelight Pipeline", "GamePieceML");
-				break;
-			case RetroReflective:
-				SmartDashboard.putString("Limelight Pipeline", "RetroReflective");
-				break;
-			default:
-				break;
+		// switch (this.robotContainer.limelight.getPipeline()) {
+		// case AprilTags:
+		// SmartDashboard.putString("Limelight Pipeline", "AprilTags");
+		// break;
+		// case MLGamePieces:
+		// SmartDashboard.putString("Limelight Pipeline", "GamePieceML");
+		// break;
+		// case RetroReflective:
+		// SmartDashboard.putString("Limelight Pipeline", "RetroReflective");
+		// break;
+		// default:
+		// break;
 
-		}
+		// }
+
+		Led.setMode(RobotContainer.ledMode);
 	}
 
 	/** This function is called once each time the robot enters Disabled mode. */
