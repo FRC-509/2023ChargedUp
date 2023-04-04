@@ -56,8 +56,8 @@ public class RobotContainer {
 	public final LogitechController controller = new LogitechController(2);
 
 	public static TimeStamp timeStamp = new TimeStamp();
-
 	public static boolean isRedAlliance = true;
+	public static BlinkinLedMode ledMode;
 
 	public final LimelightWrapper limelight = new LimelightWrapper(Device.limelightName);
 	public final PigeonWrapper pigeon = new PigeonWrapper(30, Device.CanBus, 180.0d);
@@ -76,7 +76,7 @@ public class RobotContainer {
 			cam.setResolution(10, 10);
 		}
 
-		Led.setMode(BlinkinLedMode.FIXED_BREATH_RED);
+		ledMode = BlinkinLedMode.FIXED_BREATH_RED;
 
 		// Initialize and configure the gyroscope.
 		this.pigeon.configFactoryDefault();
@@ -108,7 +108,23 @@ public class RobotContainer {
 		return timeStamp.deltaTime();
 	}
 
+	public static void setLedToAllianceColors() {
+		switch (DriverStation.getAlliance()) {
+			case Blue:
+				ledMode = BlinkinLedMode.SOLID_BLUE;
+				break;
+			case Invalid:
+				ledMode = BlinkinLedMode.FIXED_BREATH_RED;
+				break;
+			case Red:
+				ledMode = BlinkinLedMode.SOLID_RED;
+				break;
+		}
+	}
+
 	public void configureButtonBindings() {
+		setLedToAllianceColors();
+
 		timeStamp.setDefaultCommand(new InstantCommand(
 				() -> timeStamp.update(),
 				timeStamp));
@@ -160,12 +176,13 @@ public class RobotContainer {
 						* -Constants.armExtensionOperatorCoefficient,
 				() -> controller.isDown(LogiButton.B),
 				() -> controller.isPressed(LogiButton.LBTrigger),
-				() -> controller.isPressed(LogiButton.RBTrigger)));
+				() -> controller.isPressed(LogiButton.RBTrigger),
+				() -> controller.isPressed(LogiButton.Start)));
 
 		controller.isPressedBind(LogiButton.X,
-				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_VIOLET)));
+				new InstantCommand(() -> ledMode = Led.BlinkinLedMode.SOLID_VIOLET));
 		controller.isPressedBind(LogiButton.Y,
-				new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_ORANGE)));
+				new InstantCommand(() -> ledMode = Led.BlinkinLedMode.SOLID_ORANGE));
 
 	}
 
