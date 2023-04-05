@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class RobotContainer {
 	public final JoystickController leftStick = new JoystickController(1);
@@ -195,19 +196,21 @@ public class RobotContainer {
 		chooser.addOption("Charge Station",
 				new ChargeStation(swerveSubsystem, pigeon, -1));
 		chooser.addOption("None", null);
-		chooser.addOption("PathPlanner testing (DO NOT USE!)", followPath("inTheShop", swerveSubsystem));
+		chooser.addOption("PathPlanner testing (DO NOT USE!)",
+				new OneConeOneCube(armSubsystem, clawSubsystem, swerveSubsystem));
 
 		SmartDashboard.putData("Auto Chooser", chooser);
 	}
 
-	public static SequentialCommandGroup followPath(String path, Swerve swerve) {
+	public static SequentialCommandGroup followPath(String path, Swerve swerve, boolean resetOdometry,
+			double endHeading, double endHeadingTimeout) {
 		PathPlannerTrajectory trajectory = PathPlanner.loadPath(path,
 				new PathConstraints(Constants.maxSpeed, 3.0));
 		SwerveAutoBuilder builder = new SwerveAutoBuilder(swerve::getRawOdometeryPose,
 				swerve::resetOdometry,
 				Constants.swerveKinematics,
 				new PIDConstants(3.5, 0, 0),
-				new PIDConstants(1, 0.0, 0.0),
+				new PIDConstants(2, 0.0, 0.0),
 				swerve::setModuleStates,
 				Map.of(),
 				true,
@@ -215,13 +218,27 @@ public class RobotContainer {
 		// PathPlanner will automatically flip paths based on alliance color, but it
 		// will NOT reset odometry; and when we reset odometry we need to flip the
 		// initial pose if we are on the Red alliance.
+		PathPlannerTrajectory transformedTrajectory = PathPlannerTrajectory.transformTrajectoryForAlliance(trajectory,
+				DriverStation.getAlliance());
+		double finalHeading = (endHeading == -1) ? swerve.getRelativeYawFromPigeon() + transformedTrajectory
+				.getInitialHolonomicPose().getRotation().getDegrees()
+				- transformedTrajectory
+						.getEndState().holonomicRotation.getDegrees()
+				: endHeading;
 		return new SequentialCommandGroup(
-				new InstantCommand(() -> swerve.resetOdometry(
-						PathPlannerTrajectory.transformTrajectoryForAlliance(trajectory, DriverStation.getAlliance())
+				resetOdometry ? new InstantCommand(() -> swerve.resetOdometry(
+						PathPlannerTrajectory
+								.transformTrajectoryForAlliance(trajectory, DriverStation.getAlliance())
 								.getInitialHolonomicPose()),
-						swerve),
+						swerve) : new InstantCommand(() -> {
+						}, swerve),
 				builder.followPath(trajectory),
-				new InstantCommand(() -> swerve.stopModules(), swerve));
+				new InstantCommand(() -> {
+					swerve.stopModules();
+					swerve.setTargetHeading(finalHeading);
+					System.out.println("TARGET HEADING SET");
+				}, swerve));
+		// new DriveCommand(swerve, 0, 0, 0, false).withTimeout(endHeadingTimeout));
 	}
 
 	public void zeroGyro() {

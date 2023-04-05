@@ -105,6 +105,7 @@ public class Swerve extends SubsystemBase {
 
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond,
 			boolean fieldRelative, boolean omitRotationCorrection) {
+		System.out.println("drive()");
 
 		rotationInterplator.setPoint(rotationRadiansPerSecond);
 
@@ -227,6 +228,10 @@ public class Swerve extends SubsystemBase {
 
 	public Rotation2d getYaw() {
 		return Rotation2d.fromDegrees(pigeon.getRelativeYaw());
+	}
+
+	public double getRelativeYawFromPigeon() {
+		return pigeon.getRelativeYaw();
 	}
 
 	public void resetIntegratedToAbsolute() {

@@ -68,6 +68,7 @@ public class DriveCommand extends CommandBase {
 		this.xStanceSup = () -> false;
 		this.faceForward = () -> false;
 		this.faceBackward = () -> false;
+		this.lockToTarget = () -> false;
 	}
 
 	@Override
@@ -112,5 +113,10 @@ public class DriveCommand extends CommandBase {
 					!this.robotCentricSup.getAsBoolean(),
 					false);
 		}
+	}
+
+	@Override
+	public void end(boolean wasInterrupted) {
+		s_Swerve.stopModules();
 	}
 }

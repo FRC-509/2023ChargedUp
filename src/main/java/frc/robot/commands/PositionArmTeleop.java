@@ -10,6 +10,7 @@ public class PositionArmTeleop extends SequentialCommandGroup {
 		Substation,
 		ConeHigh,
 		ConeMid,
+		GroudPickup,
 		Home;
 
 		public double getPivot() {
@@ -22,6 +23,8 @@ public class PositionArmTeleop extends SequentialCommandGroup {
 					return 86.5d;
 				case Home:
 					return 30.0d;
+				case GroudPickup:
+					return 46.0d;
 				default:
 					return 0.0d;
 			}
@@ -37,6 +40,8 @@ public class PositionArmTeleop extends SequentialCommandGroup {
 					return 10.0d;
 				case Home:
 					return 0.0d;
+				case GroudPickup:
+					return 151.0d;
 				default:
 					return 0.0d;
 			}
