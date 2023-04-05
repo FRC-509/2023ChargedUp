@@ -105,7 +105,6 @@ public class Swerve extends SubsystemBase {
 
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond,
 			boolean fieldRelative, boolean omitRotationCorrection) {
-		System.out.println("drive()");
 
 		rotationInterplator.setPoint(rotationRadiansPerSecond);
 
@@ -177,6 +176,10 @@ public class Swerve extends SubsystemBase {
 
 	public void setTargetHeading(double heading) {
 		targetHeading = heading % 360.0d;
+	}
+
+	public void setTargetHeadingToCurrent() {
+		setTargetHeading(pigeon.getRelativeYaw());
 	}
 
 	public void setGyroHeading(double heading) {

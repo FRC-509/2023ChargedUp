@@ -21,7 +21,7 @@ public class PickUpCubeFromGround extends SequentialCommandGroup {
 				new PositionArmTeleop(arm, ArmState.GroudPickup),
 				new WaitCommand(0.2),
 				new ExtendArm(arm, 20),
-				new RotateArm(arm, 60),
+				new RotateArm(arm, 50),
 				new InstantCommand(() -> claw.stopIntake(), claw));
 	}
 }

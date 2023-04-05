@@ -198,6 +198,10 @@ public class RobotContainer {
 		chooser.addOption("None", null);
 		chooser.addOption("PathPlanner testing (DO NOT USE!)",
 				new OneConeOneCube(armSubsystem, clawSubsystem, swerveSubsystem));
+		chooser.addOption("cone place test", new SequentialCommandGroup(new PlaceCube(armSubsystem),
+				new InstantCommand(() -> clawSubsystem.spinIntake(true), clawSubsystem),
+				new WaitCommand(0.1),
+				new InstantCommand(() -> clawSubsystem.stopIntake(), clawSubsystem)));
 
 		SmartDashboard.putData("Auto Chooser", chooser);
 	}
@@ -210,7 +214,7 @@ public class RobotContainer {
 				swerve::resetOdometry,
 				Constants.swerveKinematics,
 				new PIDConstants(3.5, 0, 0),
-				new PIDConstants(2, 0.0, 0.0),
+				new PIDConstants(1.3, 0.0, 0.0),
 				swerve::setModuleStates,
 				Map.of(),
 				true,
@@ -235,10 +239,10 @@ public class RobotContainer {
 				builder.followPath(trajectory),
 				new InstantCommand(() -> {
 					swerve.stopModules();
+					// swerve.setTargetHeadingToCurrent();
 					swerve.setTargetHeading(finalHeading);
-					System.out.println("TARGET HEADING SET");
-				}, swerve));
-		// new DriveCommand(swerve, 0, 0, 0, false).withTimeout(endHeadingTimeout));
+				}, swerve),
+				new DriveCommand(swerve, 0, 0, 0, false).withTimeout(endHeadingTimeout));
 	}
 
 	public void zeroGyro() {
