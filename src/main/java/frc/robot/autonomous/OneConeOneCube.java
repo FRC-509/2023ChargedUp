@@ -12,7 +12,7 @@ import frc.robot.subsystems.Swerve;
 public class OneConeOneCube extends SequentialCommandGroup {
 	public OneConeOneCube(Arm arm, Claw claw, Swerve swerve) {
 		addCommands(
-				// new OneCone(arm, claw, swerve),
+				new OneCone(arm, claw, swerve),
 				RobotContainer.followPath("line", swerve, true, 0.0, 0.7),
 				new PickUpCubeFromGround(arm, claw),
 				RobotContainer.followPath("reversedLine", swerve, false, 180.0, 0.7),

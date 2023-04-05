@@ -195,10 +195,8 @@ public class RobotContainer {
 		chooser.addOption("Charge Station",
 				new ChargeStation(swerveSubsystem, pigeon, -1));
 		chooser.addOption("None", null);
-		chooser.addOption("PathPlanner testing (DO NOT USE!)",
+		chooser.addOption("ONE CONE ONE CUBE STATION 1 I THINK ALSO PATHPLANNER",
 				new OneConeOneCube(armSubsystem, clawSubsystem, swerveSubsystem));
-
-		chooser.addOption("cone place test", new PlaceCube(armSubsystem));
 		// new SequentialCommandGroup(
 		// new PlaceCube(armSubsystem),
 		// new InstantCommand(() -> clawSubsystem.spinIntake(true), clawSubsystem),
