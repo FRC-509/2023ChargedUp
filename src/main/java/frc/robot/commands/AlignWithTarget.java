@@ -15,6 +15,7 @@ import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Led.BlinkinLedMode;
+import frc.robot.util.PIDWrapper;
 import frc.robot.vision.LimelightWrapper;
 import frc.robot.vision.VisionTypes.PipelineState;
 import frc.robot.vision.VisionTypes.TargetType;
@@ -23,7 +24,7 @@ public class AlignWithTarget extends CommandBase {
 
 	private Swerve swerve;
 	private LimelightWrapper limelight;
-	private PIDController strafePID = new PIDController(0.03, 0.0, 0.00);
+	private PIDWrapper strafePID = new PIDWrapper(0.125d, 0.0001d, 0.000001d, 0.0d);
 	private double targetAngle;
 	private TargetType target;
 	private DoubleSupplier forwardStrafe;
@@ -31,6 +32,9 @@ public class AlignWithTarget extends CommandBase {
 
 	public AlignWithTarget(Swerve swerve, LimelightWrapper limelight, DoubleSupplier forwardStrafe,
 			TargetType target, BooleanSupplier run) {
+
+		limelight.setPipeline(PipelineState.RetroReflective);
+
 		this.swerve = swerve;
 		this.limelight = limelight;
 		this.target = target;
@@ -62,18 +66,21 @@ public class AlignWithTarget extends CommandBase {
 				break;
 		}
 		strafePID.setSetpoint(targetAngle);
-		strafePID.setTolerance(0.25);
+		strafePID.setTolerance(0.05);
 	}
 
 	@Override
 	public void execute() {
 		if (strafePID.atSetpoint()) {
-			RobotContainer.ledMode = BlinkinLedMode.FIXED_BEATS_FOREST;
+			RobotContainer.ledMode = BlinkinLedMode.FIXED_CONFETTI;
 		}
 
 		if (!limelight.hasTarget()) {
 			return;
 		}
+
+		// SmartDashboard.putNumber("limelight offset: ", limelight.getXOffset());
+		// strafePID.debug("strafe");
 
 		// Strafe using a PID on the limelight's X offset to bring it to zero.
 		double strafeOutput = strafePID.calculate(limelight.getXOffset());
@@ -84,6 +91,7 @@ public class AlignWithTarget extends CommandBase {
 
 	@Override
 	public boolean isFinished() {
+		RobotContainer.setLedToAllianceColors();
 		return !run.getAsBoolean();
 	}
 

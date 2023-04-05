@@ -45,7 +45,7 @@ public class Swerve extends SubsystemBase {
 	private double targetHeading;
 	private PIDController rotationPassivePID = new PIDController(1.1, 0.8, 0.05);
 	private PIDController rotationAggressivePID = new PIDController(1.2, 0.3, 0.1);
-	private double rotationTimeout = 0.5;
+	private double rotationTimeout = 0.35;
 	private Timer timer;
 
 	// private PIDWrapper drivePID;
@@ -87,22 +87,6 @@ public class Swerve extends SubsystemBase {
 		Shuffleboard.getTab("Robot Field Position").add(field2d);
 	}
 
-	private void serializeRotationPID() {
-		SmartDashboard.putNumber("Relative Yaw: ", pigeon.getRelativeYaw());
-		SmartDashboard.putNumber("Absolute Yaw: ", pigeon.getAbsoluteYaw());
-		SmartDashboard.putNumber("Target Yaw: ", targetHeading);
-		SmartDashboard.putNumber("interpolation: ", rotationInterplator.getPosition());
-		SmartDashboard.putNumber("timer: ", timer.get());
-
-		double kP = Debug.debugNumber("rot P", 0.0);
-		double kI = Debug.debugNumber("rot I", 0.0);
-		double kD = Debug.debugNumber("rot D", 0.0);
-
-		rotationAggressivePID.setP(kP);
-		rotationAggressivePID.setI(kI);
-		rotationAggressivePID.setD(kD);
-	}
-
 	public void drive(Translation2d translationMetersPerSecond, double rotationRadiansPerSecond,
 			boolean fieldRelative, boolean omitRotationCorrection) {
 
@@ -131,7 +115,7 @@ public class Swerve extends SubsystemBase {
 				delta += 360.0d;
 			}
 
-			double outputDegrees = Math.abs(delta) > 5.0d
+			double outputDegrees = Math.abs(delta) > 2.0d
 					? Constants.rotationScale * rotationAggressivePID.calculate(delta)
 					: Constants.rotationScale * rotationPassivePID.calculate(delta);
 

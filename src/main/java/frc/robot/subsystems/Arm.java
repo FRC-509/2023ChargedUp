@@ -26,6 +26,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	private PositionTarget extensionTarget;
 	private PositionTarget pivotTarget;
 	private final NEOSparkMax extensionMotor;
+	private boolean zeroed = false;
 
 	private DigitalInput extensionLimit;
 
@@ -339,7 +340,12 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	public void periodic() {
 
 		if (!extensionLimit.get()) {
-			resetExtensionPosition();
+			if (!zeroed) {
+				resetExtensionPosition();
+			}
+			zeroed = true;
+		} else {
+			zeroed = false;
 		}
 
 		double delta = (pivotEncoder.getAbsolutePosition() - getPivotDegrees()) % 360.0d;
@@ -350,7 +356,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 			delta += 360.0d;
 		}
 
-		if (Utils.withinDeadband(pivotEncoder.getVelocity(), 0.0d, 0.01) && delta > 5.0d) {
+		if (Utils.withinDeadband(pivotEncoder.getVelocity(), 0.0d, 0.01)) {
 			setPivotToEncoderValue();
 		}
 
@@ -365,7 +371,5 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		SmartDashboard.putNumber("Desired Arm Extension", extensionTarget.getTarget());
 		SmartDashboard.putNumber("Valid State", extensionTarget.getTarget());
 		SmartDashboard.putNumber("expected length: ", getExtensionLength());
-
-		extensionPositionPID.debug("extension");
 	}
 }

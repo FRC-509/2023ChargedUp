@@ -10,13 +10,17 @@ public class PositionArmTeleop extends SequentialCommandGroup {
 		Substation,
 		ConeHigh,
 		ConeMid,
+		CubeHigh,
+		CubeMid,
 		GroudPickup,
 		Home;
 
 		public double getPivot() {
 			switch (this) {
+				case CubeHigh:
 				case ConeHigh:
 					return 100.0d;
+				case CubeMid:
 				case ConeMid:
 					return 82.0d;
 				case Substation:
@@ -34,8 +38,12 @@ public class PositionArmTeleop extends SequentialCommandGroup {
 			switch (this) {
 				case ConeHigh:
 					return 250.0d;
+				case CubeHigh:
+					return 100.0d;
 				case ConeMid:
 					return 75.0d;
+				case CubeMid:
+					return 0.0d;
 				case Substation:
 					return 10.0d;
 				case Home:

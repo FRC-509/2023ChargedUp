@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Led.BlinkinLedMode;
@@ -26,6 +27,7 @@ public class DriveCommand extends CommandBase {
 	private BooleanSupplier faceForward;
 	private BooleanSupplier faceBackward;
 	private BooleanSupplier lockToTarget;
+	private boolean isTeleop;
 
 	public DriveCommand(
 			Swerve s_Swerve,
@@ -50,6 +52,7 @@ public class DriveCommand extends CommandBase {
 		this.faceForward = faceForward;
 		this.faceBackward = faceBackward;
 		this.lockToTarget = lockToTarget;
+		isTeleop = true;
 	}
 
 	public DriveCommand(
@@ -69,6 +72,7 @@ public class DriveCommand extends CommandBase {
 		this.faceForward = () -> false;
 		this.faceBackward = () -> false;
 		this.lockToTarget = () -> false;
+		isTeleop = false;
 	}
 
 	@Override
@@ -80,7 +84,7 @@ public class DriveCommand extends CommandBase {
 
 		if (lockToTarget.getAsBoolean()) {
 			if (!limelight.hasTarget()) {
-				RobotContainer.ledMode = BlinkinLedMode.SOLID_ORANGE;
+				RobotContainer.ledMode = BlinkinLedMode.SOLID_HOT_PINK;
 			} else {
 				s_Swerve.setTargetHeading(0.0);
 				RobotContainer.ledMode = BlinkinLedMode.SOLID_LAWN_GREEN;
@@ -88,6 +92,8 @@ public class DriveCommand extends CommandBase {
 						lockToTarget)).schedule();
 				return;
 			}
+		} else {
+			RobotContainer.setLedToAllianceColors();
 		}
 
 		/* Drive */

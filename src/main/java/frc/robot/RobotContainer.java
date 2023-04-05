@@ -39,9 +39,9 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class RobotContainer {
-	public final JoystickController leftStick = new JoystickController(1);
-	public final JoystickController rightStick = new JoystickController(0);
-	public final LogitechController controller = new LogitechController(2);
+	public static final JoystickController leftStick = new JoystickController(1);
+	public static final JoystickController rightStick = new JoystickController(0);
+	public static final LogitechController controller = new LogitechController(2);
 
 	public static TimeStamp timeStamp = new TimeStamp();
 	public static boolean isRedAlliance = true;
@@ -175,7 +175,6 @@ public class RobotContainer {
 				new InstantCommand(() -> ledMode = Led.BlinkinLedMode.SOLID_VIOLET));
 		controller.isPressedBind(LogiButton.Y,
 				new InstantCommand(() -> ledMode = Led.BlinkinLedMode.SOLID_ORANGE));
-
 	}
 
 	private void addAutonomousRoutines() {
@@ -198,10 +197,13 @@ public class RobotContainer {
 		chooser.addOption("None", null);
 		chooser.addOption("PathPlanner testing (DO NOT USE!)",
 				new OneConeOneCube(armSubsystem, clawSubsystem, swerveSubsystem));
-		chooser.addOption("cone place test", new SequentialCommandGroup(new PlaceCube(armSubsystem),
-				new InstantCommand(() -> clawSubsystem.spinIntake(true), clawSubsystem),
-				new WaitCommand(0.1),
-				new InstantCommand(() -> clawSubsystem.stopIntake(), clawSubsystem)));
+
+		chooser.addOption("cone place test", new PlaceCube(armSubsystem));
+		// new SequentialCommandGroup(
+		// new PlaceCube(armSubsystem),
+		// new InstantCommand(() -> clawSubsystem.spinIntake(true), clawSubsystem),
+		// new WaitCommand(0.1),
+		// new InstantCommand(() -> clawSubsystem.stopIntake(), clawSubsystem)));
 
 		SmartDashboard.putData("Auto Chooser", chooser);
 	}
