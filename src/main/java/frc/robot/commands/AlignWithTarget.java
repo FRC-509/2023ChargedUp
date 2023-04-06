@@ -32,14 +32,12 @@ public class AlignWithTarget extends CommandBase {
 
 	public AlignWithTarget(Swerve swerve, LimelightWrapper limelight, DoubleSupplier forwardStrafe,
 			TargetType target, BooleanSupplier run) {
-
-		limelight.setPipeline(PipelineState.RetroReflective);
-
 		this.swerve = swerve;
 		this.limelight = limelight;
 		this.target = target;
 		this.forwardStrafe = forwardStrafe;
 		this.run = run;
+
 		addRequirements(swerve);
 	}
 
@@ -49,6 +47,8 @@ public class AlignWithTarget extends CommandBase {
 			end(true);
 		}
 
+		this.limelight.setPipeline(PipelineState.RetroReflective);
+		this.limelight.setLEDState(true);
 		switch (target) {
 			case ConeNode:
 				limelight.setPipeline(PipelineState.RetroReflective);
@@ -97,6 +97,7 @@ public class AlignWithTarget extends CommandBase {
 
 	@Override
 	public void end(boolean wasInterrupted) {
+		limelight.setLEDState(false);
 		swerve.drive(new Translation2d(0, 0), 0, true, false);
 	}
 }

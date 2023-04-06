@@ -371,5 +371,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		SmartDashboard.putNumber("Desired Arm Extension", extensionTarget.getTarget());
 		SmartDashboard.putNumber("Valid State", extensionTarget.getTarget());
 		SmartDashboard.putNumber("expected length: ", getExtensionLength());
+
+		SmartDashboard.putNumber("pivot enoder error: `", pivotEncoder.getAbsolutePosition() - getPivotDegrees());
 	}
 }

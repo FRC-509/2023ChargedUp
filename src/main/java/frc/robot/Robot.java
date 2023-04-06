@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
 		}
 		hasInitialized = true;
 		this.robotContainer.limelight.setPipeline(PipelineState.RetroReflective);
-		this.robotContainer.limelight.setLEDState(false);
+		// this.robotContainer.limelight.setLEDState(true);
 	}
 
 	/**
@@ -94,7 +94,6 @@ public class Robot extends TimedRobot {
 	/** This function is called once each time the robot enters Disabled mode. */
 	@Override
 	public void disabledInit() {
-		this.robotContainer.limelight.setLEDState(false);
 
 	}
 
@@ -104,7 +103,6 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void disabledExit() {
-		this.robotContainer.limelight.setLEDState(true);
 
 		robotContainer.clawSubsystem.onRobotEnable();
 
