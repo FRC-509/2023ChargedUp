@@ -86,7 +86,7 @@ public class DriveCommand extends CommandBase {
 			if (!limelight.hasTarget()) {
 				RobotContainer.ledMode = BlinkinLedMode.SOLID_HOT_PINK;
 			} else {
-				s_Swerve.setTargetHeading(0.0);
+				// s_Swerve.setTargetHeading(0.0);
 				RobotContainer.ledMode = BlinkinLedMode.SOLID_LAWN_GREEN;
 				(new AlignWithTarget(s_Swerve, limelight, translationSup, TargetType.ConeNode,
 						lockToTarget)).schedule();
