@@ -39,9 +39,10 @@ public class Robot extends TimedRobot {
 		// autonomous chooser on the dashboard.
 		this.robotContainer = new RobotContainer();
 		this.thunderstorm = new Thunderstorm();
-
+		// this.robotContainer.clawSubsystem.extendClaw();
 		if (!hasInitialized) {
 			robotContainer.armSubsystem.onFirstInit();
+
 		}
 		hasInitialized = true;
 		this.robotContainer.limelight.setPipeline(PipelineState.RetroReflective);
@@ -100,6 +101,8 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void disabledExit() {
+		robotContainer.clawSubsystem.onRobotEnable();
+
 		robotContainer.armSubsystem.setPivotToEncoderValue();
 		robotContainer.swerveSubsystem.setHeadingToGyro();
 	}

@@ -15,7 +15,7 @@ import frc.robot.subsystems.Claw;
 public class PickUpCubeFromGround extends SequentialCommandGroup {
 	public PickUpCubeFromGround(Arm arm, Claw claw) {
 		addCommands(
-				new InstantCommand(() -> claw.retractClaw()),
+				new InstantCommand(() -> claw.openClaw()),
 				new ExtendArm(arm, 0),
 				new InstantCommand(() -> claw.spinIntake(false), claw),
 				new PositionArmTeleop(arm, ArmState.GroudPickup),

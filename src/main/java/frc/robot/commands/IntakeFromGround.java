@@ -15,7 +15,7 @@ public class IntakeFromGround extends SequentialCommandGroup {
 		addCommands(
 				new PositionArmTeleop(arm, ArmState.GroudPickup),
 				new InstantCommand(() -> {
-					claw.extendClaw();
+					claw.closeClaw();
 					claw.spinIntake(true);
 				}, claw));
 	}
