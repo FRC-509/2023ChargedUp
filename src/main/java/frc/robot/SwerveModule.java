@@ -146,8 +146,6 @@ public class SwerveModule {
 
 	public void setDesiredState(SwerveModuleState desiredState, boolean closedLoop) {
 
-		SmartDashboard.putNumber("angle of module " + moduleNumber, getDegrees());
-
 		lastDesiredState = desiredState;
 
 		// target angle [-180, 180]

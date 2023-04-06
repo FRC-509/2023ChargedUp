@@ -194,14 +194,12 @@ public class RobotContainer {
 						swerveSubsystem, pigeon));
 		chooser.addOption("Charge Station",
 				new ChargeStation(swerveSubsystem, pigeon, -1));
-		chooser.addOption("None", null);
-		chooser.addOption("ONE CONE ONE CUBE STATION 1 I THINK ALSO PATHPLANNER",
+		// PathPlanner based autos.
+		chooser.addOption("One Cone One Cube (Stable!) ft. PathPlanner",
 				new OneConeOneCube(armSubsystem, clawSubsystem, swerveSubsystem));
-		// new SequentialCommandGroup(
-		// new PlaceCube(armSubsystem),
-		// new InstantCommand(() -> clawSubsystem.spinIntake(true), clawSubsystem),
-		// new WaitCommand(0.1),
-		// new InstantCommand(() -> clawSubsystem.stopIntake(), clawSubsystem)));
+		chooser.addOption("One Cone One Cube (Not Stable!) ft. PathPlanner",
+				new OneConeOneCubeRipoff(armSubsystem, clawSubsystem, swerveSubsystem));
+		chooser.addOption("None", null);
 
 		SmartDashboard.putData("Auto Chooser", chooser);
 	}
