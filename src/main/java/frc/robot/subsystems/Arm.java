@@ -6,6 +6,7 @@ import com.ctre.phoenix.sensors.CANCoder;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -27,6 +28,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	private PositionTarget pivotTarget;
 	private final NEOSparkMax extensionMotor;
 	private boolean zeroed = false;
+	private Timer isStationaryTimer;
 
 	private DigitalInput extensionLimit;
 
@@ -40,6 +42,8 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		extensionMotor.setSensorPosition(0);
 		extensionPositionPID = new PIDWrapper(Constants.PID.extension_P);
 		extensionLimit = new DigitalInput(9);
+		isStationaryTimer = new Timer();
+		isStationaryTimer.start();
 	}
 
 	public void onFirstInit() {
@@ -348,17 +352,16 @@ public class Arm extends SubsystemBase implements IDebuggable {
 			zeroed = false;
 		}
 
-		double delta = (pivotEncoder.getAbsolutePosition() - getPivotDegrees()) % 360.0d;
-
-		if (delta > 180.0d) {
-			delta -= 360.0d;
-		} else if (delta < -180.0d) {
-			delta += 360.0d;
-		}
-
 		if (Utils.withinDeadband(pivotEncoder.getVelocity(), 0.0d, 0.01)) {
-			setPivotToEncoderValue();
+			if (isStationaryTimer.get() > 0.2d) {
+				setPivotToEncoderValue();
+				isStationaryTimer.reset();
+			}
+		} else {
+			isStationaryTimer.reset();
 		}
+
+		SmartDashboard.putNumber("timer: ", isStationaryTimer.get());
 
 		debug("s_arm");
 	}
@@ -373,5 +376,6 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		SmartDashboard.putNumber("expected length: ", getExtensionLength());
 
 		SmartDashboard.putNumber("pivot enoder error: `", pivotEncoder.getAbsolutePosition() - getPivotDegrees());
+		SmartDashboard.putNumber("sensor velocity: `", leftPivotMotor.getSelectedSensorVelocity());
 	}
 }

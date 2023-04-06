@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
 		}
 		hasInitialized = true;
 		this.robotContainer.limelight.setPipeline(PipelineState.RetroReflective);
-		// this.robotContainer.limelight.setLEDState(true);
+		this.robotContainer.limelight.setLEDState(true);
 	}
 
 	/**

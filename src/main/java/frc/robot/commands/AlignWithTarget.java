@@ -32,7 +32,7 @@ public class AlignWithTarget extends CommandBase {
 
 	public AlignWithTarget(Swerve swerve, LimelightWrapper limelight, DoubleSupplier forwardStrafe,
 			TargetType target, BooleanSupplier run) {
-		this.swerve = swerve;
+		// this.swerve = swerve;
 		this.limelight = limelight;
 		this.target = target;
 		this.forwardStrafe = forwardStrafe;
@@ -97,7 +97,7 @@ public class AlignWithTarget extends CommandBase {
 
 	@Override
 	public void end(boolean wasInterrupted) {
-		limelight.setLEDState(false);
+		// limelight.setLEDState(false);
 		swerve.drive(new Translation2d(0, 0), 0, true, false);
 	}
 }

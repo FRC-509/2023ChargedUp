@@ -28,7 +28,7 @@ public class PositionArmTeleop extends SequentialCommandGroup {
 				case Home:
 					return 30.0d;
 				case GroudPickup:
-					return 46.0d;
+					return 41.0d;
 				default:
 					return 0.0d;
 			}
@@ -49,7 +49,7 @@ public class PositionArmTeleop extends SequentialCommandGroup {
 				case Home:
 					return 0.0d;
 				case GroudPickup:
-					return 151.0d;
+					return 152.0d;
 				default:
 					return 0.0d;
 			}

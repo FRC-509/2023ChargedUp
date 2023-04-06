@@ -169,7 +169,8 @@ public class RobotContainer {
 				() -> controller.isDown(LogiButton.B),
 				() -> controller.isPressed(LogiButton.LBTrigger),
 				() -> controller.isPressed(LogiButton.RBTrigger),
-				() -> controller.isPressed(LogiButton.Start)));
+				() -> controller.isPressed(LogiButton.Start),
+				() -> controller.isPressed(LogiButton.Back)));
 
 		controller.isPressedBind(LogiButton.X,
 				new InstantCommand(() -> ledMode = Led.BlinkinLedMode.SOLID_VIOLET));

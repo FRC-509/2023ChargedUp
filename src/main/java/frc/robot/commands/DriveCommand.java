@@ -5,6 +5,7 @@ import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Led.BlinkinLedMode;
+import frc.robot.util.PIDWrapper;
 import frc.robot.util.math.Utils;
 import frc.robot.vision.LimelightWrapper;
 import frc.robot.vision.VisionTypes.TargetType;
@@ -28,6 +29,8 @@ public class DriveCommand extends CommandBase {
 	private BooleanSupplier faceBackward;
 	private BooleanSupplier lockToTarget;
 	private boolean isTeleop;
+	private PIDWrapper strafePID = new PIDWrapper(0.125d, 0.0001d, 0.000001d, 0.0d);
+	private double targetAngle;
 
 	public DriveCommand(
 			Swerve s_Swerve,
@@ -86,10 +89,20 @@ public class DriveCommand extends CommandBase {
 			if (!limelight.hasTarget()) {
 				RobotContainer.ledMode = BlinkinLedMode.SOLID_HOT_PINK;
 			} else {
-				// s_Swerve.setTargetHeading(0.0);
 				RobotContainer.ledMode = BlinkinLedMode.SOLID_LAWN_GREEN;
-				(new AlignWithTarget(s_Swerve, limelight, translationSup, TargetType.ConeNode,
-						lockToTarget)).schedule();
+				if (strafePID.atSetpoint()) {
+					RobotContainer.ledMode = BlinkinLedMode.FIXED_CONFETTI;
+				}
+
+				if (!limelight.hasTarget()) {
+					return;
+				}
+				// Strafe using a PID on the limelight's X offset to bring it to zero.
+				double strafeOutput = strafePID.calculate(limelight.getXOffset(), Constants.Vision.highConeTargetAngle);
+				s_Swerve.drive(
+						new Translation2d(translationVal, strafeOutput).times(0.4d * Constants.maxSpeed),
+						0,
+						true, false);
 				return;
 			}
 		} else {
