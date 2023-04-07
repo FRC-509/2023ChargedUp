@@ -194,7 +194,7 @@ public class RobotContainer {
 				new OneConeAndChargeStationMorePoints(armSubsystem, clawSubsystem,
 						swerveSubsystem, pigeon));
 		chooser.addOption("Charge Station",
-				new ChargeStation(swerveSubsystem, pigeon, -1));
+				new ChargeStation(swerveSubsystem, pigeon, true));
 		// PathPlanner based autos.
 		chooser.addOption("One Cone One Cube (Stable!) ft. PathPlanner",
 				new OneConeOneCube(armSubsystem, clawSubsystem, swerveSubsystem));

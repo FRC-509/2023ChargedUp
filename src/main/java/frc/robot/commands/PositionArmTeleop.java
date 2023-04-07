@@ -37,7 +37,7 @@ public class PositionArmTeleop extends SequentialCommandGroup {
 		public double getExtension() {
 			switch (this) {
 				case ConeHigh:
-					return 250.0d;
+					return 240.0d;
 				case CubeHigh:
 					return 100.0d;
 				case ConeMid:
