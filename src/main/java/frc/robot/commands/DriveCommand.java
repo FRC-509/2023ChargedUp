@@ -8,6 +8,7 @@ import frc.robot.subsystems.Led.BlinkinLedMode;
 import frc.robot.util.PIDWrapper;
 import frc.robot.util.math.Utils;
 import frc.robot.vision.LimelightWrapper;
+import frc.robot.vision.VisionTypes.PipelineState;
 import frc.robot.vision.VisionTypes.TargetType;
 
 import java.util.function.BooleanSupplier;
@@ -86,6 +87,7 @@ public class DriveCommand extends CommandBase {
 		double rotationVal = MathUtil.applyDeadband(this.rotationSup.getAsDouble(), Constants.stickDeadband);
 
 		if (lockToTarget.getAsBoolean()) {
+			limelight.setPipeline(PipelineState.RetroReflective);
 			if (!limelight.hasTarget()) {
 				RobotContainer.ledMode = BlinkinLedMode.SOLID_HOT_PINK;
 			} else {
@@ -106,6 +108,7 @@ public class DriveCommand extends CommandBase {
 				return;
 			}
 		} else {
+			limelight.setPipeline(PipelineState.AprilTags);
 			RobotContainer.setLedToAllianceColors();
 		}
 

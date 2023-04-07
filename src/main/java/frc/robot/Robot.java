@@ -45,7 +45,7 @@ public class Robot extends TimedRobot {
 
 		}
 		hasInitialized = true;
-		this.robotContainer.limelight.setPipeline(PipelineState.RetroReflective);
+		this.robotContainer.limelight.setPipeline(PipelineState.AprilTags);
 		this.robotContainer.limelight.setLEDState(true);
 	}
 
@@ -69,7 +69,6 @@ public class Robot extends TimedRobot {
 		// robot's periodic
 		// block in order for anything in the Command-based framework to work.
 		CommandScheduler.getInstance().run();
-		robotContainer.limelight.setPipeline(PipelineState.RetroReflective);
 		SmartDashboard.putBoolean("Limelight has target", this.robotContainer.limelight.hasTarget());
 		thunderstorm.update(this.robotContainer);
 

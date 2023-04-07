@@ -171,11 +171,14 @@ public class RobotContainer {
 				() -> controller.isPressed(LogiButton.RBTrigger),
 				() -> controller.isPressed(LogiButton.Start),
 				() -> controller.isPressed(LogiButton.Back)));
-
 		controller.isPressedBind(LogiButton.X,
 				new InstantCommand(() -> ledMode = Led.BlinkinLedMode.SOLID_VIOLET));
 		controller.isPressedBind(LogiButton.Y,
-				new InstantCommand(() -> ledMode = Led.BlinkinLedMode.SOLID_ORANGE));
+				new InstantCommand(() -> {
+					ledMode = Led.BlinkinLedMode.SOLID_ORANGE;
+					// limelight.setLEDState(!limelight.getLEDState());
+
+				}));
 	}
 
 	private void addAutonomousRoutines() {

@@ -18,14 +18,24 @@ public class LimelightWrapper {
 
 	// Properties
 	private String limelightName;
+	private PipelineState currentState;
 	public Pose3d cameraPose;
 
 	// Constructor
 	public LimelightWrapper(String name) {
 		this.limelightName = name;
+		this.currentState = PipelineState.values()[NetworkTableInstance
+				.getDefault()
+				.getTable(limelightName)
+				.getEntry("pipeline")
+				.getNumber(0).intValue()];
 	}
 
 	public void setPipeline(PipelineState pipeline) {
+		if (currentState == pipeline) {
+			return;
+		}
+		currentState = pipeline;
 		NetworkTableInstance
 				.getDefault()
 				.getTable(limelightName)
@@ -42,12 +52,16 @@ public class LimelightWrapper {
 				.setNumber(state ? 0 : 1);
 	}
 
-	public PipelineState getPipeline() {
-		return PipelineState.values()[NetworkTableInstance
+	public boolean getLEDState() {
+		return NetworkTableInstance
 				.getDefault()
-				.getTable(limelightName)
-				.getEntry("pipeline")
-				.getNumber(0).intValue()];
+				.getTable(this.limelightName)
+				.getEntry("ledMode")
+				.getNumber(0).intValue() == 0;
+	}
+
+	public PipelineState getPipeline() {
+		return currentState;
 	}
 
 	// Get offset funcs
