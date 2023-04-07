@@ -87,7 +87,6 @@ public class DriveCommand extends CommandBase {
 		double rotationVal = MathUtil.applyDeadband(this.rotationSup.getAsDouble(), Constants.stickDeadband);
 
 		if (lockToTarget.getAsBoolean()) {
-			limelight.setPipeline(PipelineState.RetroReflective);
 			if (!limelight.hasTarget()) {
 				RobotContainer.ledMode = BlinkinLedMode.SOLID_HOT_PINK;
 			} else {
@@ -108,7 +107,6 @@ public class DriveCommand extends CommandBase {
 				return;
 			}
 		} else {
-			limelight.setPipeline(PipelineState.AprilTags);
 			RobotContainer.setLedToAllianceColors();
 		}
 
