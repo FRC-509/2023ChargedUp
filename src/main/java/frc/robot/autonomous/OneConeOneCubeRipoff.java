@@ -25,19 +25,21 @@ public class OneConeOneCubeRipoff extends SequentialCommandGroup {
 				// Drive to the cube and pivot the arm into the ground intake position
 				new ParallelCommandGroup(
 						new SequentialCommandGroup(
-								new ExtendArm(arm, 0),
-								// new WaitCommand(0.1),
-								new RotateArm(arm, ArmState.GroudPickup.getPivot())),
-						RobotContainer.followPath("lineNoAdjust", swerve, true, 0, 0.5)),
+								new WaitCommand(0.1),
+								new PositionArmTeleop(arm, ArmState.GroudPickup)),
+						// new ExtendArm(arm, 0),
+						// new WaitCommand(0.1),
+						// new RotateArm(arm, ArmState.GroudPickup.getPivot())),
+						RobotContainer.followPath("s1DriveToCubeNode(E)", swerve, true, 0, 0.5)),
 				// Extend the arm into the ground intake position
-				new ExtendArm(arm, ArmState.GroudPickup.getExtension()),
+				// new ExtendArm(arm, ArmState.GroudPickup.getExtension()),
 				// Stop intaking and start driving back into the community
 				new InstantCommand(() -> claw.stopIntake(), claw),
 				new ParallelCommandGroup(
 						new SequentialCommandGroup(
 								new WaitCommand(0.5),
 								new PositionArmTeleop(arm, ArmState.CubeMid)),
-						RobotContainer.followPath("reversedLineHighGoal", swerve, false, 180, 0.5)),
+						RobotContainer.followPath("s1DriveToCubeNode(E)", swerve, false, 180, 0.5)),
 				// Now place the cube!
 				new InstantCommand(() -> claw.spinIntake(true), claw),
 				new WaitCommand(0.1),

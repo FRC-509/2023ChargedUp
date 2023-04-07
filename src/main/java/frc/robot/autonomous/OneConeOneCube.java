@@ -13,9 +13,9 @@ public class OneConeOneCube extends SequentialCommandGroup {
 	public OneConeOneCube(Arm arm, Claw claw, Swerve swerve) {
 		addCommands(
 				new OneCone(arm, claw, swerve),
-				RobotContainer.followPath("line", swerve, true, 0, 0.7),
+				RobotContainer.followPath("s1DriveToCube", swerve, true, 0, 0.7),
 				new PickUpCubeFromGround(arm, claw),
-				RobotContainer.followPath("reversedLine", swerve, false, 180, 0.7),
+				RobotContainer.followPath("s1DriveToCubeNode", swerve, false, 180, 0.7),
 				new PlaceCube(arm),
 				new InstantCommand(() -> claw.spinIntake(true), claw),
 				new WaitCommand(0.1),
