@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
@@ -36,20 +35,20 @@ public final class Constants {
 	}
 
 	public static class Arm {
-		public static double maxExtensionSpeed = 150.0d;
+		public static double maxExtensionSpeed = 175.0d;
 		public static final double maxExtensionLength = 250.0d;
-		public static final double maxExtension = 250.0d;
+		public static final double maxExtension = 240.0d;
 		public static final double minExtension = 5.0d;
 		public static final double maxPivot = 110.0d;
 		public static final double minPivot = 20.0d;
-		public static final double clawLength = 35.0d;
+		public static final double clawLength = 32.0d;
 		public static final double offsetToPivot = 5.0d;
 
 		public static double baseLength = 68.5;
 
 		// degrees per second
 		public static double maxPivotSpeed = 250.0d;
-		public static final double minHeight = 20.0d;
+		public static final double minHeight = 15.0d;
 		public static final double pivotHeight = 120.0d;
 		public static final double offsetToBase = 75.0d;
 	}
@@ -61,7 +60,13 @@ public final class Constants {
 		public static final double height = 22.0d; // cm
 	}
 
-	public static final double Voltage = 12.0d;
+	public static class Vision {
+		public static final double highConeTargetAngle = 6.5d;
+		public static final double substationTargetAngle = 7.9d;
+		public static final double midConeTargetAngle = 11.8d;
+	}
+
+	public static final double rotationScale = 12.0d;
 
 	public static final int revBlinkinPort = 9;
 	public static final int ledPixelCount = 25;
@@ -94,9 +99,9 @@ public final class Constants {
 	public static final double kV = 2.3277 / 12.0;
 	public static final double kA = 0.26532 / 12.0;
 
-	public static final PIDWrapper drive = new PIDWrapper(0.01, 0.000425, 0.0, 0.01);
+	// kf was 0.01
+	public static final PIDWrapper drive = new PIDWrapper(0.01, 0.000425, 0.0, 0.00);
 	public static final PIDWrapper steer = new PIDWrapper(0.2, 0, 0, 0);
-	public static final boolean closedLoopDriveVelocity = true;
 
 	/*
 	 * The order of each vector corresponds to the index of the swerve module inside
@@ -156,7 +161,7 @@ public final class Constants {
 			1,
 			9,
 			5,
-			-309.28,
+			-308.84,
 			steer,
 			drive);
 

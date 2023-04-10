@@ -14,7 +14,7 @@ public class ExtendArm extends CommandBase {
 
 	@Override
 	public void initialize() {
-		if (!arm.isValidState(arm.getPivotDegrees(), arm.extensionTicksToLength(targetPosition))) {
+		if (!arm.isValidState(arm.getPivotDegrees(), Arm.extensionTicksToLength(targetPosition))) {
 			end(true);
 		} else {
 			arm.setExtensionPosition(targetPosition);
@@ -23,6 +23,6 @@ public class ExtendArm extends CommandBase {
 
 	@Override
 	public boolean isFinished() {
-		return Math.abs(arm.getExtensionPosition() - targetPosition) <= 1.5;
+		return Math.abs(arm.getExtensionPosition() - targetPosition) <= 2.5d;
 	}
 }

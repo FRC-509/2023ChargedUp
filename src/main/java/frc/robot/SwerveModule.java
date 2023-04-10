@@ -4,6 +4,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.Device;
 import frc.robot.util.PIDWrapper;
@@ -29,6 +30,9 @@ public class SwerveModule {
 
 	// The previously set steer angle.
 	private double lastSteerAngle;
+
+	// The last desired SwerveModuleState
+	private SwerveModuleState lastDesiredState = new SwerveModuleState();
 
 	private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(Constants.kS, Constants.kV, Constants.kA);
 
@@ -93,11 +97,6 @@ public class SwerveModule {
 		this.angleMotor.setSelectedSensorPosition(falconAngle);
 	}
 
-	// Debug swerve module information to SmartDashboard
-	public void debug() {
-
-	}
-
 	public Rotation2d getCanCoder() {
 		return Rotation2d.fromDegrees(this.angleEncoder.getAbsolutePosition());
 	}
@@ -112,6 +111,9 @@ public class SwerveModule {
 	}
 
 	public SwerveModuleState getState() {
+		if (RobotBase.isSimulation()) {
+			return lastDesiredState;
+		}
 		return new SwerveModuleState(
 				Conversions.falconToMPS(
 						this.driveMotor.getSelectedSensorVelocity(),
@@ -142,10 +144,9 @@ public class SwerveModule {
 		this.driveMotor.config_kF(0, PID.getF());
 	}
 
-	public void setDesiredState(SwerveModuleState desiredState) {
-		if (moduleNumber == 2 || moduleNumber == 1) {
-			return;
-		}
+	public void setDesiredState(SwerveModuleState desiredState, boolean closedLoop) {
+
+		lastDesiredState = desiredState;
 
 		// target angle [-180, 180]
 		double targetAngle = desiredState.angle.getDegrees();
@@ -179,18 +180,11 @@ public class SwerveModule {
 		double falconTarget = Conversions.degreesToFalcon(optimalTargetAngle, Constants.angleGearRatio);
 		this.angleMotor.set(ControlMode.Position, falconTarget);
 
-		if (Constants.closedLoopDriveVelocity) {
+		if (closedLoop) {
 			double velocity = Conversions.MPSToFalcon(
 					Math.abs(desiredState.speedMetersPerSecond),
 					Constants.wheelCircumference,
 					Constants.driveGearRatio);
-
-			SmartDashboard.putNumber("Target Velocity " + moduleNumber, desiredState.speedMetersPerSecond);
-			SmartDashboard.putNumber("Sensor Velocity " + moduleNumber, getState().speedMetersPerSecond);
-
-			double kError = desiredState.speedMetersPerSecond - invertSpeed * getState().speedMetersPerSecond;
-			SmartDashboard.putNumber("Velocity Error " + moduleNumber, kError);
-
 			this.driveMotor.set(ControlMode.Velocity, velocity * invertSpeed);
 		} else {
 			double out = Math.abs(desiredState.speedMetersPerSecond) / Constants.maxSpeed;

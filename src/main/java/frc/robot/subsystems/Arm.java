@@ -5,6 +5,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.sensors.CANCoder;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -24,11 +26,11 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	private PIDWrapper extensionPositionPID;
 	private PositionTarget extensionTarget;
 	private PositionTarget pivotTarget;
-
-	// the percent output needed to maintain a completely horizontal position.
 	private final NEOSparkMax extensionMotor;
+	private boolean zeroed = false;
+	private Timer isStationaryTimer;
 
-	// private AnalogInput extensionLimit;
+	private DigitalInput extensionLimit;
 
 	public Arm() {
 		this.leftPivotMotor = Device.Motor.leftPivot.build();
@@ -39,6 +41,9 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		extensionMotor.setSmartCurrentLimit(20);
 		extensionMotor.setSensorPosition(0);
 		extensionPositionPID = new PIDWrapper(Constants.PID.extension_P);
+		extensionLimit = new DigitalInput(9);
+		isStationaryTimer = new Timer();
+		isStationaryTimer.start();
 	}
 
 	public void onFirstInit() {
@@ -205,7 +210,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	 *         regression
 	 */
 	public static double extensionTicksToLength(double x) {
-		return 0.266 * x;
+		return 0.287 * x;
 	}
 
 	/**
@@ -216,7 +221,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	 *         regression
 	 */
 	public static double extensionLengthToTicks(double y) {
-		return y / 0.266;
+		return y / 0.287;
 	}
 
 	public double NEOToSRXUnits(double units) {
@@ -309,7 +314,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		percent = MathUtil.clamp(percent, -1.0d, +1.0d);
 		extensionTarget.update(percent, Constants.Arm.maxExtensionSpeed);
 
-		if (percent > 0.0d && !isValidState(getPivotDegrees(), getArmLength())) {
+		if (percent > 0.0d && !isValidState(pivotTarget.getTarget(), getArmLength())) {
 			extensionTarget.setTarget(previous);
 		}
 
@@ -328,14 +333,35 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		setExtensionOutput(0);
 	}
 
+	public void setPivotToEncoderValue() {
+		double pivot = Conversions.degreesToFalcon(pivotEncoder.getAbsolutePosition(),
+				Constants.pivotGearRatio);
+		leftPivotMotor.setSelectedSensorPosition(pivot);
+		rightPivotMotor.setSelectedSensorPosition(pivot);
+	}
+
 	@Override
 	public void periodic() {
-		if (Utils.withinDeadband(pivotEncoder.getVelocity(), 0.0d, 0.1)) {
-			double pivot = Conversions.degreesToFalcon(pivotEncoder.getAbsolutePosition(),
-					Constants.pivotGearRatio);
-			leftPivotMotor.setSelectedSensorPosition(pivot);
-			rightPivotMotor.setSelectedSensorPosition(pivot);
+
+		if (!extensionLimit.get()) {
+			if (!zeroed) {
+				resetExtensionPosition();
+			}
+			zeroed = true;
+		} else {
+			zeroed = false;
 		}
+
+		if (Utils.withinDeadband(pivotEncoder.getVelocity(), 0.0d, 0.01)) {
+			if (isStationaryTimer.get() > 0.2d) {
+				setPivotToEncoderValue();
+				isStationaryTimer.reset();
+			}
+		} else {
+			isStationaryTimer.reset();
+		}
+
+		SmartDashboard.putNumber("timer: ", isStationaryTimer.get());
 
 		debug("s_arm");
 	}
@@ -347,5 +373,9 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		SmartDashboard.putNumber("Arm Extension", extensionMotor.getSensorPosition());
 		SmartDashboard.putNumber("Desired Arm Extension", extensionTarget.getTarget());
 		SmartDashboard.putNumber("Valid State", extensionTarget.getTarget());
+		SmartDashboard.putNumber("expected length: ", getExtensionLength());
+
+		SmartDashboard.putNumber("pivot enoder error: `", pivotEncoder.getAbsolutePosition() - getPivotDegrees());
+		SmartDashboard.putNumber("sensor velocity: `", leftPivotMotor.getSelectedSensorVelocity());
 	}
 }

@@ -5,6 +5,7 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.commands.PositionArmTeleop.ArmState;
 import frc.robot.subsystems.Arm;
 import frc.robot.util.Debug;
 
@@ -16,6 +17,9 @@ public class ArmCommand extends CommandBase {
 	private boolean inRawOutput;
 	private BooleanSupplier lbTriggerSup;
 	private BooleanSupplier rbTriggerSup;
+	private BooleanSupplier homeSup;
+	private BooleanSupplier groundSup;
+	private BooleanSupplier substationSup;
 
 	public ArmCommand(
 			Arm s_Arm,
@@ -23,7 +27,10 @@ public class ArmCommand extends CommandBase {
 			DoubleSupplier extensionSup,
 			BooleanSupplier rawOUtputSup,
 			BooleanSupplier lbTriggerSup,
-			BooleanSupplier rbTriggerSup) {
+			BooleanSupplier rbTriggerSup,
+			BooleanSupplier homeSup,
+			BooleanSupplier groundSup,
+			BooleanSupplier substationSup) {
 		this.s_Arm = s_Arm;
 		addRequirements(s_Arm);
 
@@ -32,6 +39,9 @@ public class ArmCommand extends CommandBase {
 		this.rawOutputSup = rawOUtputSup;
 		this.lbTriggerSup = lbTriggerSup;
 		this.rbTriggerSup = rbTriggerSup;
+		this.homeSup = homeSup;
+		this.groundSup = groundSup;
+		this.substationSup = substationSup;
 	}
 
 	double pivot = 0.0d;
@@ -41,14 +51,17 @@ public class ArmCommand extends CommandBase {
 	public void execute() {
 		boolean rb = rbTriggerSup.getAsBoolean();
 		boolean lb = lbTriggerSup.getAsBoolean();
-		if (lb && rb) {
-			(new OneConeTeleopHigh(s_Arm, false)).schedule();
-			// (new PositionArm(s_Arm, 45, 0.0)).schedule();
 
+		if (homeSup.getAsBoolean()) {
+			(new PositionArmTeleop(s_Arm, ArmState.Home)).schedule();
+		} else if (groundSup.getAsBoolean()) {
+			(new PositionArmTeleop(s_Arm, ArmState.GroudPickup)).schedule();
+		} else if (substationSup.getAsBoolean()) {
+			(new PositionArmTeleop(s_Arm, ArmState.Substation)).schedule();
 		} else if (rb) {
-			(new OneConeTeleopMid(s_Arm, true)).schedule();
+			(new PositionArmTeleop(s_Arm, ArmState.ConeMid)).schedule();
 		} else if (lb) {
-			(new OneConeTeleopHigh(s_Arm, true)).schedule();
+			(new PositionArmTeleop(s_Arm, ArmState.ConeHigh)).schedule();
 		}
 
 		if (rawOutputSup.getAsBoolean()) {

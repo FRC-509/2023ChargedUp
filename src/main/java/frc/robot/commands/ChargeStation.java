@@ -22,14 +22,14 @@ public class ChargeStation extends CommandBase {
 	private double invert;
 
 	// Constructor
-	public ChargeStation(Swerve swerve, PigeonWrapper gyro, double invert) {
+	public ChargeStation(Swerve swerve, PigeonWrapper gyro, boolean invert) {
 		this.swerve = swerve;
 		this.gyro = gyro;
 		// invert determines what direction the robot will face during the command.
 		// Pass -1.0 if the robot should approach the charge station while facing away
 		// from it, and 1.0 if the robot should approach the charge station while facing
 		// it.
-		this.invert = invert;
+		this.invert = invert ? -1 : 1;
 		pitchBuffer = 4;
 		addRequirements(this.swerve);
 	}

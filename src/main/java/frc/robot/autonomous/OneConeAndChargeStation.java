@@ -40,6 +40,6 @@ public class OneConeAndChargeStation extends SequentialCommandGroup {
 							arm.setPivotOutput(0);
 						},
 						() -> false, arm).withTimeout(1.1),
-				new ChargeStation(swerve, gyro, -1.0));
+				new ChargeStation(swerve, gyro, true));
 	}
 }
