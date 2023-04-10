@@ -3,7 +3,6 @@ package frc.robot;
 import frc.robot.autonomous.*;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.TimeStamp;
 import frc.robot.subsystems.Led.BlinkinLedMode;
 import frc.robot.util.Device;
 import frc.robot.util.controllers.JoystickController;
@@ -170,12 +169,14 @@ public class RobotContainer {
 				() -> controller.isPressed(LogiButton.LBTrigger),
 				() -> controller.isPressed(LogiButton.RBTrigger),
 				() -> controller.isPressed(LogiButton.Start),
-				() -> controller.isPressed(LogiButton.Back)));
-		controller.isPressedBind(LogiButton.X,
-				new InstantCommand(() -> ledMode = Led.BlinkinLedMode.SOLID_VIOLET));
+				() -> controller.isPressed(LogiButton.Back),
+				() -> controller.isPressed(LogiButton.X)));
+		// controller.isPressedBind(LogiButton.X,
+		// new InstantCommand(() -> Led.setMode(Led.BlinkinLedMode.SOLID_VIOLET)));
 		controller.isPressedBind(LogiButton.Y,
 				new InstantCommand(() -> {
 					ledMode = Led.BlinkinLedMode.SOLID_ORANGE;
+					Led.setMode(ledMode);
 					// limelight.setLEDState(!limelight.getLEDState());
 
 				}));

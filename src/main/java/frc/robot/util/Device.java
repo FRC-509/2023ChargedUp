@@ -101,6 +101,6 @@ public class Device {
 		public static NeoBuilder extension = new NeoBuilder(
 				12,
 				IdleMode.kBrake,
-				false);
+				true);
 	}
 }

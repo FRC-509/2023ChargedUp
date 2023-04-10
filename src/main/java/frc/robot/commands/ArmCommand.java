@@ -19,6 +19,7 @@ public class ArmCommand extends CommandBase {
 	private BooleanSupplier rbTriggerSup;
 	private BooleanSupplier homeSup;
 	private BooleanSupplier groundSup;
+	private BooleanSupplier substationSup;
 
 	public ArmCommand(
 			Arm s_Arm,
@@ -28,7 +29,8 @@ public class ArmCommand extends CommandBase {
 			BooleanSupplier lbTriggerSup,
 			BooleanSupplier rbTriggerSup,
 			BooleanSupplier homeSup,
-			BooleanSupplier groundSup) {
+			BooleanSupplier groundSup,
+			BooleanSupplier substationSup) {
 		this.s_Arm = s_Arm;
 		addRequirements(s_Arm);
 
@@ -39,6 +41,7 @@ public class ArmCommand extends CommandBase {
 		this.rbTriggerSup = rbTriggerSup;
 		this.homeSup = homeSup;
 		this.groundSup = groundSup;
+		this.substationSup = substationSup;
 	}
 
 	double pivot = 0.0d;
@@ -53,7 +56,7 @@ public class ArmCommand extends CommandBase {
 			(new PositionArmTeleop(s_Arm, ArmState.Home)).schedule();
 		} else if (groundSup.getAsBoolean()) {
 			(new PositionArmTeleop(s_Arm, ArmState.GroudPickup)).schedule();
-		} else if (lb && rb) {
+		} else if (substationSup.getAsBoolean()) {
 			(new PositionArmTeleop(s_Arm, ArmState.Substation)).schedule();
 		} else if (rb) {
 			(new PositionArmTeleop(s_Arm, ArmState.ConeMid)).schedule();
