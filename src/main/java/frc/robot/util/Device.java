@@ -12,6 +12,9 @@ public class Device {
 	public static final String CanBus = "509CANIvore";
 	public static final String RioBus = "rio";
 	public static final String limelightName = "limelight";
+	public static final String webcamName = "509cam";
+
+	public static final int pigeonId = 30;
 
 	public static class Swerve {
 		public static class Module {
@@ -98,6 +101,6 @@ public class Device {
 		public static NeoBuilder extension = new NeoBuilder(
 				12,
 				IdleMode.kBrake,
-				false);
+				true);
 	}
 }

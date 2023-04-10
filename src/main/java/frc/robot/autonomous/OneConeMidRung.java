@@ -15,7 +15,7 @@ public class OneConeMidRung extends SequentialCommandGroup {
 		addCommands(
 				new RotateArm(arm, 90),
 				new ExtendArm(arm, 130),
-				new InstantCommand(() -> claw.retractClaw(), claw),
+				new InstantCommand(() -> claw.openClaw(), claw),
 				new WaitCommand(0.2),
 				new ExtendArm(arm, 0),
 				new RotateArm(arm, 10));

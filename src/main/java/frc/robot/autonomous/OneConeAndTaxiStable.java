@@ -10,6 +10,6 @@ public class OneConeAndTaxiStable extends SequentialCommandGroup {
 	public OneConeAndTaxiStable(Arm arm, Claw claw, Swerve swerve) {
 		addCommands(
 				new OneCone(arm, claw, swerve),
-				new DriveCommand(swerve, 0.5, 0, 0, false).withTimeout(2));
+				new DriveCommand(swerve, 0.5, 0, 0, false).withTimeout(2.25));
 	}
 }

@@ -1,10 +1,8 @@
 package frc.robot.util;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.interfaces.IDebuggable;
 
 public class PIDWrapper extends PIDController implements IDebuggable {

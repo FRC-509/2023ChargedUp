@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,12 +39,14 @@ public class Robot extends TimedRobot {
 		// autonomous chooser on the dashboard.
 		this.robotContainer = new RobotContainer();
 		this.thunderstorm = new Thunderstorm();
-
+		// this.robotContainer.clawSubsystem.extendClaw();
 		if (!hasInitialized) {
 			robotContainer.armSubsystem.onFirstInit();
+
 		}
 		hasInitialized = true;
 		this.robotContainer.limelight.setPipeline(PipelineState.RetroReflective);
+		this.robotContainer.limelight.setLEDState(true);
 	}
 
 	/**
@@ -66,13 +69,31 @@ public class Robot extends TimedRobot {
 		// robot's periodic
 		// block in order for anything in the Command-based framework to work.
 		CommandScheduler.getInstance().run();
+		SmartDashboard.putBoolean("Limelight has target", this.robotContainer.limelight.hasTarget());
 		thunderstorm.update(this.robotContainer);
-		SmartDashboard.putBoolean("Limelight: Has target????", this.robotContainer.limelight.hasTarget());
+
+		// switch (this.robotContainer.limelight.getPipeline()) {
+		// case AprilTags:
+		// SmartDashboard.putString("Limelight Pipeline", "AprilTags");
+		// break;
+		// case MLGamePieces:
+		// SmartDashboard.putString("Limelight Pipeline", "GamePieceML");
+		// break;
+		// case RetroReflective:
+		// SmartDashboard.putString("Limelight Pipeline", "RetroReflective");
+		// break;
+		// default:
+		// break;
+
+		// }
+
+		Led.setMode(RobotContainer.ledMode);
 	}
 
 	/** This function is called once each time the robot enters Disabled mode. */
 	@Override
 	public void disabledInit() {
+
 	}
 
 	@Override
@@ -81,36 +102,16 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void disabledExit() {
-		robotContainer.swerveSubsystem.setHeadingToGyro();
 
-		switch (DriverStation.getAlliance()) {
-			case Blue:
-				Led.setMode(BlinkinLedMode.SOLID_BLUE);
-				break;
-			case Invalid:
-				Led.setMode(BlinkinLedMode.SOLID_RED_ORANGE);
-				break;
-			case Red:
-				Led.setMode(BlinkinLedMode.SOLID_RED);
-				break;
-		}
+		robotContainer.clawSubsystem.onRobotEnable();
+
+		robotContainer.armSubsystem.setPivotToEncoderValue();
+		robotContainer.swerveSubsystem.setHeadingToGyro();
 	}
 
 	/** This function is called periodically during autonomous. */
 	@Override
 	public void autonomousInit() {
-		switch (DriverStation.getAlliance()) {
-			case Blue:
-				Led.setMode(BlinkinLedMode.SOLID_BLUE);
-				break;
-			case Invalid:
-				Led.setMode(BlinkinLedMode.SOLID_RED_ORANGE);
-				break;
-			case Red:
-				Led.setMode(BlinkinLedMode.SOLID_RED);
-				break;
-		}
-
 		this.autonomousCommand = this.robotContainer.getAutonomousCommand();
 		if (autonomousCommand != null) {
 			this.autonomousCommand.schedule();
@@ -124,17 +125,6 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
-		switch (DriverStation.getAlliance()) {
-			case Blue:
-				Led.setMode(BlinkinLedMode.SOLID_BLUE);
-				break;
-			case Invalid:
-				Led.setMode(BlinkinLedMode.SOLID_RED_ORANGE);
-				break;
-			case Red:
-				Led.setMode(BlinkinLedMode.SOLID_RED);
-				break;
-		}
 		// This makes sure that the autonomous stops running when
 		// teleop starts running. If you want the autonomous to
 		// continue until interrupted by another command, remove
@@ -147,6 +137,9 @@ public class Robot extends TimedRobot {
 	/** This function is called periodically during operator control. */
 	@Override
 	public void teleopPeriodic() {
+		if (RobotController.isBrownedOut()) {
+			Led.setMode(BlinkinLedMode.SOLID_HOT_PINK);
+		}
 	}
 
 	@Override

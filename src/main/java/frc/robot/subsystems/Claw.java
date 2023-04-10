@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -24,9 +25,16 @@ public class Claw extends SubsystemBase {
 		solenoid = new DoubleSolenoid(0, PneumaticsModuleType.CTREPCM, 5, 7);
 		intakeMotor = new CANSparkMax(14, MotorType.kBrushed);
 		intakeMotor.setIdleMode(IdleMode.kBrake);
-		intakeMotor.setSmartCurrentLimit(20);
+		intakeMotor.setSmartCurrentLimit(30);
 		this.spinState = SpinState.None;
 
+		closeClaw();
+	}
+
+	public void onRobotEnable() {
+		if (solenoid.get() == DoubleSolenoid.Value.kOff) {
+			solenoid.set(DoubleSolenoid.Value.kForward);
+		}
 	}
 
 	public boolean isClosed() {
@@ -35,20 +43,20 @@ public class Claw extends SubsystemBase {
 
 	public void toggleClaw() {
 		if (solenoid.get() == DoubleSolenoid.Value.kForward) {
-			retractClaw();
+			openClaw();
 		} else {
-			extendClaw();
+			closeClaw();
 		}
 	}
 
-	public void extendClaw() {
+	public void closeClaw() {
 		if (solenoid.get() == DoubleSolenoid.Value.kForward) {
 			return;
 		}
 		solenoid.set(DoubleSolenoid.Value.kForward);
 	}
 
-	public void retractClaw() {
+	public void openClaw() {
 		if (solenoid.get() == DoubleSolenoid.Value.kReverse) {
 			return;
 		}
@@ -86,5 +94,7 @@ public class Claw extends SubsystemBase {
 	public void periodic() {
 		// SmartDashboard.putNumber("Claw Current (Amps)",
 		// intakeMotor.getOutputCurrent());
+
+		SmartDashboard.putString("claw state: ", solenoid.get().name());
 	}
 }
