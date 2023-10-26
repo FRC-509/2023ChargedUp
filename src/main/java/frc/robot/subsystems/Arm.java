@@ -191,7 +191,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	 */
 	public boolean isValidState(double pivot, double extension) {
 		double height = extension * Math.cos(Math.toRadians(pivot));
-		return height < getHeightLimitAt(pivot);
+		return height < getHeightLimitAt(pivot) && getHeightFromGround() >= 0;
 	}
 
 	/**
@@ -372,7 +372,12 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		SmartDashboard.putNumber("Desired Arm Pivot (Degrees)", pivotTarget.getTarget());
 		SmartDashboard.putNumber("Arm Extension", extensionMotor.getSensorPosition());
 		SmartDashboard.putNumber("Desired Arm Extension", extensionTarget.getTarget());
-		SmartDashboard.putNumber("Valid State", extensionTarget.getTarget());
+
+		SmartDashboard.putNumber("Height",
+				getHeightFromGround());
+
+		SmartDashboard.putBoolean("DesiredIsVallid",
+				isValidState(pivotTarget.getTarget(), extensionTarget.getTarget()));
 		SmartDashboard.putNumber("expected length: ", getExtensionLength());
 
 		SmartDashboard.putNumber("pivot enoder error: `", pivotEncoder.getAbsolutePosition() - getPivotDegrees());
