@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.sensors.CANCoder;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -18,6 +19,7 @@ import frc.robot.util.interfaces.IDebuggable;
 import frc.robot.util.math.Conversions;
 import frc.robot.util.math.PositionTarget;
 import frc.robot.util.math.Utils;
+import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 
 public class Arm extends SubsystemBase implements IDebuggable {
 	private final LazyTalonFX leftPivotMotor;
@@ -67,6 +69,10 @@ public class Arm extends SubsystemBase implements IDebuggable {
 		resetExtensionPosition();
 	}
 
+	public void setState(TrapezoidProfile.State state) {
+
+	}
+
 	/**
 	 * @return the current extension of the arm in sensor ticks
 	 */
@@ -79,6 +85,11 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	 */
 	public double getPivotDegrees() {
 		return Conversions.falconToDegrees(leftPivotMotor.getSelectedSensorPosition(), Constants.pivotGearRatio);
+	}
+
+	public double getPivotVelocityDegreesPerSecond() {
+		return Conversions.falconToRPM(leftPivotMotor.getSelectedSensorVelocity(), Constants.pivotGearRatio) * 360.0
+				/ 60;
 	}
 
 	/**
@@ -191,7 +202,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	 */
 	public boolean isValidState(double pivot, double extension) {
 		double height = extension * Math.cos(Math.toRadians(pivot));
-		return height < getHeightLimitAt(pivot) && getHeightFromGround() >= 0;
+		return height < getHeightLimitAt(pivot);
 	}
 
 	/**

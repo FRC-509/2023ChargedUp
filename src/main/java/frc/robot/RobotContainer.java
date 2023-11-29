@@ -183,7 +183,8 @@ public class RobotContainer {
 	}
 
 	private void addAutonomousRoutines() {
-
+		chooser.addOption("armPivotProfile",
+				new ArmPivotProfile(67.5, armSubsystem));
 		chooser.addOption("One Cone and Taxi (Stable)",
 				new OneConeAndTaxiStable(armSubsystem, clawSubsystem, swerveSubsystem));
 		chooser.addOption("One Cone and Charge Station",

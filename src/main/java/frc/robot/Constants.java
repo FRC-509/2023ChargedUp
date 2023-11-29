@@ -47,7 +47,7 @@ public final class Constants {
 		public static double baseLength = 68.5;
 
 		// degrees per second
-		public static double maxPivotSpeed = 250.0d;
+		public static final double maxPivotSpeed = 250.0d;
 		public static final double minHeight = 15.0d;
 		public static final double pivotHeight = 120.0d;
 		public static final double offsetToBase = 75.0d;
