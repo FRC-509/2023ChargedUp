@@ -70,7 +70,7 @@ public class Arm extends SubsystemBase implements IDebuggable {
 	}
 
 	public void setState(TrapezoidProfile.State state) {
-
+		setPivotOutput(state.velocity / Constants.Arm.maxPivotSpeed);
 	}
 
 	/**

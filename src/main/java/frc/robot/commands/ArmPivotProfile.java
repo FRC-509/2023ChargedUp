@@ -8,9 +8,9 @@ import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
 public class ArmPivotProfile extends TrapezoidProfileCommand {
 	public ArmPivotProfile(double targetPivot, Arm arm) {
 		super(new TrapezoidProfile(
-				new TrapezoidProfile.Constraints(Constants.Arm.maxPivotSpeed, 1.0),
-				new TrapezoidProfile.State(arm.getPivotDegrees(), arm.getPivotVelocityDegreesPerSecond()),
-				new TrapezoidProfile.State(targetPivot, 0)),
+				new TrapezoidProfile.Constraints(Constants.Arm.maxPivotSpeed, 15),
+				new TrapezoidProfile.State(targetPivot, 0),
+				new TrapezoidProfile.State(arm.getPivotDegrees(), arm.getPivotVelocityDegreesPerSecond())),
 				arm::setState,
 				arm);
 	}
